@@ -39,7 +39,7 @@ Ethereum RPC Provider를 사용해 `eth_getLogs` 기반 이벤트 로그를 수�
 - 시간 구간에서 Block Range(블록 범위) 자동 계산
 - Retry(재시도), Backfill, 멱등 수집 구조
 - Delta Lake 기반 증분 적재
-- `ethereum_logs_canonical → erc20_transfers → treasury direction flow / netflow` dbt 모델링
+- dbt source `ethereum_logs`(physical relation: `silver.ethereum_logs_canonical`) → `erc20_transfers` → `tether_treasury_flow` → `tether_treasury_netflow` 모델링
 - Tether Treasury 주소 기준 USDT 입출금 집계
 
 ---
@@ -279,8 +279,8 @@ AI는 문서 구조화와 누락 점검에 보조적으로 사용했습니다. �
 
 | 영역 | 상태 |
 |---|---|
-| Task 1 설계 문서 | Draft |
-| Task 2 파이프라인 설계 문서 | Draft |
+| Task 1 설계 문서 | 설계 문서 정리 완료 |
+| Task 2 파이프라인 설계 문서 | 설계 문서 정리 완료. 구현·실행 검증은 별도 진행 |
 | Airflow DAG 구현 | In Progress |
 | Delta Lake 적재 구현 | In Progress |
 | dbt 모델 구현 | In Progress |
@@ -301,7 +301,8 @@ AI는 문서 구조화와 누락 점검에 보조적으로 사용했습니다. �
 - [ ] Delta Lake 적재 결과 확인
 - [ ] dbt run / dbt test 확인
 - [ ] pytest 확인
-- [ ] AI 활용 및 검증 기록 작성
+- [x] AI 활용 목적·대표 프롬프트·문서 검증 기록 작성
+- [ ] 구현 완료 후 AI 활용 기록의 실행 검증 결과 갱신
 - [ ] 최종 PDF 보고서 생성
 - [ ] 이메일 전체 회신으로 제출
 

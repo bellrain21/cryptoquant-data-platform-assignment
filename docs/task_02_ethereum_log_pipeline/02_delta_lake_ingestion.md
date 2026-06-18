@@ -11,8 +11,10 @@ bronze.ethereum_log_observations
 
 silver.ethereum_logs_canonical
 = 현재 Best Chain 기준으로 소비 가능한 current canonical log.
-= dbt source와 분석 모델은 이 계층만 사용.
+= dbt source `ethereum_logs`와 분석 모델은 이 계층만 사용.
 ```
+
+과제 요구사항의 `ethereum_logs`는 dbt source 이름으로 유지하며, physical relation은 이 `silver.ethereum_logs_canonical`이다. Bronze observation은 감사·복구 입력이고 dbt 분석 source가 아니다.
 
 `bronze`는 append-only audit 목적이고, `silver`는 current state 목적이다. 두 역할을 하나의 MERGE key로 통합하지 않는다.
 

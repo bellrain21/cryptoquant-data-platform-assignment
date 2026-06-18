@@ -12,7 +12,7 @@
 |---|---|
 | `eth_getLogs` 기반 1시간 단위 수집, 임의 날짜 backfill, block range 자동 계산, retry | [01_pipeline_design.md](./01_pipeline_design.md) |
 | Delta Lake schema, partition, nullable, type, incremental ingestion, idempotency | [02_delta_lake_ingestion.md](./02_delta_lake_ingestion.md) |
-| `ethereum_logs → erc20_transfers → tether_treasury_flow`, incremental dbt model | [03_dbt_modeling.md](./03_dbt_modeling.md) |
+| dbt source `ethereum_logs` → `erc20_transfers` → `tether_treasury_flow` → `tether_treasury_netflow`, incremental model | [03_dbt_modeling.md](./03_dbt_modeling.md) |
 
 ## 구현 계약(Implementation Contract)
 
@@ -24,7 +24,7 @@
 5. Current canonical log view는 common ancestor 이후 affected range에서 stale orphan row를 제거한 뒤, 현재 Best Chain 기준 event key를 반영한다.
 6. dbt는 canonical log view만 source로 사용하고, reorg 시 affected block date를 bounded rebuild하여 source에서 사라진 event가 mart에 잔존하지 않게 한다.
 7. ERC-20 대상 판정은 Transfer signature뿐 아니라 enabled token metadata의 유효기간 조인과 1:1 매칭을 통과해야 한다.
-8. Treasury flow는 방향별 상세 집계와 일별 netflow 집계를 분리해 grain 충돌을 막는다.
+8. 과제 요구 모델명 `tether_treasury_flow`는 방향별 상세 집계로 유지하고, 일별 순유입은 별도 `tether_treasury_netflow`로 분리해 grain 충돌을 막는다.
 ```
 
 ## 문서 구성
@@ -33,12 +33,14 @@
 |---:|---|---|
 | 1 | [01_pipeline_design.md](./01_pipeline_design.md) | RPC 수집, 시간→블록 범위 변환, DAG, retry, backfill, reorg state |
 | 2 | [02_delta_lake_ingestion.md](./02_delta_lake_ingestion.md) | observation/canonical schema, key, incremental ingestion, quality |
-| 3 | [03_dbt_modeling.md](./03_dbt_modeling.md) | ERC-20 decoding scope, Treasury direction flow, netflow, dbt test |
+| 3 | [03_dbt_modeling.md](./03_dbt_modeling.md) | dbt source `ethereum_logs`, ERC-20 decoding scope, `tether_treasury_flow`, netflow, dbt test |
 
 ## 참고 자료
 
 - Ethereum JSON-RPC: https://ethereum.org/developers/docs/apis/json-rpc/
 - Geth — Real-time Events: https://geth.ethereum.org/docs/interacting-with-geth/rpc/pubsub
 - ERC-20 Standard: https://eips.ethereum.org/EIPS/eip-20
+- Tether Supported Protocols and Integration Guidelines: https://tether.to/en/supported-protocols/
+- Ethereum Mainnet USDT Token Reference: https://etherscan.io/token/0xdac17f958d2ee523a2206206994597c13d831ec7
 - Apache Airflow — DAG Runs: https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dag-run.html
 - dbt — dbt_project.yml: https://docs.getdbt.com/reference/dbt_project.yml

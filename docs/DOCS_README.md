@@ -27,27 +27,27 @@ docs/
 
 | 순서 | 문서 | 범위 | 상태 |
 |---:|---|---|---|
-| 0 | [TASK_01_README.md](./task_01_bitcoin_velocity/TASK_01_README.md) | 전체 목차, 문서 읽는 순서, 지표 계약 요약 | 문서 초안 완료 |
-| 1 | [01_understanding_and_design_direction.md](./task_01_bitcoin_velocity/01_understanding_and_design_direction.md) | 과제 목적, 범위, 제품 참조와 과제 지표 분리, 설계 원칙 | 문서 초안 완료 |
-| 2 | [02_metric_definition.md](./task_01_bitcoin_velocity/02_metric_definition.md) | Velocity, 이동량, 공급량, 장기 비활성 UTXO, 해석 범위 | 문서 초안 완료 |
-| 3 | [03_data_contract_and_calculation.md](./task_01_bitcoin_velocity/03_data_contract_and_calculation.md) | 원천 필드, 파생 필드, 계산식, SQL 또는 의사코드, 더미 출력, 결과 테이블 | 문서 초안 완료 |
-| 4 | [04_daily_batch_pipeline.md](./task_01_bitcoin_velocity/04_daily_batch_pipeline.md) | Airflow, Spark SQL, Delta Lake, 품질 검증, 멱등성, Backfill(과거 구간 재처리) | 문서 초안 완료 |
-| 5 | [05_quality_reorg_limitations.md](./task_01_bitcoin_velocity/05_quality_reorg_limitations.md) | Reorg(체인 재편성), 재계산, 한계점, 확장 방향 | 문서 초안 완료 |
+| 0 | [TASK_01_README.md](./task_01_bitcoin_velocity/TASK_01_README.md) | 전체 목차, 문서 읽는 순서, 지표 계약 요약 | 설계 문서 정리 완료 |
+| 1 | [01_understanding_and_design_direction.md](./task_01_bitcoin_velocity/01_understanding_and_design_direction.md) | 과제 목적, 범위, 제품 참조와 과제 지표 분리, 설계 원칙 | 설계 문서 정리 완료 |
+| 2 | [02_metric_definition.md](./task_01_bitcoin_velocity/02_metric_definition.md) | Velocity, 이동량, 공급량, 장기 비활성 UTXO, 해석 범위 | 설계 문서 정리 완료 |
+| 3 | [03_data_contract_and_calculation.md](./task_01_bitcoin_velocity/03_data_contract_and_calculation.md) | 원천 필드, 파생 필드, 계산식, SQL 또는 의사코드, 더미 출력, 결과 테이블 | 설계 문서 정리 완료 |
+| 4 | [04_daily_batch_pipeline.md](./task_01_bitcoin_velocity/04_daily_batch_pipeline.md) | Airflow, Spark SQL, Delta Lake, 품질 검증, 멱등성, Backfill(과거 구간 재처리) | 설계 문서 정리 완료 |
+| 5 | [05_quality_reorg_limitations.md](./task_01_bitcoin_velocity/05_quality_reorg_limitations.md) | Reorg(체인 재편성), 재계산, 한계점, 확장 방향 | 설계 문서 정리 완료 |
 
 ## 과제 2. Ethereum Log Ingestion(이더리움 로그 수집) 파이프라인 구현
 
 | 순서 | 문서 | 범위 | 상태 |
 |---:|---|---|---|
-| 0 | [TASK_02_README.md](./task_02_ethereum_log_pipeline/TASK_02_README.md) | 전체 목차, 구현 범위, 산출물 계약 | 설계 초안 |
-| 1 | [01_pipeline_design.md](./task_02_ethereum_log_pipeline/01_pipeline_design.md) | RPC 수집 범위, Block Range(블록 범위) 계산, Airflow DAG, Retry(재시도), Backfill, Reorg state | 설계 초안 |
-| 2 | [02_delta_lake_ingestion.md](./task_02_ethereum_log_pipeline/02_delta_lake_ingestion.md) | observation/canonical 스키마, 증분 적재, 키, 멱등성, 품질 규칙 | 설계 초안 |
-| 3 | [03_dbt_modeling.md](./task_02_ethereum_log_pipeline/03_dbt_modeling.md) | ERC-20 Transfer, Treasury direction flow/netflow, Incremental Model, dbt Test | 설계 초안 |
+| 0 | [TASK_02_README.md](./task_02_ethereum_log_pipeline/TASK_02_README.md) | 전체 목차, 구현 범위, 산출물 계약 | 설계 문서 정리 완료 / 구현 증거 대기 |
+| 1 | [01_pipeline_design.md](./task_02_ethereum_log_pipeline/01_pipeline_design.md) | RPC 수집 범위, Block Range(블록 범위) 계산, Airflow DAG, Retry(재시도), Backfill, Reorg state | 설계 문서 정리 완료 / 구현 증거 대기 |
+| 2 | [02_delta_lake_ingestion.md](./task_02_ethereum_log_pipeline/02_delta_lake_ingestion.md) | observation/canonical 스키마, 증분 적재, 키, 멱등성, 품질 규칙 | 설계 문서 정리 완료 / 구현 증거 대기 |
+| 3 | [03_dbt_modeling.md](./task_02_ethereum_log_pipeline/03_dbt_modeling.md) | ERC-20 Transfer, `tether_treasury_flow`, netflow, Incremental Model, dbt Test | 설계 문서 정리 완료 / 구현 증거 대기 |
 
 ## 공통 문서(Common Documentation)
 
 | 문서 | 범위 | 상태 |
 |---|---|---|
-| [ai_usage_and_validation.md](./ai_usage_and_validation.md) | AI 활용 원칙, 검증 기준, 주요 설계 판단 | 문서 초안 완료 |
+| [ai_usage_and_validation.md](./ai_usage_and_validation.md) | AI 활용 원칙, 검증 기준, 주요 설계 판단 | 설계 문서 정리 완료 |
 
 ## 문서 작성 규칙(Document Convention)
 

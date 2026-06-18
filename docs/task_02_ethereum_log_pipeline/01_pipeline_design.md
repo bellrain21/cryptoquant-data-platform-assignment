@@ -112,6 +112,8 @@ silver.ethereum_logs_canonical
 = 현재 Best Chain에 속한 log만 제공하는 current view/table
 ```
 
+과제의 dbt 입력 모델명은 `ethereum_logs`로 두되, 실제 relation은 `silver.ethereum_logs_canonical`으로 매핑한다. 이 매핑은 요구사항의 모델 체인 표기와 reorg-safe 소비 계층을 동시에 만족시키기 위한 것이다.
+
 reorg가 감지되면 다음 순서로 처리한다.
 
 ```text

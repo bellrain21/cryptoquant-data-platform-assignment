@@ -1,7 +1,7 @@
 # 3. dbt 모델링 설계(dbt Modeling Design)
 
 > **문서 상태(Status)**: Draft / 구현 전 설계  
-> **문서 역할(Role)**: `ethereum_logs_canonical → erc20_transfers → tether_treasury_direction_flow → tether_treasury_netflow` 변환 체인과 incremental model·test 계약을 정의한다.
+> **문서 역할(Role)**: dbt source `ethereum_logs`(physical relation: `silver.ethereum_logs_canonical`) → `erc20_transfers` → `tether_treasury_flow` → `tether_treasury_netflow` 변환 체인과 incremental model·test 계약을 정의한다.
 
 ## 3.1 dbt 프로젝트 구성(dbt Project Structure)
 
@@ -14,7 +14,7 @@ dbt/
 │   │   └── stg_ethereum_logs.sql
 │   └── marts/
 │       ├── erc20_transfers.sql
-│       ├── tether_treasury_direction_flow.sql
+│       ├── tether_treasury_flow.sql
 │       └── tether_treasury_netflow.sql
 └── macros/
 ```
@@ -24,11 +24,25 @@ dbt/
 ## 3.2 Source와 Staging Model
 
 ```text
-source
+dbt source name
+= ethereum_logs
+
+physical relation
 = silver.ethereum_logs_canonical
 
 staging model
 = stg_ethereum_logs
+```
+
+과제의 `ethereum_logs → erc20_transfers` 표기는 dbt source 이름 `ethereum_logs`로 보존한다. 다만 reorg로 orphan event가 남지 않도록 source relation은 Bronze observation이 아니라 `silver.ethereum_logs_canonical`을 가리킨다. 예시 `sources.yml`은 아래와 같다.
+
+```yaml
+sources:
+  - name: ethereum
+    schema: silver
+    tables:
+      - name: ethereum_logs
+        identifier: ethereum_logs_canonical
 ```
 
 `stg_ethereum_logs`의 역할:
@@ -116,6 +130,41 @@ AND metadata.is_enabled = TRUE
 
 이 dimension은 USDT 대상 token을 명시하고, event signature만으로 token 표준을 단정하는 오류를 막는다.
 
+### 과제 대상 USDT 식별 계약
+
+`erc20_transfers`는 enabled ERC-20 전체를 보존할 수 있다. 그러나 과제의 Treasury 집계는 **Ethereum mainnet USDT만** 대상으로 제한한다. 따라서 `tether_treasury_flow` 모델에는 아래 selector를 명시한다.
+
+```text
+chain_id
+= 1
+
+token_contract_address
+= 0xdac17f958d2ee523a2206206994597c13d831ec7
+
+symbol
+= USDT
+
+decimals
+= 6
+```
+
+위 contract address는 Tether의 Ethereum USD₮ integration guide를 기준으로 등록한다. `dim_token_metadata`에는 아래와 같은 단일 enabled row가 존재해야 한다.
+
+| chain_id | token_contract_address | symbol | decimals | token_standard | is_enabled | metadata_source |
+|---:|---|---|---:|---|---|---|
+| 1 | `0xdac17f958d2ee523a2206206994597c13d831ec7` | USDT | 6 | ERC-20 | true | Tether supported protocols + on-chain `decimals()` verification |
+
+`valid_from`은 token deployment date가 아니라 **이 metadata policy가 분석 대상으로 유효한 시작 시점**이다. 따라서 과제의 earliest backfill start보다 같거나 이전이어야 한다. seed 또는 metadata loader는 다음을 hard fail로 검증한다.
+
+```text
+- chain_id = 1, lower-case contract address, symbol = USDT 조합이 정확히 1행
+- 해당 row가 is_enabled = true
+- `eth_call(decimals())` 결과가 metadata.decimals = 6과 일치
+- 해당 기간에 유효한 metadata row가 1건을 초과하지 않음
+```
+
+이 계약으로 metadata에 다른 enabled token이 추가되어도 `tether_treasury_flow`의 USDT 집계 대상이 넓어지지 않는다.
+
 ### 모델 키와 증분 조건
 
 ```text
@@ -149,7 +198,7 @@ incremental predicate
 
 USDT 대상은 `dim_token_metadata`의 `token_contract_address`와 `is_enabled` 설정으로 결정한다. Treasury 주소와 token selector는 model variable 또는 dimension으로 관리하며, SQL에 직접 흩어 쓰지 않는다.
 
-### A. 방향별 상세 집계 `tether_treasury_direction_flow`
+### A. 과제 요구 모델 `tether_treasury_flow` — 방향별 상세 집계
 
 ```text
 inflow
@@ -171,7 +220,7 @@ measures
 
 ### B. 일별 순유입 집계 `tether_treasury_netflow`
 
-`direction_flow`를 pivot 또는 conditional aggregation해 아래 grain으로 별도 산출한다.
+`tether_treasury_flow`를 pivot 또는 conditional aggregation해 아래 grain으로 별도 산출한다.
 
 ```text
 grain
@@ -206,7 +255,7 @@ erc20_transfers
 - reorg run: affected_block_dates bounded rebuild
 - unique_key: chain_id + transaction_hash + log_index
 
-tether_treasury_direction_flow
+tether_treasury_flow
 - materialized: incremental
 - normal run: overlap lookback + merge
 - reorg run: affected_block_dates bounded rebuild
@@ -224,9 +273,9 @@ tether_treasury_netflow
 | 대상 | 테스트 |
 |---|---|
 | `stg_ethereum_logs` | not_null, canonical event key unique, accepted hex format |
-| `dim_token_metadata` | `(chain_id, token_contract_address)`별 valid period overlap 없음 |
+| `dim_token_metadata` | `(chain_id, token_contract_address)`별 valid period overlap 없음, USDT Ethereum selector 정확히 1행, decimals on-chain 검증 |
 | `erc20_transfers` | unique key, not_null from/to/amount, valid topic0, metadata join completeness, metadata join cardinality = 1 |
-| `tether_treasury_direction_flow` | not_null date/direction, accepted direction values, non-negative directional amount |
+| `tether_treasury_flow` | not_null date/direction, accepted direction values, non-negative directional amount, USDT contract selector 일치 |
 | `tether_treasury_netflow` | unique grain, inflow - outflow = netflow, non-negative in/out amount |
 
 ## 3.6 신규 모델 자동 반영(Automatic Dependency Handling)
@@ -250,7 +299,7 @@ dbt
 - [ ] `dbt_project.yml` 생성
 - [ ] source relation이 Silver canonical log를 조회
 - [ ] Transfer topic decoding unit test
-- [ ] token metadata 유효기간 조인 및 decimals 검증
+- [ ] token metadata 유효기간 조인, USDT contract selector, `decimals()` 검증
 - [ ] 하나의 event가 enabled metadata row 정확히 1건과 매칭됨
 - [ ] raw amount와 normalized amount 검증
 - [ ] Treasury inflow / outflow / netflow 표본 대조
@@ -261,6 +310,8 @@ dbt
 ## 참고 자료
 
 - Ethereum JSON-RPC: https://ethereum.org/developers/docs/apis/json-rpc/
+- Tether Supported Protocols and Integration Guidelines: https://tether.to/en/supported-protocols/
+- Ethereum Mainnet USDT Token Reference: https://etherscan.io/token/0xdac17f958d2ee523a2206206994597c13d831ec7
 - Geth — Real-time Events: https://geth.ethereum.org/docs/interacting-with-geth/rpc/pubsub
 - EIP-20 Token Standard: https://eips.ethereum.org/EIPS/eip-20
 - dbt — dbt_project.yml: https://docs.getdbt.com/reference/dbt_project.yml

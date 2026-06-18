@@ -1,6 +1,6 @@
 # 3~8. 데이터 계약, 계산 규칙, 결과 테이블(Data Contract, Calculation, and Result Table)
 
-> **문서 상태(Status)**: Draft  
+> **문서 상태(Status)**: 설계 문서 정리 완료  
 > **문서 역할(Role)**: 원천 테이블과 파생 필드를 구분하고, 정책별 계산식·의사코드·더미 출력·결과 테이블을 정의한다.
 
 # 3. 데이터 범위와 원천 테이블(Data Scope and Raw Tables)
@@ -50,17 +50,28 @@
 
 ### `utxo`
 
-`utxo` 테이블이 과거 상태 이력까지 보존하는지, 현재 상태만 보존하는지는 과제에서 명시되지 않았다. 과거 `metric_date`의 공급량을 계산하려면 아래 둘 중 하나가 필요하다.
+`utxo` 테이블은 구현 환경에 따라 현재 상태 snapshot만 보존하거나, 생성·소비 lifecycle을 보존할 수 있다. 과거 `metric_date`의 공급량을 재현하려면 현재 snapshot만으로는 부족하므로, 이 문서는 아래 최소 계약과 사용 우선순위를 명시한다.
+
+| 필드 | 구분 | 용도 |
+|---|---|---|
+| `txid`, `vout` | 원천 사실 | UTXO 자연 키. 생성 output 식별 |
+| `value_sats` | 원천 사실 | 공급량 계산 |
+| `created_block_hash`, `created_height`, `created_block_time` | 원천 사실 또는 lifecycle 이력 | 생성 시점·Best Chain 검증 |
+| `spent_txid`, `spent_block_hash`, `spent_height`, `spent_block_time` | lifecycle 이력. 현재 미소비면 NULL | 기준일 당시 미소비 여부 판정 |
+| `is_spent` | snapshot 상태 | 현재 상태 검증 보조. 과거 공급량의 단독 근거로는 사용 금지 |
+| `snapshot_at` 또는 `observed_at` | 수집 메타데이터 | snapshot 관측 시점 추적 |
 
 ```text
-선택지 A
-utxo 테이블이 created/spent lifecycle history를 보존한다.
+운영 기준선(Baseline B)
+= raw.tx_output + raw.tx_input에서 silver.utxo_lifecycle을 재구성한다.
+= raw.utxo는 현재 UTXO 상태의 표본 대조·재구성 검증에 사용한다.
 
-선택지 B
-tx_output과 tx_input에서 silver.utxo_lifecycle을 재구성한다.
+대체 기준선(A)
+= raw.utxo가 created/spent lifecycle history와 chain snapshot을 보존한다면
+  silver.utxo_lifecycle의 직접 입력으로 사용할 수 있다.
 ```
 
-본 설계는 두 경우 모두를 수용하도록 `silver.utxo_lifecycle`을 파생 계층으로 둔다.
+어느 기준선을 사용하든 `silver.utxo_lifecycle`의 계산 grain은 `(chain_revision_id, created_txid, created_vout)`으로 고정한다. 따라서 현재 `utxo` snapshot을 과거 `metric_date` 공급량에 그대로 재사용하는 구현은 금지한다.
 
 # 4. 파생 필드와 공급량 정책(Derived Fields and Supply Policy)
 
@@ -220,7 +231,7 @@ persist best_chain_blocks with:
 ```sql
 WITH best_chain_tx AS (
     SELECT
-        DATE(b.block_time) AS metric_date,
+        DATE_UTC(b.block_time) AS metric_date,
         t.txid
     FROM silver.best_chain_block b
     JOIN raw.tx t
@@ -282,6 +293,8 @@ GROUP BY d.metric_date;
 
 ## 6.4 365일 Velocity 계산
 
+아래 의사 SQL은 `date_spine`을 window 계산 전까지 유지한다. 이전처럼 NULL 일자를 먼저 제거하고 `ROWS BETWEEN 364 PRECEDING`을 적용하면, 중간 날짜가 빠져도 더 과거 행이 섞여 365행으로 오인될 수 있다.
+
 ```sql
 WITH date_spine AS (
     SELECT metric_date
@@ -303,26 +316,33 @@ daily_base AS (
      AND s.chain_revision_id = :chain_revision_id
      AND s.supply_policy_version = :supply_policy_version
 ),
-validated_base AS (
-    SELECT *
-    FROM daily_base
-    WHERE daily_gross_onchain_output_volume_v1_btc IS NOT NULL
-      AND policy_eligible_utxo_supply_v1_btc IS NOT NULL
-),
-rolling_metric AS (
+windowed_base AS (
     SELECT
         metric_date,
-        SUM(daily_gross_onchain_output_volume_v1_btc)
+        policy_eligible_utxo_supply_v1_btc,
+
+        -- NULL을 0으로 바꾸는 것은 completeness 검증을 통과한 뒤의 합산 후보에만 한정한다.
+        SUM(COALESCE(daily_gross_onchain_output_volume_v1_btc, 0.0))
           OVER (
             ORDER BY metric_date
             ROWS BETWEEN 364 PRECEDING AND CURRENT ROW
           ) AS trailing_365d_gross_onchain_output_volume_v1_btc,
-        policy_eligible_utxo_supply_v1_btc,
+
         COUNT(*) OVER (
             ORDER BY metric_date
             ROWS BETWEEN 364 PRECEDING AND CURRENT ROW
-        ) AS rolling_coverage_days
-    FROM validated_base
+        ) AS calendar_days_in_window,
+
+        COUNT(daily_gross_onchain_output_volume_v1_btc) OVER (
+            ORDER BY metric_date
+            ROWS BETWEEN 364 PRECEDING AND CURRENT ROW
+        ) AS volume_source_days_in_window,
+
+        COUNT(policy_eligible_utxo_supply_v1_btc) OVER (
+            ORDER BY metric_date
+            ROWS BETWEEN 364 PRECEDING AND CURRENT ROW
+        ) AS supply_source_days_in_window
+    FROM daily_base
 )
 SELECT
     metric_date,
@@ -330,22 +350,74 @@ SELECT
     policy_eligible_utxo_supply_v1_btc,
     trailing_365d_gross_onchain_output_volume_v1_btc
       / policy_eligible_utxo_supply_v1_btc AS velocity
-FROM rolling_metric
-WHERE rolling_coverage_days = 365
+FROM windowed_base
+WHERE calendar_days_in_window = 365
+  AND volume_source_days_in_window = 365
+  AND supply_source_days_in_window = 365
   AND policy_eligible_utxo_supply_v1_btc > 0;
 ```
 
-`COALESCE(volume, 0)`를 source completeness 검증 전에 사용하지 않는다. 실제 0 이동량과 원천 데이터 누락을 구분해야 하기 때문이다.
+`COUNT(*) = 365`은 달력 행의 연속성을, `COUNT(volume) = 365`와 `COUNT(supply) = 365`는 각 원천 집계의 완결성을 각각 검증한다. 유효한 일별 이동량이 0 BTC인 경우에는 `silver.daily_gross_onchain_output_volume`이 `0` 값을 가진 행을 생성해야 하며, 원천 누락을 `0`으로 대체하면 안 된다.
 
-# 7. 더미 데이터 기반 출력 예시(Dummy Output)
+# 7. 더미 데이터 기반 입력·출력 예시(Dummy Input and Output)
 
-> 아래는 계산 설명을 위한 3일 축소 예시다. 실제 지표는 365일 window를 사용한다.
+> 아래는 계산 경로를 검증하기 위한 3일 축소 예시다. 실제 게시 지표는 동일 규칙을 365일 window에 적용한다. 수수료·coinbase·burn은 산술을 단순화하기 위해 이 fixture에서 제외했고, 모든 output은 Best Chain의 spendable output으로 가정한다.
 
-| metric_date | daily gross output volume | 3-day rolling volume | policy-eligible UTXO supply | illustrative velocity |
+## 7.1 Raw 입력 fixture
+
+### `block`
+
+| height | block_hash | block_time UTC |
+|---:|---|---|
+| 100 | `b100` | 2026-06-01 23:00:00 |
+| 101 | `b101` | 2026-06-02 23:00:00 |
+| 102 | `b102` | 2026-06-03 23:00:00 |
+
+### `tx` 및 `tx_input`
+
+| txid | block_hash | tx_index | is_coinbase | prev_txid | prev_vout |
+|---|---|---:|---:|---|---:|
+| `tx1` | `b100` | 0 | false | `genesis_fixture` | 0 |
+| `tx2` | `b101` | 0 | false | `tx1` | 0 |
+| `tx3` | `b102` | 0 | false | `tx2` | 0 |
+
+### `tx_output`
+
+| txid | vout | value_btc | script_class | is_provably_unspendable |
+|---|---:|---:|---|---|
+| `tx1` | 0 | 98.0 | spendable | false |
+| `tx1` | 1 | 2.0 | spendable | false |
+| `tx2` | 0 | 94.5 | spendable | false |
+| `tx2` | 1 | 3.5 | spendable | false |
+| `tx3` | 0 | 93.0 | spendable | false |
+| `tx3` | 1 | 1.5 | spendable | false |
+
+### `utxo` current snapshot — 2026-06-03 종료 시점
+
+| txid | vout | value_btc | is_spent | snapshot_at UTC |
+|---|---:|---:|---|---|
+| `tx1` | 1 | 2.0 | false | 2026-06-03 23:59:59 |
+| `tx2` | 1 | 3.5 | false | 2026-06-03 23:59:59 |
+| `tx3` | 0 | 93.0 | false | 2026-06-03 23:59:59 |
+| `tx3` | 1 | 1.5 | false | 2026-06-03 23:59:59 |
+
+`tx_output + tx_input`으로 재구성한 lifecycle은 매일 종료 시점의 eligible UTXO supply를 100.0 BTC로 만든다. `utxo` current snapshot은 2026-06-03의 합계가 동일한지 검증하는 보조 입력이다.
+
+## 7.2 계산 추적과 출력
+
+| metric_date | 해당 일 normal output 합계 | 3-day rolling volume | policy-eligible UTXO supply | illustrative velocity |
 |---|---:|---:|---:|---:|
-| 2026-06-01 | 2.0 BTC | 2.0 BTC | 19,000,000 BTC | 0.0000001053 |
-| 2026-06-02 | 3.5 BTC | 5.5 BTC | 19,000,100 BTC | 0.0000002895 |
-| 2026-06-03 | 1.5 BTC | 7.0 BTC | 19,000,200 BTC | 0.0000003684 |
+| 2026-06-01 | 100.0 BTC | 100.0 BTC | 100.0 BTC | 1.000 |
+| 2026-06-02 | 98.0 BTC | 198.0 BTC | 100.0 BTC | 1.980 |
+| 2026-06-03 | 94.5 BTC | 292.5 BTC | 100.0 BTC | 2.925 |
+
+```text
+2026-06-03 illustrative velocity
+= (100.0 + 98.0 + 94.5) / 100.0
+= 2.925
+```
+
+이 fixture는 동일 UTXO가 여러 날에 소비·재생성될 수 있으므로, gross output volume은 공급량 증가량과 같지 않다는 점도 함께 보여준다.
 
 # 8. 결과 테이블 설계(Result Table Design)
 
