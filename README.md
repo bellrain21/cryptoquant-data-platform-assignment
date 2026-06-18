@@ -226,8 +226,8 @@ AI 도구는 설계 보조와 반박 검토(Design Review)에 활용합니다. A
 
 ## 11. Security and Submission Checklist(보안 및 제출 점검)
 
-- [o] 저장소를 Private로 설정했습니다.
-- [o] `dev@cryptoquant.com`을 Collaborator로 초대했습니다.
+- [x] 저장소를 Private로 설정했습니다.
+- [x] `dev@cryptoquant.com`을 Collaborator로 초대했습니다.
 - [ ] `.env`, RPC Key, PII(개인정보), Secret(비밀값)을 커밋하지 않았습니다.
 - [ ] 보고서(PDF)에 과제 1과 과제 2의 설계·구현·검증 결과를 반영했습니다.
 - [ ] README의 실행 방법과 실제 실행 명령이 일치합니다.
