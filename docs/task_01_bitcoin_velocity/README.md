@@ -38,11 +38,12 @@ policy_eligible_utxo_supply_v1_btc(d)
 
 | 순서 | 문서 | 기존 목차 대응 | 주요 내용 |
 |---:|---|---|---|
-| 1 | [01_understanding_and_design_direction.md](./01_understanding_and_design_direction.md) | 1 | 과제 목적, 설계 범위, 제품 참조와 과제 정의 분리, 운영 목표 |
-| 2 | [02_metric_definition.md](./02_metric_definition.md) | 2 | Network Velocity, Transaction Volume, Circulating Supply, 해석 범위 |
-| 3 | [03_data_contract_and_calculation.md](./03_data_contract_and_calculation.md) | 3~8 | 원천 테이블, 필드 명세, 공급 정책, 수식, SQL 또는 의사코드, 더미 출력, 결과 테이블 |
-| 4 | [04_daily_batch_pipeline.md](./04_daily_batch_pipeline.md) | 9~11 | Airflow, Spark SQL, Delta Lake, 품질 검증, 멱등성, Backfill |
-| 5 | [05_quality_reorg_limitations.md](./05_quality_reorg_limitations.md) | 12~14 | Reorg 대응, 재계산 범위, 한계, 향후 확장 |
+| 1 | [01_understanding_and_design_direction.md](./01_understanding_and_design_direction(과제_이해_및_설계_방향).md) | 1 | 과제 목적, 설계 범위, 제품 참조와 과제 정의 분리, 운영 목표 |
+| 2 | [02_metric_definition.md](./02_metric_definition(지표_정의).md) | 2 | Network Velocity, Transaction Volume, Circulating Supply, 해석 범위 |
+| 3 | [03_data_contract_and_calculation.md](./03_data_contract_and_calculation(데이터_계약_및_계산_규칙).md) | 3~8 | 원천 테이블, 필드 명세, 공급 정책, 수식, SQL 또는 의사코드, 더미 출력, 결과 테이블 |
+| 4 | [04_daily_batch_pipeline.md](./task_01_bitcoin_velocity/04_daily_batch_pipeline(일일_단위_배치_파이프라인).md) | 9~11 | Airflow, Spark SQL, Delta Lake, 품질 검증, 멱등성, Backfill |
+| 5 | [05_quality_reorg_limitations.md](./05_quality_reorg_limitations(품질_검증_Reorg_한계_확장).md) | 12~14 | Reorg 대응, 재계산 범위, 한계, 향후 확장 |
+
 
 ## 핵심 용어 교정(Terminology Corrections)
 

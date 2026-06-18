@@ -39,15 +39,16 @@ docs/
 | 순서 | 문서 | 범위 | 상태 |
 |---:|---|---|---|
 | 0 | [README.md](./task_02_ethereum_log_pipeline/README.md) | 전체 목차, 구현 범위, 산출물 계약 | 설계 초안 |
-| 1 | [01_pipeline_design.md](./task_02_ethereum_log_pipeline/01_pipeline_design.md) | RPC 수집 범위, Block Range(블록 범위) 계산, Airflow DAG, Retry(재시도), Backfill | 설계 초안 |
-| 2 | [02_delta_lake_ingestion.md](./task_02_ethereum_log_pipeline/02_delta_lake_ingestion.md) | Delta Lake 스키마, 증분 적재, 논리 키, 멱등성, 품질 규칙 | 설계 초안 |
-| 3 | [03_dbt_modeling.md](./task_02_ethereum_log_pipeline/03_dbt_modeling.md) | ERC-20 Transfer, Tether Treasury Flow, Incremental Model(증분 모델), dbt Test | 설계 초안 |
+| 1 | [01_pipeline_design.md](./task_02_ethereum_log_pipeline/01_pipeline_design(파이프라인_설계).md) | RPC 수집 범위, Block Range(블록 범위) 계산, Airflow DAG, Retry(재시도), Backfill | 설계 초안 |
+| 2 | [02_delta_lake_ingestion.md](./task_02_ethereum_log_pipeline/02_delta_lake_ingestion(델타_레이크_적재방안)) | Delta Lake 스키마, 증분 적재, 논리 키, 멱등성, 품질 규칙 | 설계 초안 |
+| 3 | [03_dbt_modeling.md](./task_02_ethereum_log_pipeline/03_dbt_modeling(dbt모델링).md) | ERC-20 Transfer, Tether Treasury Flow, Incremental Model(증분 모델), dbt Test | 설계 초안 |
+
 
 ## 공통 문서(Common Documentation)
 
 | 문서 | 범위 | 상태 |
 |---|---|---|
-| [ai_usage_and_validation.md](./ai_usage_and_validation.md) | AI 활용 목적, 대표 프롬프트 범주, 검증 방식, 채택·폐기 판단 | 문서 초안 완료 |
+| [ai_usage_and_validation.md](./docs/ai_usage_and_validation(인공지능_활용_및_검증).md) | AI 활용 목적, 대표 프롬프트 범주, 검증 방식, 채택·폐기 판단 | 문서 초안 완료 |
 
 ## 문서 작성 규칙(Document Convention)
 
