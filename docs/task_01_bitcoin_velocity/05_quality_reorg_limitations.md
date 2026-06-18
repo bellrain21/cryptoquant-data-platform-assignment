@@ -34,7 +34,7 @@ best_chain
 = 관측 시점과 chain_revision_id를 가진 체인 스냅샷
 ```
 
-기존 블록을 즉시 물리 삭제하지 않는다. 기존 branch는 `superseded_by_reorg`로 상태를 보존해 감사 가능성을 유지한다.
+기존 branch와 해당 revision으로 계산된 metric observation을 즉시 물리 삭제하지 않는다. 다만 현재 소비자용 Gold 결과는 최신 Best Chain 기준 confirmed 결과만 유지하고, 기존 branch와 `superseded_by_reorg` 상태는 audit history에 보존한다.
 
 ## 12.3 Reorg 감지(Detection)
 
@@ -54,14 +54,14 @@ current_best_chain_block_hash(height)
 1. common ancestor height 탐색
 2. affected_start_date 결정
    = common ancestor 다음 block이 속한 UTC 날짜
-3. 기존 branch를 superseded 상태로 기록
-4. 대체 branch를 새로운 chain_revision_id로 저장
+3. 기존 branch와 기존 metric observation을 audit history에 `superseded_by_reorg`로 기록
+4. 대체 branch를 새로운 `chain_revision_id`로 저장하고 그 revision 기준 lifecycle을 재구성
 5. affected_start_date부터 latest confirmed metric date까지
    daily volume 및 day-end supply component 재생성
 6. velocity 계산을 위해 affected_start_date - 364일부터
    입력 date spine을 다시 읽음
 7. affected_start_date부터 latest confirmed metric date까지
-   Gold metric을 staging 후 MERGE
+   current Gold metric을 staging 후 MERGE
 8. audit log와 chain checkpoint를 갱신
 ```
 

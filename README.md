@@ -39,7 +39,7 @@ Ethereum RPC Provider를 사용해 `eth_getLogs` 기반 이벤트 로그를 수�
 - 시간 구간에서 Block Range(블록 범위) 자동 계산
 - Retry(재시도), Backfill, 멱등 수집 구조
 - Delta Lake 기반 증분 적재
-- `ethereum_logs → erc20_transfers → tether_treasury_flow` dbt 모델링
+- `ethereum_logs_canonical → erc20_transfers → treasury direction flow / netflow` dbt 모델링
 - Tether Treasury 주소 기준 USDT 입출금 집계
 
 ---
@@ -91,7 +91,7 @@ Ethereum RPC Provider를 사용해 `eth_getLogs` 기반 이벤트 로그를 수�
 
 전체 문서 지도는 아래에서 확인할 수 있습니다.
 
-- [docs/README.md](./docs/README.md)
+- [docs/DOCS_README.md](./docs/DOCS_README.md)
 
 ### Task 1. Bitcoin Velocity
 
@@ -259,8 +259,8 @@ pytest -q
 ### Task 2
 
 - RPC block range gap·overlap 검증
-- log logical key 중복 검증
-- Delta Lake 적재 후 중복 검증
+- Bronze observation key와 Silver canonical event key의 각각의 중복 검증
+- Reorg 이후 Bronze 이력 보존 및 Silver canonical 교체 검증
 - ERC-20 Transfer topic decoding 검증
 - Tether Treasury flow 집계 검증
 - dbt test 기반 not null, unique, accepted values 검증
@@ -269,17 +269,7 @@ pytest -q
 
 ## 9. AI Usage Disclosure(AI 활용 공개)
 
-본 과제 수행 과정에서 AI 도구를 사용했습니다.
-
-주요 사용 목적은 다음과 같습니다.
-
-- 과제 요구사항 구조화
-- Bitcoin Velocity 지표 정의 검토
-- UTXO, dormant, Reorg, idempotency 용어 충돌 탐지
-- Airflow, Delta Lake, dbt 설계 대안 비교
-- 문서 초안 작성과 누락 항목 점검
-
-AI 출력은 그대로 제출하지 않고, 공식 문서·과제 PDF·실행 결과를 기준으로 검증했습니다. 자세한 내용은 아래 문서에 정리합니다.
+AI는 문서 구조화와 누락 점검에 보조적으로 사용했습니다. 도메인 정의, 정책 선택, 구현 및 검증의 최종 판단은 과제 원문·공식 문서·실행 결과를 기준으로 작성자가 수행했습니다. 자세한 기준은 아래 문서에 정리합니다.
 
 - [AI 활용 및 검증 기록](./docs/ai_usage_and_validation.md)
 

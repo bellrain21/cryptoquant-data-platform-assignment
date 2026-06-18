@@ -72,13 +72,33 @@ tx_output과 tx_input에서 silver.utxo_lifecycle을 재구성한다.
 | `is_best_chain` | Silver | 해당 체인 스냅샷에서 Best Chain 소속 여부 |
 | `script_class` | Silver | output script 분류 |
 | `is_provably_unspendable` | Silver | V1 burn 제외 규칙 적용 대상 |
-| `created_height`, `created_block_time` | Silver | UTXO 생성 시점 |
-| `spent_height`, `spent_block_time` | Silver | UTXO 소비 시점 |
+| `created_txid`, `created_vout` | Silver | UTXO 생성 식별자. lifecycle의 자연 키 |
+| `created_block_hash`, `created_height`, `created_block_time` | Silver | UTXO 생성 블록과 생성 시점 |
+| `spent_txid`, `spent_input_index` | Silver | 소비 transaction과 input 식별자. 미소비면 NULL |
+| `spent_block_hash`, `spent_height`, `spent_block_time` | Silver | 동일 체인 스냅샷에서 확인된 소비 블록과 소비 시점. 미소비면 NULL |
 | `is_coinbase` | Silver | coinbase maturity 적용 |
 | `utxo_age_days` | Silver | dormant 정책 적용 |
 | `metric_cutoff_block_height` | Silver | 일 종료 시점 공급량 계산 기준 블록 |
 
-## 4.2 Policy-eligible UTXO Supply V1
+## 4.2 `silver.utxo_lifecycle`의 체인 스냅샷 계약(Chain-snapshot Contract)
+
+`silver.utxo_lifecycle`은 체인과 무관한 현재 상태 테이블이 아니라, 특정 Best Chain 스냅샷에서 재구성한 lifecycle이다.
+
+```text
+lifecycle grain
+= (chain_revision_id, created_txid, created_vout)
+
+생성 output
+= created_block_hash가 해당 chain_revision_id의 Best Chain에 존재
+
+소비 상태
+= spent_block_hash가 같은 chain_revision_id의 Best Chain에 존재할 때만 spent로 인정
+= orphan branch에서만 관측된 소비는 해당 revision의 lifecycle에서 소비로 사용하지 않음
+```
+
+따라서 과거 날짜의 공급량 산출은 현재 `utxo` 상태를 재사용하지 않고, 계산에 사용한 `chain_revision_id`에 종속된 lifecycle을 사용한다. Reorg 발생 시 새 revision으로 lifecycle을 재구성하며, 기존 revision의 결과는 audit 계층에 보존한다.
+
+## 4.3 Policy-eligible UTXO Supply V1
 
 ```text
 포함
@@ -92,7 +112,7 @@ tx_output과 tx_input에서 silver.utxo_lifecycle을 재구성한다.
 - Best Chain에서 이탈한 branch의 output
 ```
 
-## 4.3 Dormancy-adjusted UTXO Supply V1
+## 4.4 Dormancy-adjusted UTXO Supply V1
 
 ```text
 dormancy_adjusted_utxo_supply_v1
@@ -111,7 +131,7 @@ dormant_utxo_supply_v1
 - `metric_date`: UTC 기준 block header timestamp로 집계한 날짜
 - `metric_cutoff_block`: 해당 날짜에 속하는 가장 마지막 Best Chain block
 - `as_of_best_chain_tip`: 계산 관측 시점의 Best Chain tip
-- `minimum_confirmation_depth`: 내부 게시 정책상 요구하는 최소 확인 깊이
+- `required_successor_blocks`: 기준일 종료 block 뒤에 추가로 존재해야 하는 최소 successor block 수. block 자신을 포함한 confirmation count와 혼용하지 않는다.
 
 ## 5.2 일별 이동량(Daily Gross On-chain Output Volume)
 
@@ -151,7 +171,8 @@ WHERE
        u.is_coinbase = false
        OR cutoff_height(d) - u.created_height >= 100
   )
-  AND u.created_block_is_best_chain = true
+  AND u.chain_revision_id = :chain_revision_id
+  -- lifecycle 생성 시 created/spent block이 같은 revision의 Best Chain에 속하는지 검증됨
 ```
 
 ## 5.5 Velocity 변형 지표(Velocity Variants)
@@ -233,13 +254,18 @@ WITH daily_cutoff AS (
     FROM silver.best_chain_block
     WHERE chain_revision_id = :chain_revision_id
     GROUP BY metric_date
+),
+revision_lifecycle AS (
+    SELECT *
+    FROM silver.utxo_lifecycle
+    WHERE chain_revision_id = :chain_revision_id
 )
 SELECT
     d.metric_date,
     SUM(u.value_sats) / 100000000.0
       AS policy_eligible_utxo_supply_v1_btc
 FROM daily_cutoff d
-JOIN silver.utxo_lifecycle u
+JOIN revision_lifecycle u
   ON u.created_height <= d.metric_cutoff_block_height
  AND (
       u.spent_height IS NULL
@@ -318,12 +344,28 @@ WHERE rolling_coverage_days = 365
 
 # 8. 결과 테이블 설계(Result Table Design)
 
-## 8.1 `gold.daily_bitcoin_velocity`
+## 8.1 Metric Contract Version
+
+`metric_contract_version`은 지표 의미를 결정하는 다음 계약을 하나의 immutable version으로 묶는다.
+
+```text
+- metric variant와 계산 window
+- volume_definition_version
+- supply_policy_version
+- dormant threshold 및 단위 규칙
+```
+
+`pipeline_code_version`은 구현 추적용 메타데이터다. 동일한 metric contract를 재현하는 코드 변경만으로 결과의 논리 정체성이 달라지지는 않으므로 published logical key에는 포함하지 않는다.
+
+## 8.2 `gold.daily_bitcoin_velocity` — 현재 게시 결과(Current Canonical Metric)
+
+이 테이블은 현재 Best Chain 기준으로, 확인 정책을 통과한 결과만 제공한다. `pending_confirmation`과 `superseded_by_reorg` 상태는 이 테이블에 보관하지 않는다.
 
 | 컬럼 | 설명 |
 |---|---|
 | `metric_date` | UTC 기준 지표일 |
 | `metric_variant` | `policy_eligible_utxo_v1` 또는 `dormancy_adjusted_utxo_v1` |
+| `metric_contract_version` | 분자·분모·window·정책을 묶은 immutable 계약 버전 |
 | `volume_window_days` | 기본값 365 |
 | `trailing_365d_gross_onchain_output_volume_v1_btc` | 후행 365일 분자 |
 | `policy_eligible_utxo_supply_v1_btc` | 기본 분모 |
@@ -332,35 +374,53 @@ WHERE rolling_coverage_days = 365
 | `dormant_utxo_spent_volume_v1_btc` | 보조 흐름 |
 | `denominator_supply_btc` | 해당 variant에서 실제 사용한 분모 |
 | `velocity` | 산출 결과 |
-| `metric_definition_version` | 공식·윈도우·variant 정의 버전 |
 | `volume_definition_version` | 분자 산정 규칙 버전 |
 | `supply_policy_version` | 분모·dormancy 정책 버전 |
 | `pipeline_code_version` | 변환 코드 버전 |
 | `metric_cutoff_block_height`, `metric_cutoff_block_hash` | 기준일 종료 checkpoint |
 | `as_of_best_chain_tip_height`, `as_of_best_chain_tip_hash` | 관측 시점 Best Chain tip |
-| `minimum_confirmation_depth` | 게시 정책 확인 깊이 |
-| `chain_confidence_status` | `pending_confirmation`, `confirmed_by_policy`, `superseded_by_reorg` |
-| `chain_revision_id` | Best Chain 스냅샷 식별자 |
+| `required_successor_blocks` | 게시에 요구한 최소 successor block 수 |
+| `chain_confidence_status` | current Gold에서는 항상 `confirmed_by_policy` |
+| `chain_revision_id` | 현재 결과가 계산된 Best Chain 스냅샷 식별자 |
 | `calculated_at` | 계산 시점 |
 
-## 8.2 논리 키(Logical Key)와 갱신
+## 8.3 `audit.daily_bitcoin_velocity_history` — 계산·체인 변경 이력
+
+이 테이블은 결과의 historical observation을 보존한다. `pending_confirmation`, `confirmed_by_policy`, `superseded_by_reorg`는 audit history에서 관리한다.
+
+| 컬럼 | 설명 |
+|---|---|
+| `audit_run_id` | 계산 실행 식별자 |
+| `metric_date`, `metric_variant`, `metric_contract_version` | metric identity |
+| `chain_revision_id` | 계산에 사용한 Best Chain 스냅샷 |
+| `chain_confidence_status` | pending, confirmed, superseded 상태 |
+| `superseded_at` | reorg로 대체된 경우의 시점 |
+| `published_at` | current Gold 반영 시점. 미게시 상태면 NULL |
+| `metric_payload_hash` | 핵심 결과 컬럼의 감사용 hash |
+| `calculated_at` | 계산 시점 |
+
+## 8.4 논리 키(Logical Key)와 갱신
 
 이 설계는 Delta Lake의 데이터베이스 강제 Primary Key에 의존하지 않는다.
 
 ```text
-published logical key
+current Gold logical key
 =
-(metric_date, metric_variant, metric_definition_version)
+(metric_date, metric_variant, metric_contract_version)
+
+audit observation key
+=
+(audit_run_id, metric_date, metric_variant, metric_contract_version)
 ```
 
 중복 방지는 다음 조합으로 처리한다.
 
-1. staging 단계의 논리 키 중복 검사  
-2. 품질 검증 통과 후 Delta `MERGE`  
-3. 게시 테이블의 사후 중복 검사  
-4. Reorg 이전 값은 audit history 또는 변경 로그에 보존  
+1. staging 단계의 current Gold logical key 중복 검사
+2. 품질 검증 통과 후 current Gold에 Delta `MERGE`
+3. 계산 결과와 상태 전이는 audit history에 append
+4. Reorg 이전 값은 current Gold에서 교체하되 audit history의 `superseded_by_reorg` 관측으로 보존
 
-`chain_revision_id`는 논리 키가 아니라 결과가 어떤 체인 스냅샷에서 계산됐는지 추적하는 메타데이터다.
+`chain_revision_id`는 current Gold key가 아니라 결과가 계산된 체인 스냅샷의 메타데이터다.
 
 ## 참고 자료(References)
 

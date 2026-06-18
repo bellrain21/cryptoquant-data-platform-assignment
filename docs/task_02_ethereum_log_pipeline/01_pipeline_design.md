@@ -1,7 +1,7 @@
 # 1. Ethereum 로그 수집 DAG 설계(Ethereum Log Ingestion DAG Design)
 
 > **문서 상태(Status)**: Draft / 구현 전 설계  
-> **문서 역할(Role)**: `eth_getLogs` 기반 1시간 수집, block range 계산, retry, backfill 계약을 정의한다.
+> **문서 역할(Role)**: `eth_getLogs` 기반 1시간 수집, block range 계산, retry, backfill, reorg 상태 전이 계약을 정의한다.
 
 ## 1.1 수집 범위(Collection Scope)
 
@@ -36,13 +36,17 @@ resolve_interval
   → resolve_block_range
   → split_block_range
   → fetch_logs_for_chunk
-  → normalize_and_deduplicate
-  → stage_delta_rows
-  → merge_delta_rows
-  → run_quality_checks
+  → normalize_and_deduplicate_observations
+  → stage_observations
+  → validate_staging_quality
+  → append_observations
+  → refresh_canonical_log_view
+  → post_merge_reconciliation
   → trigger_dbt_build
   → record_audit
 ```
+
+`validate_staging_quality`는 publish 전 차단용 검증이다. `post_merge_reconciliation`은 append 및 canonical refresh 이후 row count, canonical uniqueness, 최근 block hash 상태를 확인하는 사후 검증이다.
 
 ## 1.4 RPC 재시도와 Adaptive Chunking
 
@@ -67,37 +71,55 @@ Airflow data interval
 block range
 = data interval을 결정론적으로 변환한 수집 범위
 
-logical event key
+observation key
+= chain_id + block_hash + transaction_hash + log_index
+
+canonical event key
 = chain_id + transaction_hash + log_index
 ```
 
-각 staging batch에서 key 중복을 먼저 제거하고, Delta target에는 logical key 기준으로 MERGE한다. 재실행은 같은 로그를 새로 append하는 것이 아니라 기존 논리 이벤트를 갱신하거나 유지하는 방식으로 최종 상태를 수렴시킨다.
+동일 RPC 응답의 재수집은 observation key로 중복을 제거한다. canonical event는 현재 Best Chain에 속한 observation만 대상으로 event key 기준 MERGE한다. 따라서 retry·backfill은 audit 이력을 잃지 않고, consumer-facing view는 중복 없이 현재 체인 상태로 수렴한다.
 
-## 1.6 Reorg 고려사항
+## 1.6 Reorg 고려사항(Reorg State Handling)
 
-과제 요구의 핵심은 log 수집·중복 방지지만, Ethereum도 reorg 가능성이 있다. 따라서 raw log에는 최소한 `block_hash`와 `block_number`를 보존한다.
+Ethereum도 reorg 가능성이 있다. observation layer는 `block_hash`, `block_number`, `removed`를 보존하며, canonical view와 분리한다.
 
 ```text
-current canonical event key
-= chain_id + transaction_hash + log_index
+bronze.ethereum_log_observations
+= 모든 RPC log observation의 append-only audit layer
 
-observed log audit key
-= chain_id + block_hash + transaction_hash + log_index
+silver.ethereum_logs_canonical
+= 현재 Best Chain에 속한 log만 제공하는 current view/table
 ```
 
-재조직이 감지되면 canonical target은 current event key 기준으로 block metadata를 갱신하고, 이전 block hash 관측 기록은 audit layer에 보존한다.
+reorg가 감지되면 다음 순서로 처리한다.
+
+```text
+1. 최근 checkpoint의 block_hash와 current chain hash를 비교
+2. 불일치 시 common ancestor 탐색
+3. ancestor 이후 관측값을 다시 조회
+4. orphan block 관측값은 observation layer에 보존
+5. orphan block에 속한 canonical row를 invalidate 또는 새 canonical snapshot에서 제외
+6. 새 Best Chain log를 canonical event key로 MERGE
+7. 영향 block range의 dbt incremental lookback을 재실행
+```
+
+provider가 `removed=true`를 제공하면 이를 observation state로 보존한다. 그러나 polling 기반 `eth_getLogs` 수집에서는 이 플래그만을 reorg 감지의 유일한 근거로 사용하지 않고 block hash reconciliation을 함께 사용한다.
 
 ## 1.7 구현 검증 체크리스트
 
 - [ ] 1시간 data interval이 UTC 기준으로 고정됨
 - [ ] 시간 범위가 연속된 block range로 변환됨
 - [ ] provider range limit 오류 시 chunk가 축소됨
-- [ ] 동일 구간 재실행 시 target duplicate가 없음
+- [ ] 동일 구간 재실행 시 observation key 중복이 없음
+- [ ] canonical view에서 canonical event key 중복이 없음
 - [ ] 임의 과거 interval backfill이 같은 DAG 경로를 사용함
+- [ ] reorg fixture 또는 block hash mismatch로 canonical refresh를 검증함
 - [ ] RPC key와 endpoint가 `.env`에서 주입되고 Git에 포함되지 않음
 
 ## 참고 자료
 
 - Ethereum JSON-RPC: https://ethereum.org/developers/docs/apis/json-rpc/
+- Geth — Real-time Events: https://geth.ethereum.org/docs/interacting-with-geth/rpc/pubsub
 - Apache Airflow — DAG Runs: https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dag-run.html
 - Apache Airflow — Backfill: https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/backfill.html

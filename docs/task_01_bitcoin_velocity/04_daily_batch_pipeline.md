@@ -10,7 +10,7 @@
 ```text
 Airflow data interval
   → resolve requested metric date
-  → resolve Best Chain snapshot and confirmed cutoff
+  → resolve Best Chain snapshot and policy-confirmed cutoff
   → validate raw block and transaction completeness
   → build or refresh UTXO lifecycle
   → calculate daily volume and daily supply components
@@ -25,7 +25,7 @@ Airflow data interval
 | 순서 | Task | 입력 | 출력 | 실패 시 처리 |
 |---:|---|---|---|---|
 | 1 | `resolve_data_interval` | Airflow data interval | 대상 `metric_date` 범위 | 설정 오류면 hard fail |
-| 2 | `resolve_chain_checkpoint` | node 또는 raw block snapshot | Best Chain tip, cutoff height, confirmation depth | 재시도 후 hard fail |
+| 2 | `resolve_chain_checkpoint` | node 또는 raw block snapshot | Best Chain tip, cutoff height, required successor blocks | 재시도 후 hard fail |
 | 3 | `validate_chain_completeness` | block snapshot | height 연속성·parent hash 검증 결과 | hard fail |
 | 4 | `build_utxo_lifecycle` | tx_input, tx_output, Best Chain snapshot | lifecycle view 또는 table | hard fail |
 | 5 | `build_daily_components` | lifecycle, tx_output | daily volume·supply component | hard fail |
@@ -51,19 +51,23 @@ backfill
 
 Backfill용 별도 계산 코드를 만들지 않는다. 같은 DAG에 날짜 범위만 다르게 전달해야 scheduled run과 historical run의 결과 규칙이 갈라지지 않는다.
 
-## 9.4 확인 깊이 기반 게시 정책(Confirmation-depth Publication Policy)
+## 9.4 Successor Block 기반 게시 정책(Policy-confirmation Publication)
 
 Bitcoin은 결정론적 finality를 제공하지 않는다. 따라서 `confirmed_by_policy`는 프로토콜 절대 확정이 아니라 내부 게시 정책을 충족했다는 뜻이다.
 
 ```text
+required_successor_blocks
+= 기준일 종료 block 뒤에 추가로 존재해야 하는 block 수
+= block 자신을 포함한 confirmation count와 다른 값
+
 confirmed_cutoff_height
 =
 observed_best_chain_tip_height
 -
-minimum_confirmation_depth
+required_successor_blocks
 ```
 
-기준일 종료 block이 이 cutoff 이하일 때만 해당 날짜의 결과를 `confirmed_by_policy` 상태로 게시한다.
+기준일 종료 block의 height가 이 cutoff 이하일 때만 해당 날짜의 결과를 current Gold에 `confirmed_by_policy` 상태로 게시한다. cutoff 밖의 결과와 reorg로 대체된 이전 결과는 audit history에는 남길 수 있지만 current Gold에는 게시하지 않는다.
 
 ## 9.5 Spark SQL 처리 역할(Spark SQL Responsibilities)
 
@@ -93,7 +97,10 @@ Silver
 - daily_policy_eligible_utxo_supply
 
 Gold
-- daily_bitcoin_velocity
+- daily_bitcoin_velocity (현재 confirmed 결과)
+
+Audit
+- daily_bitcoin_velocity_history (pending·superseded·run observation)
 ```
 
 ### 갱신 규칙
@@ -103,10 +110,10 @@ Gold
 - 새로 게시 가능한 날짜의 staging 결과를 논리 키 기준 MERGE
 
 rerun 또는 backfill
-- 동일 논리 키의 결과를 재계산 후 MERGE
+- 동일 metric contract logical key의 결과를 재계산 후 current Gold에 MERGE하고 audit observation을 append
 
 reorg recovery
-- 영향 날짜 범위를 staging에서 전체 재생성 후 검증하고 MERGE
+- 영향 날짜 범위를 staging에서 전체 재생성 후 검증하고 current Gold에 MERGE하며, 대체 전 revision을 audit history에 superseded 상태로 기록
 ```
 
 단순 blind append는 retry·backfill 시 중복을 만들 수 있으므로 사용하지 않는다. 이 설계에서 “incremental”은 새 날짜 또는 영향 날짜만 계산 대상으로 삼는다는 뜻이며, 최종 적재는 논리 키 기반 upsert로 통제한다.

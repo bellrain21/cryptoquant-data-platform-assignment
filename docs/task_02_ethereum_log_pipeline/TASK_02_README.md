@@ -11,7 +11,7 @@
 | 요구사항 | 문서 |
 |---|---|
 | `eth_getLogs` 기반 1시간 단위 수집, 임의 날짜 backfill, block range 자동 계산, retry | [01_pipeline_design.md](./01_pipeline_design.md) |
-| Delta Lake 스키마, partition, nullable, type, incremental ingestion, idempotency | [02_delta_lake_ingestion.md](./02_delta_lake_ingestion.md) |
+| Delta Lake schema, partition, nullable, type, incremental ingestion, idempotency | [02_delta_lake_ingestion.md](./02_delta_lake_ingestion.md) |
 | `ethereum_logs → erc20_transfers → tether_treasury_flow`, incremental dbt model | [03_dbt_modeling.md](./03_dbt_modeling.md) |
 
 ## 구현 계약(Implementation Contract)
@@ -19,23 +19,25 @@
 ```text
 1. Airflow는 data interval을 기준으로 1시간 수집 구간을 처리한다.
 2. 시간 구간은 block number range로 변환하고 provider 제한에 맞춰 chunk한다.
-3. 같은 구간 재실행과 backfill은 중복 없는 동일한 적재 경로를 사용한다.
-4. Delta Lake는 staging + logical-key merge로 최종 중복을 통제한다.
-5. dbt는 source → staging → mart 의존관계를 관리한다.
-6. 신규 모델의 의존관계는 Airflow 코드가 아니라 dbt manifest와 dbt build가 관리한다.
+3. 동일 구간의 scheduled run, rerun, backfill은 같은 수집·정규화 경로를 사용한다.
+4. Bronze observation은 block_hash를 포함한 관측 키로 append하여 reorg 이력을 보존한다.
+5. Current canonical log view는 현재 Best Chain 기준 event key로 MERGE하여 소비자 중복을 통제한다.
+6. dbt는 canonical log view만 source로 사용하고, source → staging → mart 의존관계를 관리한다.
+7. Treasury flow는 방향별 상세 집계와 일별 netflow 집계를 분리해 grain 충돌을 막는다.
 ```
 
 ## 문서 구성
 
 | 순서 | 문서 | 주요 내용 |
 |---:|---|---|
-| 1 | [01_pipeline_design.md](./01_pipeline_design.md) | RPC 수집, 시간→블록 범위 변환, DAG, retry, backfill |
-| 2 | [02_delta_lake_ingestion.md](./02_delta_lake_ingestion.md) | Delta schema, logical key, incremental ingestion, quality |
-| 3 | [03_dbt_modeling.md](./03_dbt_modeling.md) | ERC-20 decoding, Treasury flow, incremental dbt, test |
+| 1 | [01_pipeline_design.md](./01_pipeline_design.md) | RPC 수집, 시간→블록 범위 변환, DAG, retry, backfill, reorg state |
+| 2 | [02_delta_lake_ingestion.md](./02_delta_lake_ingestion.md) | observation/canonical schema, key, incremental ingestion, quality |
+| 3 | [03_dbt_modeling.md](./03_dbt_modeling.md) | ERC-20 decoding scope, Treasury direction flow, netflow, dbt test |
 
 ## 참고 자료
 
 - Ethereum JSON-RPC: https://ethereum.org/developers/docs/apis/json-rpc/
+- Geth — Real-time Events: https://geth.ethereum.org/docs/interacting-with-geth/rpc/pubsub
 - ERC-20 Standard: https://eips.ethereum.org/EIPS/eip-20
 - Apache Airflow — DAG Runs: https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dag-run.html
 - dbt — dbt_project.yml: https://docs.getdbt.com/reference/dbt_project.yml
