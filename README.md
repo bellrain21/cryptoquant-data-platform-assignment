@@ -112,6 +112,7 @@ Ethereum RPC Provider를 사용해 `eth_getLogs` 기반 이벤트 로그를 수�
 ### Common
 
 - [AI 활용 및 검증 기록](./docs/ai_usage_and_validation.md)
+- [파인만식 개념 지도](./docs/feynman_concept_map.md)
 
 ---
 

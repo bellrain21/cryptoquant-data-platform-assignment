@@ -48,6 +48,7 @@ docs/
 | 문서 | 범위 | 상태 |
 |---|---|---|
 | [ai_usage_and_validation.md](./ai_usage_and_validation.md) | AI 활용 원칙, 검증 기준, 주요 설계 판단 | 설계 문서 정리 완료 |
+| [feynman_concept_map.md](./feynman_concept_map.md) | 전체 Markdown 문서 기반 용어·개념 재귀 정리 | 정리 완료 |
 
 ## 문서 작성 규칙(Document Convention)
 
