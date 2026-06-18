@@ -7,7 +7,7 @@
 
 ```text
 docs/
-├── README.md
+├── DOCS_README.md
 ├── ai_usage_and_validation.md
 ├── task_01_bitcoin_velocity/
 │   ├── TASK_01_README.md
