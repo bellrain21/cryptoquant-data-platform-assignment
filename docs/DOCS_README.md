@@ -1,6 +1,6 @@
 # 문서 목차(Document Table of Contents)
 
-> 이 디렉터리는 귀사의 CryptoQuant 데이터 플랫폼 사전 과제의 상세 설계와 구현 근거를 관리합니다.  
+> 이 디렉터리는 CryptoQuant 데이터 플랫폼 사전 과제의 상세 설계와 구현 근거를 관리합니다.  
 > 저장소 최상단 `README.md`는 저장소 진입점이고, 이 문서는 전체 문서 지도이며, 각 과제 하위 디렉터리의 `README.md`는 과제별 진입점입니다.
 
 ## 문서 탐색 구조(Document Navigation)
@@ -10,14 +10,14 @@ docs/
 ├── README.md
 ├── ai_usage_and_validation.md
 ├── task_01_bitcoin_velocity/
-│   ├── README.md
+│   ├── TASK_01_README.md
 │   ├── 01_understanding_and_design_direction.md
 │   ├── 02_metric_definition.md
 │   ├── 03_data_contract_and_calculation.md
 │   ├── 04_daily_batch_pipeline.md
 │   └── 05_quality_reorg_limitations.md
 └── task_02_ethereum_log_pipeline/
-    ├── README.md
+    ├── TASK_02_README.md
     ├── 01_pipeline_design.md
     ├── 02_delta_lake_ingestion.md
     └── 03_dbt_modeling.md
@@ -27,7 +27,7 @@ docs/
 
 | 순서 | 문서 | 범위 | 상태 |
 |---:|---|---|---|
-| 0 | [README.md](./task_01_bitcoin_velocity/README.md) | 전체 목차, 문서 읽는 순서, 지표 계약 요약 | 문서 초안 완료 |
+| 0 | [TASK_01_README.md](./task_01_bitcoin_velocity/README.md) | 전체 목차, 문서 읽는 순서, 지표 계약 요약 | 문서 초안 완료 |
 | 1 | [01_understanding_and_design_direction.md](./task_01_bitcoin_velocity/01_understanding_and_design_direction.md) | 과제 목적, 범위, 제품 참조와 과제 지표 분리, 설계 원칙 | 문서 초안 완료 |
 | 2 | [02_metric_definition.md](./task_01_bitcoin_velocity/02_metric_definition.md) | Velocity, 이동량, 공급량, 장기 비활성 UTXO, 해석 범위 | 문서 초안 완료 |
 | 3 | [03_data_contract_and_calculation.md](./task_01_bitcoin_velocity/03_data_contract_and_calculation.md) | 원천 필드, 파생 필드, 계산식, SQL 또는 의사코드, 더미 출력, 결과 테이블 | 문서 초안 완료 |
@@ -38,17 +38,16 @@ docs/
 
 | 순서 | 문서 | 범위 | 상태 |
 |---:|---|---|---|
-| 0 | [README.md](./task_02_ethereum_log_pipeline/README.md) | 전체 목차, 구현 범위, 산출물 계약 | 설계 초안 |
-| 1 | [01_pipeline_design.md](./task_02_ethereum_log_pipeline/01_pipeline_design(파이프라인_설계).md) | RPC 수집 범위, Block Range(블록 범위) 계산, Airflow DAG, Retry(재시도), Backfill | 설계 초안 |
-| 2 | [02_delta_lake_ingestion.md](./task_02_ethereum_log_pipeline/02_delta_lake_ingestion(델타_레이크_적재방안)) | Delta Lake 스키마, 증분 적재, 논리 키, 멱등성, 품질 규칙 | 설계 초안 |
-| 3 | [03_dbt_modeling.md](./task_02_ethereum_log_pipeline/03_dbt_modeling(dbt모델링).md) | ERC-20 Transfer, Tether Treasury Flow, Incremental Model(증분 모델), dbt Test | 설계 초안 |
-
+| 0 | [TASK_02_README.md](./task_02_ethereum_log_pipeline/README.md) | 전체 목차, 구현 범위, 산출물 계약 | 설계 초안 |
+| 1 | [01_pipeline_design.md](./task_02_ethereum_log_pipeline/01_pipeline_design.md) | RPC 수집 범위, Block Range(블록 범위) 계산, Airflow DAG, Retry(재시도), Backfill | 설계 초안 |
+| 2 | [02_delta_lake_ingestion.md](./task_02_ethereum_log_pipeline/02_delta_lake_ingestion.md) | Delta Lake 스키마, 증분 적재, 논리 키, 멱등성, 품질 규칙 | 설계 초안 |
+| 3 | [03_dbt_modeling.md](./task_02_ethereum_log_pipeline/03_dbt_modeling.md) | ERC-20 Transfer, Tether Treasury Flow, Incremental Model(증분 모델), dbt Test | 설계 초안 |
 
 ## 공통 문서(Common Documentation)
 
 | 문서 | 범위 | 상태 |
 |---|---|---|
-| [ai_usage_and_validation.md](./docs/ai_usage_and_validation(인공지능_활용_및_검증).md) | AI 활용 목적, 대표 프롬프트 범주, 검증 방식, 채택·폐기 판단 | 문서 초안 완료 |
+| [ai_usage_and_validation.md](./ai_usage_and_validation.md) | AI 활용 목적, 대표 프롬프트 범주, 검증 방식, 채택·폐기 판단 | 문서 초안 완료 |
 
 ## 문서 작성 규칙(Document Convention)
 

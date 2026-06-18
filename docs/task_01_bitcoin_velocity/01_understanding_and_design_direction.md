@@ -2,7 +2,7 @@
 
 > **문서 상태(Status)**: Draft  
 > **문서 역할(Role)**: 과제의 목적, 범위, 설계 원칙을 고정한다.  
-> **제외 범위(Out of Scope)**: 분자·분모의 상세 정의와 수식은 [02_metric_definition(지표_정의).md](./02_metric_definition(지표_정의).md)에서 다룬다.
+> **제외 범위(Out of Scope)**: 분자·분모의 상세 정의와 수식은 [02_metric_definition.md](./02_metric_definition.md)에서 다룬다.
 
 ## 1.1 과제 목적 해석(Task Objective)
 

@@ -64,20 +64,20 @@ Ethereum RPC Provider를 사용해 `eth_getLogs` 기반 이벤트 로그를 수�
 │   ├── models/
 │   └── macros/
 ├── docs/
-│   ├── README.md
-│   ├── ai_usage_and_validation(인공지능_활용_및_검증).md
+│   ├── DOCS_README.md
+│   ├── ai_usage_and_validation.md
 │   ├── task_01_bitcoin_velocity/
-│   │   ├── README.md
-│   │   ├── 01_understanding_and_design_direction(과제_이해_및_설계_방향).md
-│   │   ├── 02_metric_definition(지표_정의).md
-│   │   ├── 03_data_contract_and_calculation(데이터_계약_및_계산_규칙).md
-│   │   ├── 04_daily_batch_pipeline(일일_단위_배치_파이프라인).md
-│   │   └── 05_quality_reorg_limitations(품질_검증_Reorg_한계_확장).md
+│   │   ├── TASK_01_README.md
+│   │   ├── 01_understanding_and_design_direction.md
+│   │   ├── 02_metric_definition.md
+│   │   ├── 03_data_contract_and_calculation.md
+│   │   ├── 04_daily_batch_pipeline.md
+│   │   └── 05_quality_reorg_limitations.md
 │   └── task_02_ethereum_log_pipeline/
-│       ├── README.md
-│       ├── 01_pipeline_design(파이프라인_설계).md
-│       ├── 02_delta_lake_ingestion(델타_레이크_적재방안).md
-│       └── 03_dbt_modeling(dbt모델링).md
+│       ├── TASK_02_README.md
+│       ├── 01_pipeline_design.md
+│       ├── 02_delta_lake_ingestion.md
+│       └── 03_dbt_modeling.md
 ├── tests/
 └── report/
     └── cryptoquant_data_platform_assignment.pdf
@@ -95,23 +95,23 @@ Ethereum RPC Provider를 사용해 `eth_getLogs` 기반 이벤트 로그를 수�
 
 ### Task 1. Bitcoin Velocity
 
-- [Task 1 README](./docs/task_01_bitcoin_velocity/README.md)
-- [1. 과제 이해 및 설계 방향](./docs/task_01_bitcoin_velocity/01_understanding_and_design_direction(과제_이해_및_설계_방향).md)
-- [2. Bitcoin Velocity 지표 정의](./docs/task_01_bitcoin_velocity/02_metric_definition(지표_정의).md)
-- [3. 데이터 계약과 계산 규칙](./docs/task_01_bitcoin_velocity/03_data_contract_and_calculation(데이터_계약_및_계산_규칙).md)
-- [4. 일 단위 배치 파이프라인](./docs/task_01_bitcoin_velocity/04_daily_batch_pipeline(일일_단위_배치_파이프라인).md)
-- [5. 품질 검증, Reorg, 한계와 확장](./docs/task_01_bitcoin_velocity/05_quality_reorg_limitations(품질_검증_Reorg_한계_확장).md)
+- [Task 1 README](./docs/task_01_bitcoin_velocity/TASK_01_README.md)
+- [1. 과제 이해 및 설계 방향](./docs/task_01_bitcoin_velocity/01_understanding_and_design_direction.md)
+- [2. Bitcoin Velocity 지표 정의](./docs/task_01_bitcoin_velocity/02_metric_definition.md)
+- [3. 데이터 계약과 계산 규칙](./docs/task_01_bitcoin_velocity/03_data_contract_and_calculation.md)
+- [4. 일 단위 배치 파이프라인](./docs/task_01_bitcoin_velocity/04_daily_batch_pipeline.md)
+- [5. 품질 검증, Reorg, 한계와 확장](./docs/task_01_bitcoin_velocity/05_quality_reorg_limitations.md)
 
 ### Task 2. Ethereum Log Ingestion
 
-- [Task 2 README](./docs/task_02_ethereum_log_pipeline/README.md)
-- [1. Ethereum 로그 수집 DAG 설계](./docs/task_02_ethereum_log_pipeline/01_pipeline_design(파이프라인_설계).md)
-- [2. Delta Lake 적재 설계](./docs/task_02_ethereum_log_pipeline/02_delta_lake_ingestion(델타_레이크_적재방안).md)
-- [3. dbt 모델링 설계](./docs/task_02_ethereum_log_pipeline/03_dbt_modeling(dbt모델링).md)
+- [Task 2 README](./docs/task_02_ethereum_log_pipeline/TASK_02_README.md)
+- [1. Ethereum 로그 수집 DAG 설계](./docs/task_02_ethereum_log_pipeline/01_pipeline_design.md)
+- [2. Delta Lake 적재 설계](./docs/task_02_ethereum_log_pipeline/02_delta_lake_ingestion.md)
+- [3. dbt 모델링 설계](./docs/task_02_ethereum_log_pipeline/03_dbt_modeling.md)
 
 ### Common
 
-- [AI 활용 및 검증 기록](./docs/ai_usage_and_validation(인공지능_활용_및_검증).md)
+- [AI 활용 및 검증 기록](./docs/ai_usage_and_validation.md)
 
 ---
 
