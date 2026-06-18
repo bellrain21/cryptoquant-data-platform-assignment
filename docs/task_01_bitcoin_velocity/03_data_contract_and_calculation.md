@@ -142,6 +142,7 @@ SUM(o.value_sats) / 100,000,000
 WHERE
   tx.is_coinbase = false
   AND output.is_provably_unspendable = false
+  AND block.chain_revision_id = :chain_revision_id
   AND block.is_best_chain = true
   AND DATE_UTC(block.block_time) = d
 ```
@@ -295,8 +296,12 @@ daily_base AS (
     FROM date_spine d
     LEFT JOIN silver.daily_gross_onchain_output_volume v
       ON d.metric_date = v.metric_date
+     AND v.chain_revision_id = :chain_revision_id
+     AND v.volume_definition_version = :volume_definition_version
     LEFT JOIN silver.daily_policy_eligible_utxo_supply s
       ON d.metric_date = s.metric_date
+     AND s.chain_revision_id = :chain_revision_id
+     AND s.supply_policy_version = :supply_policy_version
 ),
 validated_base AS (
     SELECT *

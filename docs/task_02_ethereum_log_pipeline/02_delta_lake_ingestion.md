@@ -31,7 +31,8 @@ silver.ethereum_logs_canonical
 | `contract_address` | STRING | N | event emitter contract address |
 | `topics` | ARRAY<STRING> | N | indexed topic 배열 |
 | `data` | STRING | N | non-indexed event data |
-| `removed` | BOOLEAN | Y | provider가 제공하는 경우 reorg removal 표시 |
+| `removed` | BOOLEAN | Y | provider 원본의 reorg removal 플래그. 누락 가능 |
+| `observation_state` | STRING | N | 파생 상태. `removed=true`이면 `removed`, 그 외에는 `observed` |
 | `source_provider` | STRING | N | RPC provider 식별자 |
 | `ingested_at` | TIMESTAMP | N | 적재 시각 |
 | `data_interval_start` | TIMESTAMP | N | Airflow 처리 시작 |
@@ -49,7 +50,7 @@ silver.ethereum_logs_canonical
 | `transaction_hash`, `transaction_index`, `log_index` | event 위치 식별자 |
 | `contract_address`, `topics`, `data` | event emitter 및 ABI-decoding 입력 |
 | `canonical_checked_at`, `chain_revision_id` | canonical 판정 메타데이터 |
-| `source_observation_key` | 원천 Bronze observation 추적 키 |
+| `source_observation_key` | `(chain_id, block_hash, transaction_hash, log_index, observation_state)` 형태의 원천 Bronze 추적 키 |
 
 ## 2.4 파티션 전략(Partition Strategy)
 
@@ -66,16 +67,21 @@ partition column
 ## 2.5 Key Contracts
 
 ```text
+Bronze observation state
+= observed | removed
+
 Bronze observation key
-= (chain_id, block_hash, transaction_hash, log_index)
+= (chain_id, block_hash, transaction_hash, log_index, observation_state)
 
 Silver canonical event key
 = (chain_id, transaction_hash, log_index)
 ```
 
-- Bronze key는 동일 block hash에서 같은 RPC log를 중복 append하지 않기 위한 audit key다.
-- Silver key는 현재 canonical event view의 중복 방지와 current-state MERGE에 사용한다.
-- 같은 transaction이 reorg 전후 다른 block hash에서 관측되면 Bronze에는 별도 observation이 남을 수 있다. Silver에는 현재 Best Chain observation 하나만 남는다.
+- `observation_state`는 `removed=true`이면 `removed`, `removed`가 false 또는 누락이면 `observed`로 정규화한다.
+- Bronze key는 동일 block hash와 같은 관측 상태에서 같은 RPC log를 중복 append하지 않기 위한 audit key다.
+- 같은 log의 정상 관측과 reorg removal 관측은 상태가 다르므로 Bronze에서 각각 보존된다.
+- Silver key는 현재 canonical event view의 중복 방지와 current-state 갱신에 사용한다.
+- 같은 transaction이 reorg 전후 다른 block hash 또는 log index로 관측될 수 있다. Silver는 bounded reconciliation 이후 현재 Best Chain observation만 남긴다.
 - Delta table의 데이터베이스 강제 Primary Key에 의존하지 않는다.
 
 ## 2.6 Incremental Ingestion과 Idempotency
@@ -92,11 +98,30 @@ Silver canonical event key
 - 품질 통과 observation만 append
 - 기존 Bronze observation key는 재삽입하지 않음
 
-3. canonical refresh
-- 최근 lookback 또는 reorg 영향 range의 Best Chain block hash를 갱신
-- current canonical event key 기준 MERGE
-- orphan block event는 Silver에서 제외하고 Bronze에만 유지
+3. canonical refresh와 bounded reconciliation
+- 일반 run은 `reorg_lookback_blocks` 범위, reorg 감지 run은 common ancestor 이후 `affected_from_block ~ affected_to_block` 범위를 대상으로 한다.
+- 해당 범위의 current Best Chain block hash와 `observation_state = observed` 조건으로 staged canonical source를 만든다.
+- Silver target의 같은 범위에서 stage source에 없는 row는 delete한다. 이 단계가 없으면 reorg로 orphan이 된 row가 MERGE 후에도 남는다.
+- stage source의 event는 canonical event key 기준으로 MERGE한다.
+- orphan block event와 removed observation은 Bronze에만 append-only로 유지한다.
 ```
+
+canonical reconciliation 의사 SQL:
+
+```sql
+MERGE INTO silver.ethereum_logs_canonical AS target
+USING staged_current_canonical_logs AS source
+ON  target.chain_id = source.chain_id
+AND target.transaction_hash = source.transaction_hash
+AND target.log_index = source.log_index
+WHEN MATCHED THEN UPDATE SET *
+WHEN NOT MATCHED THEN INSERT *
+WHEN NOT MATCHED BY SOURCE
+  AND target.block_number BETWEEN :affected_from_block AND :affected_to_block
+THEN DELETE;
+```
+
+`WHEN NOT MATCHED BY SOURCE ... DELETE`를 지원하지 않는 런타임은 affected range의 Silver row를 먼저 DELETE하고 stage source를 INSERT 또는 MERGE한다. 삭제 범위는 common ancestor 이후로 한정한다.
 
 이 방식은 새 log observation의 incremental 적재를 유지하면서도, reorg 감사 이력과 consumer-facing canonical uniqueness를 동시에 보장한다.
 
@@ -105,7 +130,8 @@ Silver canonical event key
 | 검증 | 실패 조건 | 처리 |
 |---|---|---|
 | block range 완전성 | chunk 간 gap 또는 overlap | hard fail |
-| Bronze observation key 유일성 | staging key 중복 | hard fail |
+| Bronze observation key 유일성 | 같은 observation state의 staging key 중복 | hard fail |
+| observation state 정규화 | `removed`와 `observation_state`가 불일치 | hard fail |
 | Silver canonical event key 유일성 | canonical refresh 결과 key 중복 | hard fail |
 | 필수 필드 | block hash, tx hash, log index, address null | hard fail |
 | block hash 정합성 | 같은 canonical height에 current Best Chain hash와 다른 row가 남음 | reorg recovery |
@@ -115,8 +141,10 @@ Silver canonical event key
 ## 2.8 구현 검증 체크리스트
 
 - [ ] Bronze / Silver table 생성 및 schema 확인
-- [ ] 동일 block range 두 번 실행 후 Bronze observation key 중복 0건
+- [ ] 동일 block range 두 번 실행 후 같은 observation state의 Bronze observation key 중복 0건
+- [ ] 같은 raw log의 observed / removed 관측을 Bronze에 각각 보존
 - [ ] canonical refresh 후 Silver canonical event key 중복 0건
+- [ ] reorg fixture에서 affected range의 orphan Silver row가 실제로 삭제됨
 - [ ] 1시간 단위 신규 구간 적재
 - [ ] 실패 chunk 재시도
 - [ ] block_date partition 기반 조회

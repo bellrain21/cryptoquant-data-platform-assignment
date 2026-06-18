@@ -12,24 +12,39 @@
 - 전체 이력 backfill: 과제 기본 범위에서 제외
 - 임의 날짜 backfill: 동일 DAG의 data interval 또는 입력 파라미터로 지원
 
-## 1.2 시간 구간에서 Block Range로 변환(Time-to-block Range Resolution)
+## 1.2 수집 상한과 안정성 정책(Collection Upper Bound and Stability Policy)
+
+최근 head를 즉시 canonical source로 취급하면 reorg churn과 반복 재처리가 커진다. 따라서 수집 상한은 아래 우선순위로 결정한다.
+
+```text
+collection_upper_bound
+= provider가 지원하는 safe block
+  또는 latest block - reorg_lookback_blocks
+```
+
+- `safe block`: provider가 `safe` block tag를 지원할 때 사용한다.
+- `reorg_lookback_blocks`: provider의 safe head를 사용할 수 없을 때, 최근 불안정 구간을 재검증하기 위해 latest head에서 제외하는 운영 파라미터다.
+- backfill: 과거 interval은 위 상한보다 충분히 이전인 경우 그대로 처리한다. 아직 안정 구간에 들어오지 않은 최신 interval은 다음 scheduled run에서 다시 평가한다.
+- reorg 감지 시에는 일반 lookback보다 넓은 `affected_from_block ~ affected_to_block` 범위를 우선 사용한다.
+
+## 1.3 시간 구간에서 Block Range로 변환(Time-to-block Range Resolution)
 
 Ethereum 표준 JSON-RPC는 timestamp를 block number로 직접 변환하는 표준 메서드를 제공하지 않는다. 따라서 아래 절차를 사용한다.
 
 ```text
 1. data_interval_start, data_interval_end를 UTC로 확정
-2. eth_blockNumber으로 현재 상한 block 확인
+2. collection_upper_bound를 확정
 3. eth_getBlockByNumber으로 block timestamp 조회
 4. binary search 또는 checkpoint index로
    interval start 이상인 첫 block과
-   interval end 미만인 마지막 block을 탐색
+   interval end 미만이면서 collection_upper_bound 이하인 마지막 block을 탐색
 5. [from_block, to_block]을 provider 허용 범위에 맞춰 chunk
 6. 각 chunk에 eth_getLogs 호출
 ```
 
 검색 결과는 block number 기준으로 정렬하고, 인접 chunk가 겹치거나 비지 않는지 검증한다.
 
-## 1.3 DAG 처리 흐름(DAG Flow)
+## 1.4 DAG 처리 흐름(DAG Flow)
 
 ```text
 resolve_interval
@@ -48,7 +63,7 @@ resolve_interval
 
 `validate_staging_quality`는 publish 전 차단용 검증이다. `post_merge_reconciliation`은 append 및 canonical refresh 이후 row count, canonical uniqueness, 최근 block hash 상태를 확인하는 사후 검증이다.
 
-## 1.4 RPC 재시도와 Adaptive Chunking
+## 1.5 RPC 재시도와 Adaptive Chunking
 
 | 실패 유형 | 예시 | 대응 |
 |---|---|---|
@@ -60,7 +75,7 @@ resolve_interval
 
 retry는 전체 시간 구간을 blind re-run하지 않는다. 실패한 chunk와 실패 원인을 audit record에 남기고 해당 chunk만 재처리한다.
 
-## 1.5 멱등성과 Backfill(Idempotency and Backfill)
+## 1.6 멱등성과 Backfill(Idempotency and Backfill)
 
 동일한 시간 구간은 scheduled run, rerun, backfill에서 동일한 변환·적재 경로를 사용한다.
 
@@ -71,16 +86,21 @@ Airflow data interval
 block range
 = data interval을 결정론적으로 변환한 수집 범위
 
+observation_state
+= observed | removed
+
 observation key
-= chain_id + block_hash + transaction_hash + log_index
+= chain_id + block_hash + transaction_hash + log_index + observation_state
 
 canonical event key
 = chain_id + transaction_hash + log_index
 ```
 
-동일 RPC 응답의 재수집은 observation key로 중복을 제거한다. canonical event는 현재 Best Chain에 속한 observation만 대상으로 event key 기준 MERGE한다. 따라서 retry·backfill은 audit 이력을 잃지 않고, consumer-facing view는 중복 없이 현재 체인 상태로 수렴한다.
+동일 RPC 응답의 재수집은 observation key로 중복을 제거한다. `removed`가 누락되거나 false인 관측은 `observed`, `removed=true` 관측은 `removed`로 정규화한다. 따라서 같은 raw log의 정상 관측과 reorg removal 관측은 서로 다른 audit observation으로 보존되고, 같은 상태의 retry만 중복 제거된다.
 
-## 1.6 Reorg 고려사항(Reorg State Handling)
+canonical event는 현재 Best Chain에 속한 `observed` observation만 대상으로 한다. reorg 영향 범위에서는 단순 MERGE만 수행하지 않고, 해당 범위의 canonical source 전체를 기준으로 stale target row를 삭제한 뒤 현재 event를 반영한다. 따라서 retry·backfill은 audit 이력을 잃지 않고, consumer-facing view는 중복 없이 현재 체인 상태로 수렴한다.
+
+## 1.7 Reorg 고려사항(Reorg State Handling)
 
 Ethereum도 reorg 가능성이 있다. observation layer는 `block_hash`, `block_number`, `removed`를 보존하며, canonical view와 분리한다.
 
@@ -97,22 +117,41 @@ reorg가 감지되면 다음 순서로 처리한다.
 ```text
 1. 최근 checkpoint의 block_hash와 current chain hash를 비교
 2. 불일치 시 common ancestor 탐색
-3. ancestor 이후 관측값을 다시 조회
-4. orphan block 관측값은 observation layer에 보존
-5. orphan block에 속한 canonical row를 invalidate 또는 새 canonical snapshot에서 제외
-6. 새 Best Chain log를 canonical event key로 MERGE
-7. 영향 block range의 dbt incremental lookback을 재실행
+3. affected_from_block = common_ancestor_height + 1
+4. affected_to_block = max(previous_canonical_tip_height, current_best_chain_tip_height)
+5. affected range의 Best Chain block hash와 log를 다시 조회
+6. orphan block 관측값과 removed 관측값은 Bronze에 append-only로 보존
+7. affected range의 현재 canonical source 전체를 stage한다
+8. Silver target에서 affected range에만 존재하고 stage source에는 없는 stale row를 DELETE한다
+9. stage source의 현재 Best Chain event를 canonical event key로 MERGE한다
+10. 영향 block_date partition을 dbt incremental rebuild 대상으로 전달한다
 ```
 
-provider가 `removed=true`를 제공하면 이를 observation state로 보존한다. 그러나 polling 기반 `eth_getLogs` 수집에서는 이 플래그만을 reorg 감지의 유일한 근거로 사용하지 않고 block hash reconciliation을 함께 사용한다.
+Silver의 bounded reconciliation은 아래 의미를 가진다.
 
-## 1.7 구현 검증 체크리스트
+```text
+MERGE target USING staged_current_canonical_source
+ON canonical event key
+WHEN MATCHED THEN UPDATE
+WHEN NOT MATCHED THEN INSERT
+WHEN NOT MATCHED BY SOURCE
+  AND target.block_number BETWEEN affected_from_block AND affected_to_block
+THEN DELETE
+```
+
+`WHEN NOT MATCHED BY SOURCE ... DELETE`를 지원하지 않는 실행 환경에서는 같은 영향을 갖도록 affected range의 Silver row를 먼저 DELETE한 뒤 stage source를 INSERT 또는 MERGE한다. 전 테이블 삭제는 금지하고, 반드시 common ancestor 이후 범위로 한정한다.
+
+provider가 `removed=true`를 제공하면 이를 `removed` observation state로 보존한다. 그러나 polling 기반 `eth_getLogs` 수집에서는 이 플래그만을 reorg 감지의 유일한 근거로 사용하지 않고 block hash reconciliation을 함께 사용한다.
+
+## 1.8 구현 검증 체크리스트
 
 - [ ] 1시간 data interval이 UTC 기준으로 고정됨
 - [ ] 시간 범위가 연속된 block range로 변환됨
 - [ ] provider range limit 오류 시 chunk가 축소됨
-- [ ] 동일 구간 재실행 시 observation key 중복이 없음
+- [ ] 동일 구간 재실행 시 같은 observation state의 observation key 중복이 없음
+- [ ] 같은 raw log의 observed / removed 관측이 각각 감사 이력으로 보존됨
 - [ ] canonical view에서 canonical event key 중복이 없음
+- [ ] reorg 영향 범위에서 source에 없는 orphan canonical row가 Silver에서 제거됨
 - [ ] 임의 과거 interval backfill이 같은 DAG 경로를 사용함
 - [ ] reorg fixture 또는 block hash mismatch로 canonical refresh를 검증함
 - [ ] RPC key와 endpoint가 `.env`에서 주입되고 Git에 포함되지 않음

@@ -58,7 +58,8 @@ event Transfer(address indexed _from, address indexed _to, uint256 _value)
 2. topics length = 3
 3. data = uint256으로 decode 가능한 32-byte ABI word
 4. contract_address가 dim_token_metadata의 enabled ERC-20 token contract와 일치
-5. 위 조건을 통과한 event만 erc20_transfers로 승격
+5. block_timestamp가 metadata 유효기간 `[valid_from, valid_to)`에 포함
+6. 위 조건을 통과하고 metadata row가 정확히 하나인 event만 erc20_transfers로 승격
 ```
 
 ```text
@@ -98,6 +99,21 @@ dim_token_metadata
 - metadata_source
 ```
 
+`valid_from`, `valid_to`는 UTC timestamp 경계다. metadata join은 다음 조건을 만족해야 한다.
+
+```sql
+ON  log.chain_id = metadata.chain_id
+AND log.contract_address = metadata.token_contract_address
+AND log.block_timestamp >= metadata.valid_from
+AND (
+     metadata.valid_to IS NULL
+     OR log.block_timestamp < metadata.valid_to
+)
+AND metadata.is_enabled = TRUE
+```
+
+같은 `(chain_id, token_contract_address)`에서 유효기간이 겹치면 하나의 log가 여러 metadata row에 매칭될 수 있다. 따라서 metadata dimension은 동일 token의 유효 기간이 겹치지 않아야 하며, 승격 대상 event는 metadata join 결과가 정확히 1건이어야 한다.
+
 이 dimension은 USDT 대상 token을 명시하고, event signature만으로 token 표준을 단정하는 오류를 막는다.
 
 ### 모델 키와 증분 조건
@@ -111,7 +127,17 @@ incremental predicate
   + reorg 확인을 위한 overlap lookback
 ```
 
-incremental run은 canonical source의 lookback 범위를 다시 읽고 MERGE한다. reorg가 common ancestor보다 깊으면 ingestion layer가 영향 range를 명시해 dbt run에 전달하거나 full refresh 정책으로 승격한다.
+일반 incremental run은 canonical source의 overlap lookback 범위를 다시 읽고 MERGE한다. 그러나 source에서 사라진 orphan event는 일반 MERGE만으로 mart target에서 삭제되지 않는다.
+
+따라서 ingestion layer는 reorg 발생 시 `affected_from_block`, `affected_to_block`, `affected_block_dates`를 dbt run에 전달한다. `erc20_transfers`와 그 하위 집계 모델은 affected block date 전체를 bounded partition rebuild한다.
+
+```text
+1. target에서 affected_block_dates에 속한 partition 또는 row를 DELETE
+2. canonical source에서 같은 affected_block_dates 전체를 다시 SELECT
+3. decoded transfer와 Treasury aggregate를 다시 INSERT 또는 MERGE
+```
+
+이 방식은 stable 구간의 incremental MERGE를 유지하면서, reorg로 source에서 사라진 event와 그 집계 효과를 target에서 제거한다. 영향 범위가 운영상 허용된 rebuild 한도를 넘으면 full refresh 또는 별도 backfill run으로 승격한다.
 
 ## 3.4 Tether Treasury Flow Models
 
@@ -176,15 +202,20 @@ zero address가 `from` 또는 `to`인 Transfer event는 mint·burn 가능성을 
 ```text
 erc20_transfers
 - materialized: incremental
-- incremental_strategy: merge
+- normal run: overlap lookback + merge
+- reorg run: affected_block_dates bounded rebuild
 - unique_key: chain_id + transaction_hash + log_index
 
 tether_treasury_direction_flow
 - materialized: incremental
+- normal run: overlap lookback + merge
+- reorg run: affected_block_dates bounded rebuild
 - unique_key: block_date + treasury_address + token_contract_address + direction
 
 tether_treasury_netflow
 - materialized: incremental
+- normal run: overlap lookback + merge
+- reorg run: affected_block_dates bounded rebuild
 - unique_key: block_date + treasury_address + token_contract_address
 ```
 
@@ -193,7 +224,8 @@ tether_treasury_netflow
 | 대상 | 테스트 |
 |---|---|
 | `stg_ethereum_logs` | not_null, canonical event key unique, accepted hex format |
-| `erc20_transfers` | unique key, not_null from/to/amount, valid topic0, metadata join completeness |
+| `dim_token_metadata` | `(chain_id, token_contract_address)`별 valid period overlap 없음 |
+| `erc20_transfers` | unique key, not_null from/to/amount, valid topic0, metadata join completeness, metadata join cardinality = 1 |
 | `tether_treasury_direction_flow` | not_null date/direction, accepted direction values, non-negative directional amount |
 | `tether_treasury_netflow` | unique grain, inflow - outflow = netflow, non-negative in/out amount |
 
@@ -218,10 +250,12 @@ dbt
 - [ ] `dbt_project.yml` 생성
 - [ ] source relation이 Silver canonical log를 조회
 - [ ] Transfer topic decoding unit test
-- [ ] token metadata join 및 decimals 검증
+- [ ] token metadata 유효기간 조인 및 decimals 검증
+- [ ] 하나의 event가 enabled metadata row 정확히 1건과 매칭됨
 - [ ] raw amount와 normalized amount 검증
 - [ ] Treasury inflow / outflow / netflow 표본 대조
 - [ ] `dbt run` 후 `dbt test` 통과
+- [ ] reorg fixture에서 affected block date의 `erc20_transfers` 및 Treasury aggregate가 bounded rebuild됨
 - [ ] 신규 model 추가 시 DAG 코드 수정 없이 `dbt build` 범위에 포함됨
 
 ## 참고 자료
