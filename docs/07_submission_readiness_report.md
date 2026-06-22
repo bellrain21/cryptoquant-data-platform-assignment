@@ -7,7 +7,9 @@
 ## Repository Inventory Summary
 
 레거시 정리 기준으로 현재 실행 경로에 연결되지 않은 구 패키지와 deprecated DAG shim은
-삭제 대상입니다. source/test/fixture/docs/Docker/dbt/Airflow 중 현재 요구사항 증거에
+삭제 대상입니다. 
+
+source/test/fixture/docs/Docker/dbt/Airflow 중 현재 요구사항 증거에
 연결된 파일은 유지하고, local/generated artifact는 `.gitignore`와 문서 경계로 제외합니다.
 
 | 분류 | 파일 또는 디렉터리 | 제출 판단 |
@@ -327,7 +329,8 @@ NOT VERIFIED:
 
 ## Sequential Implementation Plan to Deadline
 
-마감 시한은 2026-06-22 월요일 23:59 KST로 둡니다. 아래 순서는 새 기능 확장보다 제출 리스크를 낮추는 순서입니다.
+마감 시한은 2026-06-22 월요일 23:59 KST로 두었습니다. 
+  아래 순서는 새 기능 확장보다 제출 리스크를 낮추는 순서입니다.
 
 | 순서 | 목표 시점 | 작업 | 완료 기준 |
 |---:|---|---|---|
