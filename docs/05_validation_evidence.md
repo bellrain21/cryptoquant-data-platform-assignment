@@ -221,6 +221,8 @@ correctness, 현재 Git working tree와의 완전한 일치, 외부 RPC provider
 ![Airflow DAG home Latest Snapshot](../data/imgs/task_02_05_image.png)
 > **제출 이후 최신 Airflow DAG 상태 보조 스냅샷**  
 > 제출 시점의 직접 증거와 분리된 후속 운영 화면임. 최신 DAG 활성 상태, `@hourly` 스케줄, 누적 run 집계를 참고용으로 제시함.
+> 과제 제출 이후 Docker 기반 Airflow 환경이 계속 기동 중이었음을 확인함.
+> 그 결과 시간 단위 수집·Delta 적재·dbt 변환 프로세스가 장시간 연속 실행되었고, 누적 run 이력과 성공 상태를 통해 기본 실행 경로의 지속성을 보조 증거로 제출함.
 
 ### 판정
 
