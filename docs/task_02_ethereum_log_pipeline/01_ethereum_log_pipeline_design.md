@@ -2,7 +2,7 @@
 
 > Reference / exploratory design — not the current implementation source of truth.
 > 현재 구현은 finality buffer와 idempotent raw append 중심이며,
-> 이 문서의 observation/canonical reorg 전이 설계 전체를 구현했다고 주장하지 않습니다.
+>   이 문서의 observation/canonical reorg 전이 설계 전체를 구현했다고 주장하지 않습니다.
 
 > **문서 상태(Status)**: Legacy draft / 구현 전 확장 설계 메모
 > **문서 역할(Role)**: `eth_getLogs` 기반 1시간 수집, block range 계산, retry, backfill, reorg 상태 전이 후보를 정리합니다.
