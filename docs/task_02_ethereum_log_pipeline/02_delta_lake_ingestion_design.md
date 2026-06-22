@@ -4,7 +4,8 @@
 > 현재 구현은 단일 raw Delta table과 retry/backfill dedup 중심이며, 이 문서의 canonical replacement 설계 전체를 구현했다고 주장하지 않습니다.
 
 > **문서 상태(Status)**: Legacy draft / 구현 전 확장 설계 메모
-> **문서 역할(Role)**: Ethereum log observation과 current canonical log 분리 후보를 정리합니다. 현재 실행 기준은 raw Delta `ethereum_logs` 단일 table과 `docs/02_data_contracts.md`입니다.
+> **문서 역할(Role)**: Ethereum log observation과 current canonical log 분리 후보를 정리합니다.
+> 현재 실행 기준은 raw Delta `ethereum_logs` 단일 table과 `docs/02_data_contracts.md`입니다.
 
 ## 2.1 저장 계층(Storage Layers)
 
@@ -17,7 +18,8 @@ silver.ethereum_logs_canonical
 = dbt source `ethereum_logs`와 분석 모델은 이 계층만 사용.
 ```
 
-과제 요구사항의 `ethereum_logs`는 dbt source 이름으로 유지하며, physical relation은 이 `silver.ethereum_logs_canonical`이다. Bronze observation은 감사·복구 입력이고 dbt 분석 source가 아닙니다.
+과제 요구사항의 `ethereum_logs`는 dbt source 이름으로 유지하며, physical relation은 이 `silver.ethereum_logs_canonical`이다.
+Bronze observation은 감사·복구 입력이고 dbt 분석 source가 아닙니다.
 
 `bronze`는 append-only audit 목적이고, `silver`는 current state 목적이다. 두 역할을 하나의 MERGE key로 통합하지 않습니다.
 
@@ -47,7 +49,9 @@ silver.ethereum_logs_canonical
 
 ## 2.3 Silver Canonical Schema
 
-`silver.ethereum_logs_canonical`은 Bronze observation을 현재 Best Chain checkpoint와 조인해 생성합니다. Bronze의 `contract_address`는 이 계층에서 `token_contract_address`로 rename하지 않습니다. token 의미는 ERC-20 decoding model에서만 부여합니다.
+`silver.ethereum_logs_canonical`은 Bronze observation을 현재 Best Chain checkpoint와 조인해 생성합니다.
+Bronze의 `contract_address`는 이 계층에서 `token_contract_address`로 rename하지 않습니다.
+token 의미는 ERC-20 decoding model에서만 부여합니다.
 
 | 컬럼 | 설명 |
 |---|---|
@@ -126,7 +130,8 @@ WHEN NOT MATCHED BY SOURCE
 THEN DELETE;
 ```
 
-`WHEN NOT MATCHED BY SOURCE ... DELETE`를 지원하지 않는 런타임은 affected range의 Silver row를 먼저 DELETE하고 stage source를 INSERT 또는 MERGE합니다. 삭제 범위는 common ancestor 이후로 한정합니다.
+`WHEN NOT MATCHED BY SOURCE ... DELETE`를 지원하지 않는 런타임은 affected range의 Silver row를 먼저 DELETE하고 stage source를
+INSERT 또는 MERGE합니다. 삭제 범위는 common ancestor 이후로 한정합니다.
 
 이 방식은 새 log observation의 incremental 적재를 유지하면서도, reorg 감사 이력과 consumer-facing canonical uniqueness를 동시에 만족시키는 것을 목표로 합니다.
 
@@ -164,7 +169,9 @@ THEN DELETE;
 - [x] block_date partition 기반 조회
   - 근거: `src/cryptoquant_pipeline/delta_writer.py`의 `PARTITION_COLUMNS = ["block_date_utc"]`, `docs/02_data_contracts.md`.
 - [x] raw payload와 정규화 컬럼의 표본 대조
-  - 근거: `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb`, `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`, `tests/test_log_normalizer.py`.
+- 근거: `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb`,
+  `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`,
+  `tests/test_log_normalizer.py`.
 - [ ] reorg fixture에서 Bronze 이력 보존과 Silver 교체를 함께 검증
   - 미완료 사유: Bronze/Silver reorg fixture는 구현하지 않았습니다.
 

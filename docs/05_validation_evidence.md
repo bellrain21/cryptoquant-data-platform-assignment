@@ -3,7 +3,8 @@
 > 상태: 실행 증거 문서
 > 기준: 성공/실패/검증되지 않은 항목을 분리해 기록.
 
-검증 일시: 2026-06-19 KST 작업 세션, 2026-06-20 KST 구현 세션, 2026-06-20 KST 총괄 제출 검증 세션, 2026-06-21 KST collection scope 재검증 세션, 2026-06-22 KST dbt dependency expansion, notebook, Airflow UI screenshot, submission boundary 검증 세션.
+검증 일시: 2026-06-19 KST 작업 세션, 2026-06-20 KST 구현 세션, 2026-06-20 KST 총괄 제출 검증 세션, 2026-06-21 KST collection scope
+재검증 세션, 2026-06-22 KST dbt dependency expansion, notebook, Airflow UI screenshot, submission boundary 검증 세션.
 
 ## 2026-06-22 Refactoring validation
 
@@ -89,7 +90,8 @@ latest_dbt_returncode: PASS
 log_files=162
 ```
 
-`scheduled__2026-06-22T08:00:00+00:00` run은 attempt 1, 2에서 retry 상태가 기록되었고 attempt 3에서 success로 종료되었습니다. 이 때문에 retry 설정과 재실행 경로가 실제 Airflow log에 남아 있습니다.
+`scheduled__2026-06-22T08:00:00+00:00` run은 attempt 1, 2에서 retry 상태가 기록되었고 attempt 3에서 success로 종료되었습니다.
+이 때문에 retry 설정과 재실행 경로가 실제 Airflow log에 남아 있습니다.
 
 Storage metadata 재확인 결과:
 
@@ -106,7 +108,8 @@ markdown local links ok
 git diff --check -- README.md docs: exit 0, CRLF conversion warning only
 ```
 
-남겨 둔 미체크 항목은 Private GitHub 최신 반영, canonical reorg replacement, Bronze/Silver 확장 설계, token metadata dimension처럼 repository 내부 로그와 현재 구현으로 검증할 수 없거나 이번 구현 범위를 벗어난 항목입니다.
+남겨 둔 미체크 항목은 Private GitHub 최신 반영, canonical reorg replacement, Bronze/Silver 확장 설계, token metadata
+dimension처럼 repository 내부 로그와 현재 구현으로 검증할 수 없거나 이번 구현 범위를 벗어난 항목입니다.
 
 ## 2026-06-22 Notebook validation refactor
 
@@ -160,9 +163,11 @@ dbt_downstream_core_ok=True
 final_status=PARTIALLY VERIFIED
 ```
 
-해석: notebook 04는 기본 `data/delta/ethereum_logs` 대신 최신 schema와 downstream row count가 확인되는 `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` pair를 선택합니다.
+해석: notebook 04는 기본 `data/delta/ethereum_logs` 대신 최신 schema와 downstream row count가 확인되는
+`data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` pair를 선택합니다.
 raw Delta schema와 중복 key는 통과했지만, 2026-06-22 11:00 UTC 다음 interval이 13:00 UTC라 12:00 UTC hourly gap이 있습니다.
-또한 DuckDB `main.ethereum_logs` staging view는 `/opt/airflow/data/delta/ethereum_logs_v2` 절대경로를 저장해 `workspace-dev`의 `/workspace` mount에서는 query error가 발생합니다.
+또한 DuckDB `main.ethereum_logs` staging view는 `/opt/airflow/data/delta/ethereum_logs_v2` 절대경로를 저장해
+`workspace-dev`의 `/workspace` mount에서는 query error가 발생합니다.
 따라서 누적 로컬 산출물은 현재 code contract 기준에서도 `VERIFIED`가 아니라 `PARTIALLY VERIFIED`로 기록합니다.
 fixture 기반 dbt build는 최신 schema로 별도 검증되어 있으며, 실제 accumulated local data를 fixture로 덮어쓰지 않았습니다.
 
@@ -179,7 +184,8 @@ fixture 기반 dbt build는 최신 schema로 별도 검증되어 있으며, 실�
 
 목표: `data/imgs/` 하위 screenshot을 분석하여 Airflow UI에서 관측된 실행 이력을 문서 증거로 연결합니다.
 
-이 섹션은 Airflow webserver metadata DB에 남은 UI snapshot을 해석합니다. 화면은 로컬 `localhost:8080` 기준이며, row-level data correctness, 현재 Git working tree와의 완전한 일치, 외부 RPC provider의 지속 운영 안정성을 단독으로 증명하지 않습니다.
+이 섹션은 Airflow webserver metadata DB에 남은 UI snapshot을 해석합니다. 화면은 로컬 `localhost:8080` 기준이며, row-level data
+correctness, 현재 Git working tree와의 완전한 일치, 외부 RPC provider의 지속 운영 안정성을 단독으로 증명하지 않습니다.
 
 ### 이미지 목록과 판독 결과
 
@@ -707,7 +713,8 @@ git [ERROR]
 
 ### 실제 RPC
 
-2026-06-20 KST에 `src/.env`의 legacy provider 키 이름(`CHAINSTACK_*`)을 fallback으로 읽어 실제 RPC 일부를 검증했습니다. endpoint, key, username, password 원문은 출력하지 않았습니다.
+2026-06-20 KST에 `src/.env`의 legacy provider 키 이름(`CHAINSTACK_*`)을 fallback으로 읽어 실제 RPC 일부를 검증했습니다.
+endpoint, key, username, password 원문은 출력하지 않았습니다.
 
 성공:
 
@@ -739,7 +746,9 @@ scripts/run_rpc_smoke_validation.py
 -> timestamp lower-bound binary search 중 eth_getBlockByNumber historical lookup에서 HTTP 403
 ```
 
-해석: 현재 연결된 provider는 최신 finalized 조회와 최신 10블록 log 조회는 허용하지만, binary search가 요구하는 임의 과거 block lookup을 막고 있습니다. Alchemy Free 등 과거 block lookup을 허용하는 endpoint로 `src/notebooks/01_rpc_provider_connection_smoke_test.ipynb`와 `src/notebooks/02_eth_getlogs_transfer_sample_validation.ipynb`부터 재실행 필요합니다.
+해석: 현재 연결된 provider는 최신 finalized 조회와 최신 10블록 log 조회는 허용하지만, binary search가 요구하는 임의 과거 block lookup을 막고 있습니다.
+Alchemy Free 등 과거 block lookup을 허용하는 endpoint로 `src/notebooks/01_rpc_provider_connection_smoke_test.ipynb`와
+`src/notebooks/02_eth_getlogs_transfer_sample_validation.ipynb`부터 재실행 필요합니다.
 
 ## Mock/fixture 검증 범위
 

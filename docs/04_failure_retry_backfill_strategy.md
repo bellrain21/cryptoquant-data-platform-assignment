@@ -5,11 +5,13 @@
 
 ## RPC timeout
 
-HTTP timeout은 `ETH_RPC_TIMEOUT_SECONDS`로 제한합니다. timeout은 retryable로 분류하고, `ETH_RPC_MAX_RETRIES` 범위 안에서 먼저 재시도합니다. `eth_getLogs`에서 timeout이 계속되면 block range split 대상입니다.
+HTTP timeout은 `ETH_RPC_TIMEOUT_SECONDS`로 제한합니다. timeout은 retryable로 분류하고, `ETH_RPC_MAX_RETRIES` 범위 안에서 먼저
+재시도합니다. `eth_getLogs`에서 timeout이 계속되면 block range split 대상입니다.
 
 ## Rate limit
 
-HTTP 429 또는 provider message의 rate limit은 retryable error입니다. RPC client의 bounded retry 후에도 실패하면 Airflow task retry가 outer retry로 처리합니다. API key와 full RPC URL은 로그에 남기지 않습니다.
+HTTP 429 또는 provider message의 rate limit은 retryable error입니다. RPC client의 bounded retry 후에도 실패하면 Airflow task
+retry가 outer retry로 처리합니다. API key와 full RPC URL은 로그에 남기지 않습니다.
 
 ## Too many results
 
@@ -34,7 +36,8 @@ retry_exponential_backoff=True
 max_active_runs=1
 ```
 
-RPC client 내부 retry는 짧은 HTTP/transport 흔들림을 처리하고, Airflow retry는 task 전체 재실행 경계입니다. `too many results`, `range too large`는 같은 요청 반복보다 range split이 맞으므로 즉시 상위로 올립니다.
+RPC client 내부 retry는 짧은 HTTP/transport 흔들림을 처리하고, Airflow retry는 task 전체 재실행 경계입니다.
+`too many results`, `range too large`는 같은 요청 반복보다 range split이 맞으므로 즉시 상위로 올립니다.
 
 ## Backfill
 
@@ -64,11 +67,15 @@ Delta write는 다음 중복을 skip합니다.
 | `data/imgs/task_02_03_image.png` | failed `run_interval` task instance 13건 | PARTIALLY VERIFIED |
 | `data/imgs/task_02_04_image.png` | success DAG run 47건 | PARTIALLY VERIFIED |
 
-Airflow UI screenshot은 성공과 실패 이력이 존재한다는 점을 보여줍니다. 그러나 각 실패의 원인, retry 횟수, provider 응답, 최신 raw schema 정합성은 task log, unit test, notebook, dbt build 결과와 함께 확인해야 합니다.
+Airflow UI screenshot은 성공과 실패 이력이 존재한다는 점을 보여줍니다.
+그러나 각 실패의 원인, retry 횟수, provider 응답, 최신 raw schema 정합성은 task log, unit test,
+notebook, dbt build 결과와 함께 확인해야 합니다.
 
 ## Finality/reorg 제한
 
-수집 전 `eth_getBlockByNumber("finalized", false)`를 조회합니다. finalized block timestamp가 interval end보다 이르면 `RetryableIntervalNotFinalized`로 실패시켜 Airflow retry가 재처리하게 합니다. 장기 reorg에서 이미 저장된 raw row를 canonical replacement하는 기능은 현재 범위 밖입니다. 이 제한은 숨기지 않고 문서화합니다.
+수집 전 `eth_getBlockByNumber("finalized", false)`를 조회합니다. finalized block timestamp가 interval end보다 이르면
+`RetryableIntervalNotFinalized`로 실패시켜 Airflow retry가 재처리하게 합니다. 장기 reorg에서 이미 저장된 raw row를 canonical
+replacement하는 기능은 현재 범위 밖입니다. 이 제한은 숨기지 않고 문서화합니다.
 
 ## 구현 및 검증 체크리스트
 

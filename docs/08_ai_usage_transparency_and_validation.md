@@ -56,7 +56,8 @@ AI 출력은 구현 사실이나 검증 결과로 간주하지 않았습니다.
 AI 제안은 그대로 반영하지 않았습니다.
 각 제안은 실제 코드 구조, 테스트, 정적 검증, 공식 문서 기준 또는 수동 리뷰 중 하나 이상으로 확인한 뒤 반영했습니다.
 
-검증 증거는 `docs/05_validation_evidence.md`, `docs/10_refactoring_report.md`, `docs/11_documentation_consistency_report.md`, `docs/09_requirement_traceability_matrix.md`에 분산되어 있습니다.
+검증 증거는 `docs/05_validation_evidence.md`, `docs/10_refactoring_report.md`, `docs/11_documentation_consistency_report.md`,
+`docs/09_requirement_traceability_matrix.md`에 분산되어 있습니다.
 외부 RPC 환경 검증은 Airflow task log, Airflow UI screenshot, Delta/DuckDB 산출물, 노트북 output을 대조해 반영했습니다.
 다만 이 검증은 로컬 Docker 실행 이력 기준이며, production hardening이나 provider 장기 SLA를 의미하지 않습니다.
 
@@ -150,9 +151,11 @@ AI 제안은 초안 후보로만 취급했고, 반영 여부는 과제 원문, �
 - [x] dbt build와 dbt test를 fixture 기반으로 검증했습니다.
 - [x] README 실행 명령 일부와 실제 실행 결과를 대조했습니다.
 - [x] 최신 raw schema 기준의 실제 Airflow scheduler 여러 1시간 실행 이력을 확인했습니다.
-  - 근거: `airflow/logs/dag_id=ethereum_hourly_logs`에서 successful scheduled run 반환값 33건을 확인했고, latest direct inspection에서 `data/delta/ethereum_logs_v2` row count `6848937`, duplicate key `0`을 확인했습니다.
+  - 근거: `airflow/logs/dag_id=ethereum_hourly_logs`에서 successful scheduled run 반환값 33건을 확인했고, latest direct
+    inspection에서 `data/delta/ethereum_logs_v2` row count `6848937`, duplicate key `0`을 확인했습니다.
 - [x] 실제 RPC 수집 결과와 여러 scheduled interval의 block range를 대조했습니다.
-  - 근거: Airflow task log에서 `from_block`, `to_block`, `raw_log_count`, `inserted_row_count`가 1시간 interval별로 기록되어 있고, notebook 04가 latest v2 raw의 hourly series와 2026-06-22 12:00 UTC gap을 표시합니다.
+  - 근거: Airflow task log에서 `from_block`, `to_block`, `raw_log_count`, `inserted_row_count`가 1시간 interval별로
+    기록되어 있고, notebook 04가 latest v2 raw의 hourly series와 2026-06-22 12:00 UTC gap을 표시합니다.
 - [ ] Reorg 또는 synthetic reorg fixture 기반 복구 테스트를 완료했습니다.
   - 미완료 사유: 현재 구현은 finality buffer와 raw `block_hash` 보존까지입니다.
 
@@ -171,7 +174,8 @@ AI 제안은 초안 후보로만 취급했고, 반영 여부는 과제 원문, �
 ## 한계와 후속 검증
 
 외부 RPC Provider 기반 여러 1시간 scheduled 수집은 로컬 Docker Airflow 실행 이력으로 확인했습니다.
-확인 근거는 `airflow/logs/`, `data/imgs/`, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb`, `src/notebooks/03_*`, `src/notebooks/04_*`입니다.
+확인 근거는 `airflow/logs/`, `data/imgs/`, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb`,
+`src/notebooks/03_*`, `src/notebooks/04_*`입니다.
 
 다만 비용이 큰 full-history backfill, provider SLA 검증, 지속 무중단 운영, alerting, secret rotation, production Airflow 배포는 이 저장소에서 검증하지 않았습니다.
 이 범위는 운영 환경 검증 전에는 `VERIFIED`로 표기하지 않습니다.
@@ -204,7 +208,8 @@ AI가 제안한 canonical reorg replacement, token metadata dimension, address l
 - [x] AI 제안 중 실제 코드 또는 테스트로 검증한 항목만 반영했습니다.
 
 - [x] 로컬 Docker Airflow에서 외부 RPC Provider 기반 여러 1시간 scheduled 수집 이력을 검증했습니다.
-  - 근거: Airflow task log에서 successful scheduled run 반환값 33건, Airflow UI screenshot에서 success 47건, Delta `ethereum_logs_v2` row count `6848937`, DuckDB `erc20_transfers` row count `6079379`건을 확인했습니다.
+  - 근거: Airflow task log에서 successful scheduled run 반환값 33건, Airflow UI screenshot에서 success 47건, Delta
+    `ethereum_logs_v2` row count `6848937`, DuckDB `erc20_transfers` row count `6079379`건을 확인했습니다.
   - 한계: 로컬 Docker 실행 이력 기준이며 production-grade 무중단 운영과 provider SLA는 별도 검증 대상입니다.
 
 - [x] 검증하지 못한 항목을 VERIFIED로 표기하지 않았습니다.

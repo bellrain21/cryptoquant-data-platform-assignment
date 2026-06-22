@@ -152,7 +152,8 @@ docker compose run --rm airflow-scheduler airflow dags backfill ethereum_hourly_
   - 근거: `DELTA_LOGS_PATH=/opt/airflow/data/delta/ethereum_logs`, `DUCKDB_PATH=/opt/airflow/data/analytics/ethereum_analytics.duckdb`
 
 - [x] 실제 provider에서 1시간 scheduled run을 완료했습니다.
-  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, latest direct inspection 기준 `data/delta/ethereum_logs_v2` row count `6848937`, DuckDB `erc20_transfers=6079379` 확인
+  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, latest direct inspection 기준
+    `data/delta/ethereum_logs_v2` row count `6848937`, DuckDB `erc20_transfers=6079379` 확인
   - 한계: production-grade 무중단 운영과 provider SLA는 별도 검증 대상입니다.
 
 - [x] Airflow UI screenshot의 증거 범위와 한계를 문서화했습니다.

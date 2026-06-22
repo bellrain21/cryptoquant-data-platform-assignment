@@ -4,7 +4,8 @@
 > 현재 구현은 finality buffer와 idempotent raw append 중심이며, 이 문서의 observation/canonical reorg 전이 설계 전체를 구현했다고 주장하지 않습니다.
 
 > **문서 상태(Status)**: Legacy draft / 구현 전 확장 설계 메모
-> **문서 역할(Role)**: `eth_getLogs` 기반 1시간 수집, block range 계산, retry, backfill, reorg 상태 전이 후보를 정리합니다. 현재 실행 기준은 `README.md`, `docs/01_system_architecture.md`, `docs/04_failure_retry_backfill_strategy.md`입니다.
+> **문서 역할(Role)**: `eth_getLogs` 기반 1시간 수집, block range 계산, retry, backfill, reorg 상태 전이 후보를 정리합니다.
+> 현재 실행 기준은 `README.md`, `docs/01_system_architecture.md`, `docs/04_failure_retry_backfill_strategy.md`입니다.
 
 ## 1.1 수집 범위(Collection Scope)
 
@@ -64,7 +65,8 @@ resolve_interval
   → record_audit
 ```
 
-`validate_staging_quality`는 publish 전 차단용 검증입니다. `post_merge_reconciliation`은 append 및 canonical refresh 이후 row count, canonical uniqueness, 최근 block hash 상태를 확인하는 사후 검증입니다.
+`validate_staging_quality`는 publish 전 차단용 검증입니다. `post_merge_reconciliation`은 append 및 canonical refresh 이후
+row count, canonical uniqueness, 최근 block hash 상태를 확인하는 사후 검증입니다.
 
 ## 1.5 RPC 재시도와 Adaptive Chunking
 
@@ -99,9 +101,13 @@ canonical event key
 = chain_id + transaction_hash + log_index
 ```
 
-동일 RPC 응답의 재수집은 observation key로 중복을 제거합니다. `removed`가 누락되거나 false인 관측은 `observed`, `removed=true` 관측은 `removed`로 정규화합니다. 따라서 같은 raw log의 정상 관측과 reorg removal 관측은 서로 다른 audit observation으로 보존되고, 같은 상태의 retry만 중복 제거됩니다.
+동일 RPC 응답의 재수집은 observation key로 중복을 제거합니다. `removed`가 누락되거나 false인 관측은 `observed`, `removed=true` 관측은
+`removed`로 정규화합니다. 따라서 같은 raw log의 정상 관측과 reorg removal 관측은 서로 다른 audit observation으로 보존되고, 같은 상태의 retry만 중복
+제거됩니다.
 
-canonical event는 현재 Best Chain에 속한 `observed` observation만 대상으로 합니다. reorg 영향 범위에서는 단순 MERGE만 수행하지 않고, 해당 범위의 canonical source 전체를 기준으로 stale target row를 삭제한 뒤 현재 event를 반영합니다. 따라서 retry·backfill은 audit 이력을 잃지 않고, consumer-facing view는 중복 없이 현재 체인 상태로 수렴합니다.
+canonical event는 현재 Best Chain에 속한 `observed` observation만 대상으로 합니다. reorg 영향 범위에서는 단순 MERGE만 수행하지 않고, 해당 범위의
+canonical source 전체를 기준으로 stale target row를 삭제한 뒤 현재 event를 반영합니다. 따라서 retry·backfill은 audit 이력을 잃지 않고,
+consumer-facing view는 중복 없이 현재 체인 상태로 수렴합니다.
 
 ## 1.7 Reorg 고려사항(Reorg State Handling)
 
@@ -115,7 +121,8 @@ silver.ethereum_logs_canonical
 = 현재 Best Chain에 속한 log만 제공하는 current view/table
 ```
 
-과제의 dbt 입력 모델명은 `ethereum_logs`로 두되, 실제 relation은 `silver.ethereum_logs_canonical`으로 매핑합니다. 이 매핑은 요구사항의 모델 체인 표기와 reorg-safe 소비 계층을 동시에 만족시키기 위한 것입니다.
+과제의 dbt 입력 모델명은 `ethereum_logs`로 두되, 실제 relation은 `silver.ethereum_logs_canonical`으로 매핑합니다.
+이 매핑은 요구사항의 모델 체인 표기와 reorg-safe 소비 계층을 동시에 만족시키기 위한 것입니다.
 
 reorg가 감지되면 다음 순서로 처리합니다.
 
@@ -144,16 +151,20 @@ WHEN NOT MATCHED BY SOURCE
 THEN DELETE
 ```
 
-`WHEN NOT MATCHED BY SOURCE ... DELETE`를 지원하지 않는 실행 환경에서는 같은 영향을 갖도록 affected range의 Silver row를 먼저 DELETE한 뒤 stage source를 INSERT 또는 MERGE합니다. 전 테이블 삭제는 금지하고, 반드시 common ancestor 이후 범위로 한정합니다.
+`WHEN NOT MATCHED BY SOURCE ... DELETE`를 지원하지 않는 실행 환경에서는 같은 영향을 갖도록 affected range의 Silver row를 먼저 DELETE한 뒤
+stage source를 INSERT 또는 MERGE합니다. 전 테이블 삭제는 금지하고, 반드시 common ancestor 이후 범위로 한정합니다.
 
-provider가 `removed=true`를 제공하면 이를 `removed` observation state로 보존합니다. 그러나 polling 기반 `eth_getLogs` 수집에서는 이 플래그만을 reorg 감지의 유일한 근거로 사용하지 않고 block hash reconciliation을 함께 사용합니다.
+provider가 `removed=true`를 제공하면 이를 `removed` observation state로 보존합니다. 그러나 polling 기반 `eth_getLogs` 수집에서는 이
+플래그만을 reorg 감지의 유일한 근거로 사용하지 않고 block hash reconciliation을 함께 사용합니다.
 
 ## 1.8 구현 검증 체크리스트
 
-아래 체크리스트는 historical 확장 설계와 현재 구현 증거를 대조한 결과입니다. 현재 구현의 source of truth는 `airflow/dags/ethereum_hourly_logs.py`, `src/cryptoquant_pipeline/`, `docs/05_validation_evidence.md`입니다.
+아래 체크리스트는 historical 확장 설계와 현재 구현 증거를 대조한 결과입니다. 현재 구현의 source of truth는 `airflow/dags/ethereum_hourly_logs.py`,
+`src/cryptoquant_pipeline/`, `docs/05_validation_evidence.md`입니다.
 
 - [x] 1시간 data interval이 UTC 기준으로 고정됨
-  - 근거: `airflow/dags/ethereum_hourly_logs.py`, Airflow task log `scheduled__2026-06-20T21:00:00+00:00`부터 `scheduled__2026-06-22T08:00:00+00:00`까지 successful scheduled 반환값 33건.
+  - 근거: `airflow/dags/ethereum_hourly_logs.py`, Airflow task log `scheduled__2026-06-20T21:00:00+00:00`부터
+    `scheduled__2026-06-22T08:00:00+00:00`까지 successful scheduled 반환값 33건.
 - [x] 시간 범위가 연속된 block range로 변환됨
   - 근거: `src/cryptoquant_pipeline/block_range.py`, `tests/test_block_range.py`, task log의 `from_block`/`to_block`.
 - [x] provider range limit 오류 시 chunk가 축소됨
@@ -167,7 +178,8 @@ provider가 `removed=true`를 제공하면 이를 `removed` observation state로
 - [ ] reorg 영향 범위에서 source에 없는 orphan canonical row가 Silver에서 제거됨
   - 미완료 사유: common ancestor 기반 canonical replacement는 구현하지 않았습니다.
 - [x] 임의 과거 interval backfill이 같은 DAG 경로를 사용합니다
-  - 근거: `airflow/dags/ethereum_hourly_logs.py`가 `data_interval_start`/`data_interval_end`와 DAG run conf `window_start`/`window_end`를 같은 `run_interval()` 경로로 처리합니다. 실제 대량 backfill은 비용 영향 때문에 실행하지 않았습니다.
+  - 근거: `airflow/dags/ethereum_hourly_logs.py`가 `data_interval_start`/`data_interval_end`와 DAG run conf
+    `window_start`/`window_end`를 같은 `run_interval()` 경로로 처리합니다. 실제 대량 backfill은 비용 영향 때문에 실행하지 않았습니다.
 - [ ] reorg fixture 또는 block hash mismatch로 canonical refresh를 검증했습니다
   - 미완료 사유: reorg replacement fixture와 canonical refresh 구현이 없습니다.
 - [x] RPC key와 endpoint가 `.env`에서 주입되고 Git에 포함되지 않음

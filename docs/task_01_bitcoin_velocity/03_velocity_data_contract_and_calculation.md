@@ -50,7 +50,8 @@
 
 ### `utxo`
 
-`utxo` 테이블은 구현 환경에 따라 현재 상태 snapshot만 보존하거나, 생성·소비 lifecycle을 보존할 수 있습니다. 과거 `metric_date`의 공급량을 재현하려면 현재 snapshot만으로는 부족하므로, 이 문서는 아래 최소 계약과 사용 우선순위를 명시합니다.
+`utxo` 테이블은 구현 환경에 따라 현재 상태 snapshot만 보존하거나, 생성·소비 lifecycle을 보존할 수 있습니다.
+과거 `metric_date`의 공급량을 재현하려면 현재 snapshot만으로는 부족하므로, 이 문서는 아래 최소 계약과 사용 우선순위를 명시합니다.
 
 | 필드 | 구분 | 용도 |
 |---|---|---|
@@ -71,7 +72,8 @@
   silver.utxo_lifecycle의 직접 입력으로 사용할 수 있습니다.
 ```
 
-어느 기준선을 사용하든 `silver.utxo_lifecycle`의 계산 grain은 `(chain_revision_id, created_txid, created_vout)`으로 고정합니다. 따라서 현재 `utxo` snapshot을 과거 `metric_date` 공급량에 그대로 재사용하는 구현은 금지합니다.
+어느 기준선을 사용하든 `silver.utxo_lifecycle`의 계산 grain은 `(chain_revision_id, created_txid, created_vout)`으로 고정합니다.
+따라서 현재 `utxo` snapshot을 과거 `metric_date` 공급량에 그대로 재사용하는 구현은 금지합니다.
 
 ## 4. 파생 필드와 공급량 정책(Derived Fields and Supply Policy)
 
@@ -107,7 +109,8 @@ lifecycle grain
 = orphan branch에서만 관측된 소비는 해당 revision의 lifecycle에서 소비로 사용하지 않습니다.
 ```
 
-따라서 과거 날짜의 공급량 산출은 현재 `utxo` 상태를 재사용하지 않고, 계산에 사용한 `chain_revision_id`에 종속된 lifecycle을 사용합니다. Reorg 발생 시 새 revision으로 lifecycle을 재구성하며, 기존 revision의 결과는 audit 계층에 보존합니다.
+따라서 과거 날짜의 공급량 산출은 현재 `utxo` 상태를 재사용하지 않고, 계산에 사용한 `chain_revision_id`에 종속된 lifecycle을 사용합니다.
+Reorg 발생 시 새 revision으로 lifecycle을 재구성하며, 기존 revision의 결과는 audit 계층에 보존합니다.
 
 ## 4.3 Policy-eligible UTXO Supply V1
 
@@ -368,11 +371,14 @@ WHERE calendar_days_in_window = 365
   AND policy_eligible_utxo_supply_v1_btc > 0;
 ```
 
-`COUNT(*) = 365`은 달력 행의 연속성을, `COUNT(volume) = 365`와 `COUNT(supply) = 365`는 각 원천 집계의 완결성을 각각 검증합니다. 유효한 일별 이동량이 0 BTC인 경우에는 `silver.daily_gross_onchain_output_volume`이 `0` 값을 가진 행을 생성해야 하며, 원천 누락을 `0`으로 대체하면 안 됩니다.
+`COUNT(*) = 365`은 달력 행의 연속성을, `COUNT(volume) = 365`와 `COUNT(supply) = 365`는 각 원천 집계의 완결성을 각각 검증합니다.
+유효한 일별 이동량이 0 BTC인 경우에는 `silver.daily_gross_onchain_output_volume`이 `0` 값을 가진 행을 생성해야 하며, 원천 누락을 `0`으로 대체하면 안
+됩니다.
 
 ## 7. 더미 데이터 기반 입력·출력 예시(Dummy Input and Output)
 
-> 아래는 계산 경로를 검증하기 위한 3일 축소 예시다. 실제 게시 지표는 동일 규칙을 365일 window에 적용합니다. 수수료·coinbase·burn은 산술을 단순화하기 위해 이 fixture에서 제외했고, 모든 output은 Best Chain의 spendable output으로 가정합니다.
+> 아래는 계산 경로를 검증하기 위한 3일 축소 예시다. 실제 게시 지표는 동일 규칙을 365일 window에 적용합니다. 수수료·coinbase·burn은 산술을 단순화하기 위해 이 fixture에서
+> 제외했고, 모든 output은 Best Chain의 spendable output으로 가정합니다.
 
 ## 7.1 Raw 입력 fixture
 
@@ -412,7 +418,8 @@ WHERE calendar_days_in_window = 365
 | `tx3` | 0 | 93.0 | false | 2026-06-03 23:59:59 |
 | `tx3` | 1 | 1.5 | false | 2026-06-03 23:59:59 |
 
-`tx_output + tx_input`으로 재구성한 lifecycle은 매일 종료 시점의 eligible UTXO supply를 100.0 BTC로 만든다. `utxo` current snapshot은 2026-06-03의 합계가 동일한지 검증하는 보조 입력입니다.
+`tx_output + tx_input`으로 재구성한 lifecycle은 매일 종료 시점의 eligible UTXO supply를 100.0 BTC로 만든다.
+`utxo` current snapshot은 2026-06-03의 합계가 동일한지 검증하는 보조 입력입니다.
 
 ## 7.2 계산 추적과 출력
 

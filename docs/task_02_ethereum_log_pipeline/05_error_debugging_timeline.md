@@ -5,8 +5,11 @@
 > **시간 기준**: 런타임·저장·Airflow logical interval은 UTC. KST는 운영 확인용 보조 표기입니다.
 > **마지막 업데이트**: 2026-06-21 세션 증적 반영
 
-> 현재 제출 판정: 이 문서는 historical debugging timeline입니다. 최신 상태 판단은 `docs/05_validation_evidence.md`와 `docs/09_requirement_traceability_matrix.md`를 우선합니다.
-> 2026-06-22 기준 Airflow UI screenshot은 run history를 보강하고, `airflow/logs/`, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` 대조로 외부 RPC scheduled 수집은 `VERIFIED`로 갱신했습니다. 다만 기본 `data/delta/ethereum_logs` accumulated raw Delta는 최신 `delta_writer` schema와 불일치합니다.
+> 현재 제출 판정: 이 문서는 historical debugging timeline입니다. 최신 상태 판단은 `docs/05_validation_evidence.md`와
+> `docs/09_requirement_traceability_matrix.md`를 우선합니다.
+> 2026-06-22 기준 Airflow UI screenshot은 run history를 보강하고, `airflow/logs/`, `data/delta/ethereum_logs_v2`,
+> `data/analytics/ethereum_analytics_v2.duckdb` 대조로 외부 RPC scheduled 수집은 `VERIFIED`로 갱신했습니다.
+> 다만 기본 `data/delta/ethereum_logs` accumulated raw Delta는 최신 `delta_writer` schema와 불일치합니다.
 
 ---
 
@@ -84,7 +87,9 @@ dbt was unable to infer all dependencies for singular test resources
 Done. PASS=25 WARN=0 ERROR=17 SKIP=0 NO-OP=0 TOTAL=42
 ```
 
-이 run은 finality guard를 통과하고 `Running dbt build` 단계까지 도달했습니다. 파이프라인 구현 순서상 Delta write는 dbt 호출보다 앞선다. 다만 이 실패 attempt 로그에는 해당 interval의 raw insert/duplicate metric이 직접 출력되지 않았으므로, raw 적재 완료 여부는 이 문서에서 **INFERRED**로만 기록합니다.
+이 run은 finality guard를 통과하고 `Running dbt build` 단계까지 도달했습니다. 파이프라인 구현 순서상 Delta write는 dbt 호출보다 앞선다.
+다만 이 실패 attempt 로그에는 해당 interval의 raw insert/duplicate metric이 직접 출력되지 않았으므로, raw 적재 완료 여부는 이 문서에서
+**INFERRED**로만 기록합니다.
 
 ### 2.3 수정
 

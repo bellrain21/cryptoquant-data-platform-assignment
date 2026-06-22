@@ -157,7 +157,8 @@ Airflow DAG에는 개별 dbt 모델명이 없습니다.
   - 결과: `PASS=43 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=43`
 
 - [x] 실제 외부 RPC 환경에서 1시간 end-to-end 수집을 완료했습니다.
-  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, latest direct inspection 기준 `data/delta/ethereum_logs_v2` row count `6848937`, DuckDB `erc20_transfers=6079379` 확인
+  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, latest direct inspection 기준
+    `data/delta/ethereum_logs_v2` row count `6848937`, DuckDB `erc20_transfers=6079379` 확인
   - 한계: provider SLA, full-history backfill, production monitoring은 별도 검증 대상입니다.
 
 - [x] 과제 1 Bitcoin Velocity 설계 타당성을 별도 검증했습니다.

@@ -34,7 +34,8 @@ best_chain
 = 관측 시점과 chain_revision_id를 가진 체인 스냅샷
 ```
 
-기존 branch와 해당 revision으로 계산된 metric observation을 즉시 물리 삭제하지 않습니다. 다만 현재 소비자용 Gold 결과는 최신 Best Chain 기준 confirmed 결과만 유지하고, 기존 branch와 `superseded_by_reorg` 상태는 audit history에 보존합니다.
+기존 branch와 해당 revision으로 계산된 metric observation을 즉시 물리 삭제하지 않습니다. 다만 현재 소비자용 Gold 결과는 최신 Best Chain 기준
+confirmed 결과만 유지하고, 기존 branch와 `superseded_by_reorg` 상태는 audit history에 보존합니다.
 
 ## 12.3 Reorg 감지(Detection)
 
@@ -65,7 +66,8 @@ current_best_chain_block_hash(height)
 8. audit log와 chain checkpoint를 갱신
 ```
 
-후행 365일 분자의 변경은 일반적으로 최대 364일 이후 지표에 직접 영향을 줍니다. 그러나 분모인 UTXO 공급량은 fork 시점 이후의 날짜 전체에 영향을 줄 수 있으므로, 안전한 기본 복구 범위는 **affected start date부터 최신 confirmed metric date까지**입니다.
+후행 365일 분자의 변경은 일반적으로 최대 364일 이후 지표에 직접 영향을 줍니다. 그러나 분모인 UTXO 공급량은 fork 시점 이후의 날짜 전체에 영향을 줄 수 있으므로, 안전한 기본 복구
+범위는 **affected start date부터 최신 confirmed metric date까지**입니다.
 
 ## 12.5 최근 구간 Reconciliation(정합성 재검증)
 
@@ -111,7 +113,8 @@ Velocity는 가격 방향, 매수·매도, 거래소 흐름, 특정 기관 활�
 
 ## 14.1 Change Output Heuristic
 
-주소 재사용, output 구조, 입력 소유 패턴 등을 기반으로 change output을 추정해 V1 gross flow와 분리된 `estimated_economic_transfer_volume` 계열을 추가할 수 있습니다. 단, 휴리스틱 규칙·오류율·버전은 별도로 관리해야 합니다.
+주소 재사용, output 구조, 입력 소유 패턴 등을 기반으로 change output을 추정해 V1 gross flow와 분리된 `estimated_economic_transfer_volume`
+계열을 추가할 수 있습니다. 단, 휴리스틱 규칙·오류율·버전은 별도로 관리해야 합니다.
 
 ## 14.2 Entity Label과 내부 이동 제거
 

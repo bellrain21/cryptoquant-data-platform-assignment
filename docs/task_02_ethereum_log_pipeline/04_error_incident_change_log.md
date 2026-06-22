@@ -5,8 +5,12 @@
 > **시간 기준**: 런타임과 저장은 UTC.
 > **마지막 업데이트**: dbt singular test 경로 복구 결과 반영
 
-> 현재 제출 판정: 이 문서는 historical incident/change log입니다. 최신 source of truth는 `README.md`, `docs/01_system_architecture.md`~`docs/07_submission_readiness_report.md`, `docs/09_requirement_traceability_matrix.md`입니다.
-> 2026-06-22 기준 Airflow UI screenshot은 run history를 보여주며, `airflow/logs/`, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` 대조로 외부 RPC scheduled 수집은 `VERIFIED`로 갱신했습니다. 다만 `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`는 기본 `data/delta/ethereum_logs` 경로의 accumulated raw Delta schema가 최신 Python 계약과 불일치한다고 판정했습니다.
+> 현재 제출 판정: 이 문서는 historical incident/change log입니다. 최신 source of truth는 `README.md`,
+> `docs/01_system_architecture.md`~`docs/07_submission_readiness_report.md`, `docs/09_requirement_traceability_matrix.md`입니다.
+> 2026-06-22 기준 Airflow UI screenshot은 run history를 보여주며, `airflow/logs/`, `data/delta/ethereum_logs_v2`,
+> `data/analytics/ethereum_analytics_v2.duckdb` 대조로 외부 RPC scheduled 수집은 `VERIFIED`로 갱신했습니다.
+> 다만 `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`는 기본 `data/delta/ethereum_logs` 경로의
+> accumulated raw Delta schema가 최신 Python 계약과 불일치한다고 판정했습니다.
 
 ---
 
@@ -379,7 +383,9 @@ data tests = 30
 [ ] canonical publish fence
 ```
 
-2026-06-22 재판정: 위 네 항목은 제출 core 요구사항이 아니라 운영 hardening입니다. 현재 구현은 natural key 기반 insert-if-not-exists, fixture/dbt test, Airflow retry, task log evidence까지 검증했으며, interval ledger와 canonical publish fence는 `NOT VERIFIED`로 유지합니다.
+2026-06-22 재판정: 위 네 항목은 제출 core 요구사항이 아니라 운영 hardening입니다. 현재 구현은 natural key 기반 insert-if-not-exists,
+fixture/dbt test, Airflow retry, task log evidence까지 검증했으며, interval ledger와 canonical publish fence는
+`NOT VERIFIED`로 유지합니다.
 
 ---
 

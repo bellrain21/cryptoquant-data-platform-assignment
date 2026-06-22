@@ -7,7 +7,8 @@
 
 Ethereum RPC에서 event log를 수집해 raw Delta table로 보존하고, dbt-duckdb로 분석용 모델을 만드는 로컬 재현 구조를 설명합니다.
 
-이 문서는 현재 구현 기준만 다룹니다. `docs/task_02_ethereum_log_pipeline/`의 확장 설계 메모는 참고 자료이며, 현재 실행 기준은 `src/cryptoquant_pipeline/`, `airflow/dags/ethereum_hourly_logs.py`, `dbt/models/`입니다.
+이 문서는 현재 구현 기준만 다룹니다. `docs/task_02_ethereum_log_pipeline/`의 확장 설계 메모는 참고 자료이며, 현재 실행 기준은
+`src/cryptoquant_pipeline/`, `airflow/dags/ethereum_hourly_logs.py`, `dbt/models/`입니다.
 
 ## Data flow
 
@@ -48,7 +49,8 @@ Airflow DAG 파일은 실행 그래프를 정의하는 데 집중합니다. RPC 
 - RPC: `ETH_RPC_URL`이 있을 때만 실제 호출합니다.
 - Delta: local filesystem path `DELTA_LOGS_PATH`.
 - DuckDB: local file `DUCKDB_PATH`.
-- dbt: `dbt build --select tag:ethereum_hourly --vars '{"window_start": "...", "window_end": "..."}'` 한 번으로 graph를 실행합니다. 개별 모델명은 Airflow DAG에 하드코딩하지 않습니다.
+- dbt: `dbt build --select tag:ethereum_hourly --vars '{"window_start": "...", "window_end": "..."}'` 한 번으로
+  graph를 실행합니다. 개별 모델명은 Airflow DAG에 하드코딩하지 않습니다.
 
 ## 실행 증거 해석 기준
 
@@ -93,7 +95,9 @@ DAG는 `max_active_runs=1`을 사용합니다. 동일 구간 동시 write를 피
   - 근거: `src/cryptoquant_pipeline/dbt_runner.py`의 `--select tag:ethereum_hourly`
 
 - [x] 실제 외부 RPC 환경에서 1시간 scheduled DAG end-to-end 검증을 완료했습니다.
-  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, 최신 direct inspection 기준 `data/delta/ethereum_logs_v2` row count `6848937`, `data/analytics/ethereum_analytics_v2.duckdb`의 `erc20_transfers=6079379`
+  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, 최신 direct inspection 기준
+    `data/delta/ethereum_logs_v2` row count `6848937`, `data/analytics/ethereum_analytics_v2.duckdb`의
+    `erc20_transfers=6079379`
   - 한계: production-grade 무중단 운영과 full-history backfill은 별도 검증 대상입니다.
 
 - [x] Airflow UI screenshot을 실행 이력 보조 증거로 연결했습니다.

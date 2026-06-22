@@ -6,7 +6,8 @@
 
 ## 1.1 과제 목적 해석(Task Objective)
 
-본 과제의 핵심은 Bitcoin Velocity 값을 한 번 계산하는 것이 아니라, `block`, `tx`, `tx_input`, `tx_output`, `utxo` Delta Lake 테이블을 바탕으로 일 단위 지표를 안정적으로 생산하는 데이터 파이프라인을 설계하는 데 있습니다.
+본 과제의 핵심은 Bitcoin Velocity 값을 한 번 계산하는 것이 아니라, `block`, `tx`, `tx_input`, `tx_output`, `utxo` Delta Lake 테이블을
+바탕으로 일 단위 지표를 안정적으로 생산하는 데이터 파이프라인을 설계하는 데 있습니다.
 
 따라서 산출물은 단순한 비율값이 아니라 아래 메타데이터를 함께 보존하는 지표 데이터 제품입니다.
 

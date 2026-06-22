@@ -1,7 +1,8 @@
 # 과제 2. Ethereum Log Ingestion(이더리움 로그 수집) 파이프라인 구현
 
 > Reference / exploratory design — not the current implementation source of truth.
-> 현재 구현 기준은 저장소 루트 `README.md`, `docs/01_system_architecture.md`부터 `docs/07_submission_readiness_report.md`, `src/cryptoquant_pipeline/`, `airflow/dags/`, `dbt/models/`입니다.
+> 현재 구현 기준은 저장소 루트 `README.md`, `docs/01_system_architecture.md`부터 `docs/07_submission_readiness_report.md`,
+> `src/cryptoquant_pipeline/`, `airflow/dags/`, `dbt/models/`입니다.
 
 ## 문서 목적
 
@@ -9,7 +10,9 @@
 
 현재 이 디렉터리의 문서는 **구현 전 확장 설계 메모**입니다. 실제 구현 기준은 저장소 루트 `README.md`와 `docs/01_system_architecture.md`부터 `docs/06_code_reading_guide.md`까지를 우선합니다.
 
-주의: 아래 문서에는 Bronze/Silver canonical 분리, token metadata dimension, 별도 `tether_treasury_netflow` 모델처럼 현재 코드에 구현되지 않은 후보 설계가 포함됩니다. 사전 과제 제출 기준으로는 현재 구현된 raw Delta `ethereum_logs`, dbt `erc20_transfers`, `tether_treasury_flow`, fixture 검증 증거를 우선합니다.
+주의: 아래 문서에는 Bronze/Silver canonical 분리, token metadata dimension, 별도 `tether_treasury_netflow` 모델처럼 현재 코드에
+구현되지 않은 후보 설계가 포함됩니다. 사전 과제 제출 기준으로는 현재 구현된 raw Delta `ethereum_logs`, dbt `erc20_transfers`,
+`tether_treasury_flow`, fixture 검증 증거를 우선합니다.
 
 ## 현재 실행 증거 기준
 

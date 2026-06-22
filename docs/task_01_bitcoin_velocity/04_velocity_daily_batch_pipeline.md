@@ -67,7 +67,8 @@ observed_best_chain_tip_height
 required_successor_blocks
 ```
 
-기준일 종료 block의 height가 이 cutoff 이하일 때만 해당 날짜의 결과를 current Gold에 `confirmed_by_policy` 상태로 게시합니다. cutoff 밖의 결과와 reorg로 대체된 이전 결과는 audit history에는 남길 수 있지만 current Gold에는 게시하지 않습니다.
+기준일 종료 block의 height가 이 cutoff 이하일 때만 해당 날짜의 결과를 current Gold에 `confirmed_by_policy` 상태로 게시합니다.
+cutoff 밖의 결과와 reorg로 대체된 이전 결과는 audit history에는 남길 수 있지만 current Gold에는 게시하지 않습니다.
 
 ## 9.5 Spark SQL 처리 역할(Spark SQL Responsibilities)
 

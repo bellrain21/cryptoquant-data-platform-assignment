@@ -1,6 +1,7 @@
 # CryptoQuant Data Platform Assignment(데이터 플랫폼 과제)
 
-CryptoQuant Data Platform Engineer(데이터 플랫폼 엔지니어) 사전과제 제출용 저장소입니다. 실행 코드, 설계 근거, 검증 증거, AI 활용 및 인간 검증 요약을 과제 제출 범위에 맞춰 보관합니다.
+CryptoQuant Data Platform Engineer(데이터 플랫폼 엔지니어) 사전과제 제출용 저장소입니다.
+실행 코드, 설계 근거, 검증 증거, AI 활용 및 인간 검증 요약을 과제 제출 범위에 맞춰 보관합니다.
 
 ## 과제 범위
 
@@ -47,11 +48,15 @@ CryptoQuant Data Platform Engineer(데이터 플랫폼 엔지니어) 사전과�
 
 ## 과제 1 범위 경계
 
-이 지표는 policy-defined gross on-chain output velocity indicator(정책으로 정의한 총 온체인 출력 회전율 지표)입니다. Economic transaction volume(경제적 거래량), exchange spot trading volume(거래소 현물 거래량), price direction(가격 방향)을 직접 측정하지 않습니다.
+이 지표는 policy-defined gross on-chain output velocity indicator(정책으로 정의한 총 온체인 출력 회전율 지표)입니다.
+Economic transaction volume(경제적 거래량), exchange spot trading volume(거래소 현물 거래량), price direction(가격 방향)을 직접
+측정하지 않습니다.
 
 이 과제는 CryptoQuant production metrics(실제 운영 지표)를 재현한다고 주장하지 않습니다. 공개 제품 설명은 Contextual reference(맥락 참고 자료)로만 사용합니다.
 
-CryptoQuant 공개 지표 설명은 참고 배경입니다. 자세한 proprietary estimation method(비공개 추정 방식)와 production data contract(운영 데이터 계약)가 제공되지 않았기 때문에, 이 저장소는 투명한 정책과 가정된 원천 테이블을 사용해 assignment-scoped V1 metric(과제 범위 V1 지표)을 별도로 정의합니다.
+CryptoQuant 공개 지표 설명은 참고 배경입니다. 자세한 proprietary estimation method(비공개 추정 방식)와 production data
+contract(운영 데이터 계약)가 제공되지 않았기 때문에, 이 저장소는 투명한 정책과 가정된 원천 테이블을 사용해 assignment-scoped V1 metric(과제 범위 V1 지표)을
+별도로 정의합니다.
 
 Task 1 V1(과제 1 V1)은 다음과 같습니다.
 
@@ -63,7 +68,8 @@ assignment_velocity_365d_policy_eligible_utxo_v1
 
 주요 제한:
 
-- `tx_output`에는 recipient payment(수신자 지급분)와 change output(거스름돈 출력)이 함께 들어갈 수 있어 wallet reshuffling(지갑 재정렬), exchange wallet management(거래소 지갑 관리), change output(거스름돈 출력)이 gross output volume(총 출력 이동량)을 키울 수 있습니다.
+- `tx_output`에는 recipient payment(수신자 지급분)와 change output(거스름돈 출력)이 함께 들어갈 수 있어 wallet reshuffling(지갑 재정렬),
+  exchange wallet management(거래소 지갑 관리), change output(거스름돈 출력)이 gross output volume(총 출력 이동량)을 키울 수 있습니다.
 - Exchange-internal spot trade(거래소 내부 현물 거래)는 거래소 내부 장부에서만 발생할 수 있으므로 온체인 데이터에 나타나지 않을 수 있습니다.
 - Dormant UTXO(장기 미사용 UTXO)는 장기 미사용 상태일 뿐 lost coins(분실 코인)로 자동 분류하지 않습니다.
 - Coinbase transaction(코인베이스 트랜잭션)은 일반 BTC transfer activity(비트코인 전송 활동)로 취급하지 않습니다.
@@ -72,16 +78,21 @@ assignment_velocity_365d_policy_eligible_utxo_v1
 
 ## 과제 2 범위 경계
 
-Task 2(과제 2)는 Ethereum(이더리움) `eth_getLogs`로 event logs(이벤트 로그)를 수집하고, ERC-20 Transfer(ERC-20 전송 이벤트) 및 externally sourced Tether Treasury-labelled address flow(외부 출처의 Tether Treasury 라벨 주소 흐름)를 Fixture(고정 테스트 데이터)와 로컬 도구로 검증하는 구현입니다.
+Task 2(과제 2)는 Ethereum(이더리움) `eth_getLogs`로 event logs(이벤트 로그)를 수집하고, ERC-20 Transfer(ERC-20 전송 이벤트) 및
+externally sourced Tether Treasury-labelled address flow(외부 출처의 Tether Treasury 라벨 주소 흐름)를
+Fixture(고정 테스트 데이터)와 로컬 도구로 검증하는 구현입니다.
 
 주요 제한:
 
 - Fixture-based validation(고정 테스트 데이터 기반 검증)은 Mainnet validation(메인넷 검증)과 같지 않습니다.
 - Real RPC execution(실제 원격 프로시저 호출 실행)에는 `ETH_RPC_URL`이 필요합니다.
-- Full End-to-End Airflow/Docker validation(전체 경로 Airflow/Docker 검증)은 Airflow task log, Delta/DuckDB 산출물, notebook 또는 test 증거가 함께 있는 범위에서만 주장합니다.
-- 현재 Reorg(체인 재편성) 지원은 finality buffer(확정성 완충 구간)와 idempotent replay(멱등 재실행)로 제한됩니다. Block-hash checkpoints(블록 해시 체크포인트) 기반 canonical replacement(정본 교체)는 구현하지 않았습니다.
+- Full End-to-End Airflow/Docker validation(전체 경로 Airflow/Docker 검증)은 Airflow task log, Delta/DuckDB 산출물,
+  notebook 또는 test 증거가 함께 있는 범위에서만 주장합니다.
+- 현재 Reorg(체인 재편성) 지원은 finality buffer(확정성 완충 구간)와 idempotent replay(멱등 재실행)로 제한됩니다.
+  Block-hash checkpoints(블록 해시 체크포인트) 기반 canonical replacement(정본 교체)는 구현하지 않았습니다.
 - Address entity labels(주소 엔티티 라벨)는 외부 설정이며 protocol truth(프로토콜 수준의 사실)가 아닙니다.
-- 원본 `uint256` hex(16진수 값)는 보존합니다. DuckDB/dbt decimal conversion(십진수 변환)은 의도적으로 제한되어 있으며, 큰 값은 이후 정확한 처리를 위해 numeric fields(숫자 필드)에 `null`로 남을 수 있습니다.
+- 원본 `uint256` hex(16진수 값)는 보존합니다. DuckDB/dbt decimal conversion(십진수 변환)은 의도적으로 제한되어 있으며, 큰 값은 이후 정확한 처리를 위해
+  numeric fields(숫자 필드)에 `null`로 남을 수 있습니다.
 
 ## Task 2 Ethereum Hourly Pipeline
 
@@ -103,11 +114,13 @@ flowchart LR
 
 - Provider abstraction: `ETH_RPC_AUTH_MODE=none|basic|bearer`. Alchemy Free는 `none` 가능. 기존 `CHAINSTACK_*` 환경 변수는 fallback으로만 읽습니다.
 - Alchemy Free 불변식: `MAX_BLOCKS_PER_LOG_REQUEST = 10`, `chunk_end = min(chunk_start + 9, to_block)`.
-- collection scope: 기본 acceptance path는 `transfer_topic_all_addresses`입니다. `address/from/to` filter 없이 `Transfer(address,address,uint256)` `topic0`만 사용하며, run 중 scope를 축소하지 않습니다.
+- collection scope: 기본 acceptance path는 `transfer_topic_all_addresses`입니다.
+  `address/from/to` filter 없이 `Transfer(address,address,uint256)` `topic0`만 사용하며, run 중 scope를 축소하지 않습니다.
 - 속도 제한: 기본 `ETH_RPC_REQUESTS_PER_SECOND=4`, `ETH_RPC_CONCURRENCY=1`.
 - 시간 규칙: 모든 interval은 UTC `[window_start, window_end)` half-open입니다. `now() - 1h` 방식, latest block offset 방식은 사용하지 않습니다.
 - block range: `find_first_block_at_or_after(start)`와 `find_first_block_at_or_after(end)`를 이진 탐색으로 계산하고 `to_block = end_exclusive_block - 1`.
-- finality: 수집 전 `eth_getBlockByNumber("finalized", false)`를 확인합니다. finalized timestamp가 interval end보다 이르면 `RetryableIntervalNotFinalized`로 실패시켜 Airflow retry 대상이 됩니다.
+- finality: 수집 전 `eth_getBlockByNumber("finalized", false)`를 확인합니다. finalized timestamp가 interval end보다 이르면
+  `RetryableIntervalNotFinalized`로 실패시켜 Airflow retry 대상이 됩니다.
 - retry: HTTP 429, 5xx, timeout은 bounded retry 후 같은 chunk가 계속 실패하면 절반으로 분할합니다. 단일 block 실패는 명시적 예외입니다.
 - idempotency: raw natural key는 `chain_id + transaction_hash + log_index`입니다. Delta writer는 기존 key를 저장 계층에서 조회한 뒤 신규 row만 insert합니다.
 
@@ -124,9 +137,12 @@ Raw Delta schema 요약:
 dbt 설계:
 
 - `ethereum_logs`: Delta raw table을 DuckDB `delta_scan()`으로 노출.
-- `erc20_transfers`: `topic0`가 ERC-20 Transfer signature인 row만 decoding합니다. `raw_amount`는 문자열/decimal로 보존하고, `amount_usdt`는 configured USDT contract row에만 decimals 6 기준으로 채웁니다. float는 사용하지 않습니다.
+- `erc20_transfers`: `topic0`가 ERC-20 Transfer signature인 row만 decoding합니다.
+  `raw_amount`는 문자열/decimal로 보존하고, `amount_usdt`는 configured USDT contract row에만 decimals 6 기준으로 채웁니다.
+  float는 사용하지 않습니다.
 - `tether_treasury_flow`: lower-case Treasury address 비교. `hour_start_utc + direction` grain. `direction`은 `INFLOW` 또는 `OUTFLOW`.
-- `tether_treasury_flow_quality_summary`: Bonus 검증용 품질 요약 view. `ref('tether_treasury_flow')`와 `tag:ethereum_hourly`만으로 DAG 수정 없이 dbt graph에 편입됩니다.
+- `tether_treasury_flow_quality_summary`: Bonus 검증용 품질 요약 view. `ref('tether_treasury_flow')`와
+  `tag:ethereum_hourly`만으로 DAG 수정 없이 dbt graph에 편입됩니다.
 - dbt 실행 책임: `src/cryptoquant_pipeline/dbt_runner.py`가 `dbt build --select tag:ethereum_hourly`를 실행합니다. Airflow DAG에는 개별 dbt 모델명이 없습니다.
 - Incremental filter는 `max(block_number)`를 쓰지 않고 Airflow가 전달한 `window_start`, `window_end` vars만 사용합니다.
 
@@ -204,7 +220,9 @@ docker compose run --rm airflow-scheduler airflow dags backfill ethereum_hourly_
 Known limitations:
 
 - 무료 Provider 제한 때문에 full-history backfill은 과제 범위 밖입니다.
-- 과거 Chainstack Basic endpoint에서는 `finalized - 50` 수준의 `eth_getBlockByNumber`가 HTTP 403으로 실패한 이력이 있습니다. 이후 로컬 Docker Airflow에서는 별도 provider 설정으로 1시간 scheduled 수집 이력을 확인했지만, provider SLA와 full-history backfill 가능성은 별도 운영 검증이 필요합니다.
+- 과거 Chainstack Basic endpoint에서는 `finalized - 50` 수준의 `eth_getBlockByNumber`가 HTTP 403으로 실패한 이력이 있습니다.
+  이후 로컬 Docker Airflow에서는 별도 provider 설정으로 1시간 scheduled 수집 이력을 확인했지만, provider SLA와 full-history backfill
+  가능성은 별도 운영 검증이 필요합니다.
 - local Delta Lake는 Airflow `max_active_runs=1` 단일 writer를 전제로 합니다.
 - canonical reorg replacement는 구현하지 않았습니다. raw에는 `block_hash`, `removed`를 보존해 후속 보강 근거만 둡니다.
 - dbt SQL의 `uint256` decimal 변환은 DuckDB 내장 SQL 한계 때문에 raw hex 보존을 우선합니다.
@@ -232,7 +250,9 @@ AI 제안은 그대로 반영하지 않았습니다.
 - [x] 최종 설계 결정과 구현 반영 기준을 작성자가 판단한 것으로 기록했습니다.
 - [x] AI 제안 중 실제 코드 또는 테스트로 검증한 항목만 반영했습니다.
 - [x] 로컬 Docker Airflow에서 외부 RPC Provider 기반 여러 1시간 scheduled 수집 이력을 검증했습니다.
-  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, `data/imgs/` success 47건, `data/delta/ethereum_logs_v2` row count `6848937`, `data/analytics/ethereum_analytics_v2.duckdb`의 `erc20_transfers` row count `6079379`
+  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, `data/imgs/` success 47건,
+    `data/delta/ethereum_logs_v2` row count `6848937`, `data/analytics/ethereum_analytics_v2.duckdb`의
+    `erc20_transfers` row count `6079379`
   - 한계: 로컬 Docker Airflow 실행 이력 기준이며 production-grade 무중단 운영, provider SLA, full-history backfill은 별도 검증 대상입니다.
 - [x] 검증하지 못한 항목을 VERIFIED로 표기하지 않았습니다.
 - [x] AI 프롬프트 목적, 판단, 검증 방식 중심으로 요약했습니다.
@@ -324,7 +344,8 @@ AI 제안은 그대로 반영하지 않았습니다.
 미완료로 남기는 항목:
 
 - [x] 실제 외부 RPC provider에서 1시간 Airflow scheduled run을 검증했습니다.
-  - 근거: `airflow/logs/dag_id=ethereum_hourly_logs`에서 `scheduled__2026-06-20T21:00:00+00:00`부터 `scheduled__2026-06-22T08:00:00+00:00`까지 successful scheduled 반환값 33건을 확인했습니다.
+  - 근거: `airflow/logs/dag_id=ethereum_hourly_logs`에서 `scheduled__2026-06-20T21:00:00+00:00`부터
+    `scheduled__2026-06-22T08:00:00+00:00`까지 successful scheduled 반환값 33건을 확인했습니다.
 - [ ] canonical reorg replacement를 구현하고 fixture로 검증했습니다.
   - 미완료 사유: 현재 구현은 finality buffer와 raw `block_hash` 보존까지입니다.
 
@@ -335,6 +356,11 @@ AI 제안은 그대로 반영하지 않았습니다.
 
 ## 보안 기준
 
-이 저장소는 reproducible local assignment demo(재현 가능한 로컬 과제 데모)를 목표로 합니다. Default credentials(기본 인증 정보), host port bindings(호스트 포트 바인딩), writable mounts(쓰기 가능한 마운트), single-provider trust(단일 제공자 신뢰), dependency pinning(의존성 버전 고정)은 운영 보안 통제가 아니라 개발 편의로 취급합니다.
+이 저장소는 reproducible local assignment demo(재현 가능한 로컬 과제 데모)를 목표로 합니다. Default credentials(기본 인증 정보), host port
+bindings(호스트 포트 바인딩), writable mounts(쓰기 가능한 마운트), single-provider trust(단일 제공자 신뢰), dependency
+pinning(의존성 버전 고정)은 운영 보안 통제가 아니라 개발 편의로 취급합니다.
 
-Production hardening(운영 환경 보강)에는 secret management(비밀값 관리), strong Airflow authentication(강한 Airflow 인증), network isolation(네트워크 격리), TLS(전송 계층 보안), immutable deployment artifacts(불변 배포 산출물), dependency locking(의존성 잠금), provider redundancy(제공자 이중화), chain checkpointing(체인 체크포인트 관리), audit retention(감사 이력 보존), monitoring(모니터링)이 필요합니다.
+Production hardening(운영 환경 보강)에는 secret management(비밀값 관리), strong Airflow authentication(강한 Airflow 인증),
+network isolation(네트워크 격리), TLS(전송 계층 보안), immutable deployment artifacts(불변 배포 산출물), dependency
+locking(의존성 잠금), provider redundancy(제공자 이중화), chain checkpointing(체인 체크포인트 관리), audit retention(감사 이력 보존),
+monitoring(모니터링)이 필요합니다.

@@ -44,8 +44,10 @@ git diff 기준 삭제 파일은 21개입니다.
 
 ## 3. 삭제한 코드, SQL, 설정의 핵심 내용과 삭제 근거
 
-- old Airflow DAG shim: active DAG가 하나로 정리되어 scheduler/import 혼선을 줄입니다. DAG 무수정 dbt expansion 검증은 active DAG와 `dbt_runner.run_dbt_build()` 기준으로 유지.
-- old dbt staging/test location: `dbt/models/tests/`는 dbt convention과 현재 `dbt/tests/` 구조가 중복되므로 제거. `dbt build --select tag:ethereum_hourly`로 test coverage 유지 확인.
+- old Airflow DAG shim: active DAG가 하나로 정리되어 scheduler/import 혼선을 줄입니다. DAG 무수정 dbt expansion 검증은 active DAG와
+  `dbt_runner.run_dbt_build()` 기준으로 유지.
+- old dbt staging/test location: `dbt/models/tests/`는 dbt convention과 현재 `dbt/tests/` 구조가 중복되므로 제거.
+  `dbt build --select tag:ethereum_hourly`로 test coverage 유지 확인.
 - unused dbt macro block: `safe_uint256_decimal_string`는 current models/tests에서 참조되지 않고 Python exact decimal text 정책과 맞지 않아 제거.
 - old Python packages: `src/eth_pipeline/`, `src/cryptoquant_assignment/`는 current package와 책임이 중복되고 current tests/import에서 참조되지 않습니다.
 - old API tests: 삭제된 modules를 테스트하던 파일이라 유지하면 현재 API와 충돌합니다. 동일 요구사항은 current tests에서 검증.
@@ -80,13 +82,21 @@ git diff 기준 삭제 파일은 21개입니다.
 ## 6. FIX 처리한 문서, 코드, 경로, 설정 목록
 
 - `.env.example`: `ETH_RPC_URL` blank, Airflow secret placeholder, canonical Delta/DuckDB path 유지.
-- `docker-compose.yaml`, `.devcontainer/docker-compose.devcontainer.yaml`, `dbt/dbt_project.yml`, `scripts/inspect_outputs.py`: canonical path를 `data/delta/ethereum_logs`, `data/analytics/ethereum_analytics.duckdb` 기준으로 정렬.
+- `docker-compose.yaml`, `.devcontainer/docker-compose.devcontainer.yaml`, `dbt/dbt_project.yml`,
+  `scripts/inspect_outputs.py`: canonical path를 `data/delta/ethereum_logs`, `data/analytics/ethereum_analytics.duckdb`
+  기준으로 정렬.
 - `dbt/macros/decode_ethereum_address.sql`: unused `safe_uint256_decimal_string` macro block 제거.
-- `dbt/models/silver/erc20_transfers.sql`, `dbt/models/gold/tether_treasury_flow.sql`, `dbt/models/gold/tether_treasury_flow_quality_summary.sql`, `dbt/tests/*.sql`: `-- depends_on: {{ ref(...) }}` 추가로 dbt parser graph를 명시.
+- `dbt/models/silver/erc20_transfers.sql`, `dbt/models/gold/tether_treasury_flow.sql`,
+  `dbt/models/gold/tether_treasury_flow_quality_summary.sql`, `dbt/tests/*.sql`:
+  `-- depends_on: {{ ref(...) }}` 추가로 dbt parser graph를 명시.
 - `dbt/models/schema.yml`: 신규 quality summary view와 not-null tests 반영.
-- `tests/test_environment.py`, `tests/test_block_range.py`, `tests/test_delta_idempotency.py`, `tests/test_quality_checks.py`, `tests/test_rpc_client.py`: current `cryptoquant_pipeline` API 기준으로 갱신.
+- `tests/test_environment.py`, `tests/test_block_range.py`, `tests/test_delta_idempotency.py`,
+  `tests/test_quality_checks.py`, `tests/test_rpc_client.py`: current `cryptoquant_pipeline` API 기준으로 갱신.
 - `src/cryptoquant_pipeline/exceptions.py`, `quality_checks.py`: current validation helper import/API 정합성 보정.
-- `README.md`, `docs/01_system_architecture.md`, `docs/02_data_contracts.md`, `docs/03_execution_guide.md`, `docs/05_validation_evidence.md`, `docs/06_code_reading_guide.md`, `docs/07_submission_readiness_report.md`, `docs/task_02_ethereum_log_pipeline/*.md`: stale path, stale dbt graph, stale validation count, legacy/current 경계 보정.
+- `README.md`, `docs/01_system_architecture.md`, `docs/02_data_contracts.md`, `docs/03_execution_guide.md`,
+  `docs/05_validation_evidence.md`, `docs/06_code_reading_guide.md`, `docs/07_submission_readiness_report.md`,
+  `docs/task_02_ethereum_log_pipeline/*.md`: stale path, stale dbt graph, stale validation count,
+  legacy/current 경계 보정.
 - `docs/09_requirement_traceability_matrix.md`: 요구사항별 구현/문서 위치와 검증 상태 신규 작성.
 - `src/notebooks/`: stale `_task_02_04...v1~v3` 중복 notebook 삭제, active notebook 5개를 `00_`~`04_` 번호와 목적 중심 이름으로 정리.
 
@@ -124,9 +134,12 @@ git diff 기준 삭제 파일은 21개입니다.
 ## 9. 발견했지만 삭제하지 않은 위험 요소
 
 - `.env`가 local ignored file로 존재합니다. 비밀값 유출 방지를 위해 내용은 읽거나 출력하지 않았고, Git 추적 대상으로 만들지 않았습니다.
-- `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`는 최신 v2 raw Delta의 schema와 duplicate key는 통과하지만 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제를 `PARTIALLY VERIFIED`로 판정합니다. 이 항목은 로컬 accumulated data freshness 리스크이며, fixture 검증 성공과 별개로 남겨야 합니다.
+- `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`는 최신 v2 raw Delta의 schema와 duplicate
+  key는 통과하지만 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제를 `PARTIALLY VERIFIED`로 판정합니다.
+  이 항목은 로컬 accumulated data freshness 리스크이며, fixture 검증 성공과 별개로 남겨야 합니다.
 - `data/imgs/`는 Airflow UI screenshot 증거로 보존합니다. success run history는 task log와 Delta/DuckDB 산출물 대조 후에만 외부 RPC scheduled 수집 이력으로 해석합니다.
-- `data/delta/ethereum_logs_v2`와 `data/analytics/ethereum_analytics_v2.duckdb`는 Airflow scheduled 실행 증거로 확인했지만 generated/local artifact이므로 제출 source file로 보지 않습니다.
+- `data/delta/ethereum_logs_v2`와 `data/analytics/ethereum_analytics_v2.duckdb`는 Airflow scheduled 실행 증거로 확인했지만
+  generated/local artifact이므로 제출 source file로 보지 않습니다.
 - error timeline 문서는 과거 command/path를 포함할 수 있습니다. 현재 source of truth는 README와 `docs/01`~`docs/08`로 제한했습니다.
 - `data/delta/`, `data/analytics/`, `data/tmp/`, `dbt/target/`, `.venv/`는 generated artifact이므로 삭제하지 않았습니다. 제출물에 포함하면 stale output 오해 위험이 있습니다.
 - Airflow local default credential과 port mapping은 demo 편의 설정이다. 운영 보안 통제로 주장하지 않습니다.
@@ -225,4 +238,5 @@ git diff 기준 삭제 파일은 21개입니다.
 - docs/12_legacy_cleanup_report.md
 ```
 
-`git diff --stat` 요약: tracked files 기준 51 files changed, 1525 insertions, 4410 deletions. 신규 untracked source/test/dbt files는 stat에 포함되지 않을 수 있습니다.
+`git diff --stat` 요약: tracked files 기준 51 files changed, 1525 insertions, 4410 deletions.
+신규 untracked source/test/dbt files는 stat에 포함되지 않을 수 있습니다.

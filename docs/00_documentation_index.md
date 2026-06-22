@@ -66,7 +66,9 @@ docs/
 | 11 | [11_documentation_consistency_report.md](./11_documentation_consistency_report.md) | 코드·SQL·Markdown 불일치 수정 결과와 링크/체크리스트 상태 | 문서 정합성 보고 |
 | 12 | [12_legacy_cleanup_report.md](./12_legacy_cleanup_report.md) | 레거시 삭제/유지/보류/FIX 근거, 검증 결과, diff 요약 | 레거시 정리 보고 |
 
-기존 `task_02_ethereum_log_pipeline/` 문서는 Reference / exploratory design — not the current implementation source of truth. Bronze/Silver canonical, token metadata dimension, 별도 netflow 모델 같은 내용은 현재 실행 구현과 다를 수 있습니다. README와 현재 구현 기준 문서가 제출·실행 기준입니다.
+기존 `task_02_ethereum_log_pipeline/` 문서는 Reference / exploratory design — not the current implementation source
+of truth. Bronze/Silver canonical, token metadata dimension, 별도 netflow 모델 같은 내용은 현재 실행 구현과 다를 수 있습니다.
+README와 현재 구현 기준 문서가 제출·실행 기준입니다.
 
 | 순서 | 문서 | 범위 | 상태 |
 |---:|---|---|---|
@@ -79,7 +81,8 @@ docs/
 
 ## Notebook 검증 보조 자료
 
-`src/notebooks/`는 제출 실행 경로를 대체하지 않는 검증 보조 자료입니다. 03번과 04번은 실행 output을 저장해 현재 Python source code, fixture 흐름, 로컬 canonical data 상태를 점검한 근거로 사용합니다.
+`src/notebooks/`는 제출 실행 경로를 대체하지 않는 검증 보조 자료입니다. 03번과 04번은 실행 output을 저장해 현재 Python source code, fixture 흐름,
+로컬 canonical data 상태를 점검한 근거로 사용합니다.
 
 | 순서 | 파일 | 범위 | 상태 |
 |---:|---|---|---|
@@ -91,7 +94,8 @@ docs/
 
 ## Airflow UI Screenshot 증거
 
-`data/imgs/`는 Airflow UI에서 관측한 실행 이력 screenshot입니다. 이 이미지는 DAG 등록과 run history를 보여주는 보조 증거이며, 최신 raw Delta schema나 row-level data correctness를 단독으로 증명하지 않습니다.
+`data/imgs/`는 Airflow UI에서 관측한 실행 이력 screenshot입니다. 이 이미지는 DAG 등록과 run history를 보여주는 보조 증거이며, 최신 raw Delta
+schema나 row-level data correctness를 단독으로 증명하지 않습니다.
 
 | 파일 | 관측 내용 | 현재 판정 |
 |---|---|---|

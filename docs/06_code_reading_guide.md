@@ -200,7 +200,8 @@ Airflow logical interval
   - 근거: `dbt/models/`, `dbt/tests/`, `tests/test_dbt_contracts.py`
 
 - [x] 실제 외부 RPC에서 생성된 Airflow task log까지 코드 읽기 순서와 대조했습니다.
-  - 근거: `airflow/logs/dag_id=ethereum_hourly_logs`의 scheduled run 반환값과 `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` 산출물을 대조했습니다.
+  - 근거: `airflow/logs/dag_id=ethereum_hourly_logs`의 scheduled run 반환값과 `data/delta/ethereum_logs_v2`,
+    `data/analytics/ethereum_analytics_v2.duckdb` 산출물을 대조했습니다.
   - 한계: production-grade provider SLA와 full-history backfill은 별도 검증 대상입니다.
 
 - [x] 요구사항 추적표 상태를 갱신했습니다.

@@ -39,7 +39,8 @@ Tracked generated artifact는 `git ls-files` 기준으로 관측하지 못했습
 
 ### Metric Purpose
 
-Task 1 지표는 Bitcoin 공급량 대비 온체인 output movement가 얼마나 크게 관측되는지 보는 assignment-scoped activity indicator다. 가격 방향, exchange spot trading volume, 실제 경제 주체 간 순가치 이전, CryptoQuant production metric 재현을 주장하지 않습니다.
+Task 1 지표는 Bitcoin 공급량 대비 온체인 output movement가 얼마나 크게 관측되는지 보는 assignment-scoped activity indicator다.
+가격 방향, exchange spot trading volume, 실제 경제 주체 간 순가치 이전, CryptoQuant production metric 재현을 주장하지 않습니다.
 
 ### Formula
 
@@ -64,7 +65,8 @@ policy_eligible_utxo_supply_v1_btc(d)
 - 미소비 output, coinbase maturity 100-block 조건, canonical chain membership, unspendable exclusion 정책을 적용.
 - Dormant UTXO는 자동으로 lost coins가 아니므로 기본 분모에서 제외하지 않습니다.
 
-이 정의는 universal truth가 아니라 V1 policy choice입니다. 과제에 production source tables, proprietary estimation method, entity label contract가 제공되지 않았기 때문에 재현 가능한 투명 정책을 우선합니다.
+이 정의는 universal truth가 아니라 V1 policy choice입니다. 과제에 production source tables, proprietary estimation method,
+entity label contract가 제공되지 않았기 때문에 재현 가능한 투명 정책을 우선합니다.
 
 ### Data Source Roles
 
@@ -143,11 +145,17 @@ Hard fail은 publish하면 잘못된 metric이 되는 구조적/논리적 무결
 
 30-second explanation:
 
-> 이 과제의 Velocity는 CryptoQuant production metric을 복제한 값이 아니라, Bitcoin raw table만으로 방어 가능하게 정의한 gross on-chain output velocity입니다. 분자는 최근 365일 regular transaction output 합계이고, 분모는 day-end policy-eligible UTXO supply입니다. Change output과 내부 지갑 이동이 섞일 수 있으므로 경제적 거래량이나 가격 예측 지표라고 말하지 않습니다.
+> 이 과제의 Velocity는 CryptoQuant production metric을 복제한 값이 아니라, Bitcoin raw table만으로 방어 가능하게 정의한 gross on-chain
+> output velocity입니다. 분자는 최근 365일 regular transaction output 합계이고, 분모는 day-end policy-eligible UTXO supply입니다.
+> Change output과 내부 지갑 이동이 섞일 수 있으므로 경제적 거래량이나 가격 예측 지표라고 말하지 않습니다.
 
 1-minute explanation:
 
-> 저는 source fact, policy choice, assumption을 분리했습니다. `block`, `tx`, `tx_input`, `tx_output`에서 UTXO lifecycle을 재구성하고, day-end cutoff에서 미소비이고 성숙한 coinbase 조건을 만족하며 provably unspendable이 아닌 UTXO만 분모로 봅니다. 분자는 non-coinbase transaction의 output value 합계라 change output을 제거하지 않습니다. 그래서 이 값은 온체인 활동성 지표이지 경제적 transfer volume이 아닙니다. Reorg가 발생하면 common ancestor 이후 날짜와 rolling window 영향 범위를 재계산하고 이전 값은 audit history에 superseded로 남기는 설계입니다.
+> 저는 source fact, policy choice, assumption을 분리했습니다. `block`, `tx`, `tx_input`, `tx_output`에서 UTXO lifecycle을
+> 재구성하고, day-end cutoff에서 미소비이고 성숙한 coinbase 조건을 만족하며 provably unspendable이 아닌 UTXO만 분모로 봅니다.
+> 분자는 non-coinbase transaction의 output value 합계라 change output을 제거하지 않습니다.
+> 그래서 이 값은 온체인 활동성 지표이지 경제적 transfer volume이 아닙니다. Reorg가 발생하면 common ancestor 이후 날짜와 rolling window 영향 범위를
+> 재계산하고 이전 값은 audit history에 superseded로 남기는 설계입니다.
 
 Likely reviewer questions:
 
@@ -181,13 +189,20 @@ Likely reviewer questions:
 | Address labels | USDT contract와 Tether Treasury-labelled address는 dbt env var로 설정. label provenance/version registry 없음 | external assumption |
 | Claimed reorg behavior | current docs must state finality/idempotency only. legacy docs are exploratory | 문서 라벨 보강 |
 
-Task 2의 현재 source of truth는 `src/cryptoquant_pipeline/`, `airflow/dags/ethereum_hourly_logs.py`, `dbt/models/`, `docs/01_system_architecture.md`, `docs/02_data_contracts.md`, `docs/03_execution_guide.md`, `docs/04_failure_retry_backfill_strategy.md`다. 삭제된 `src/eth_pipeline/`와 `src/cryptoquant_assignment/`는 이전 구현이며 현재 실행 경로가 아닙니다.
+Task 2의 현재 source of truth는 `src/cryptoquant_pipeline/`, `airflow/dags/ethereum_hourly_logs.py`,
+`dbt/models/`, `docs/01_system_architecture.md`, `docs/02_data_contracts.md`, `docs/03_execution_guide.md`,
+`docs/04_failure_retry_backfill_strategy.md`다. 삭제된 `src/eth_pipeline/`와 `src/cryptoquant_assignment/`는 이전 구현이며
+현재 실행 경로가 아닙니다.
 
 ## Security and Operational Risk Assessment
 
-This repository is designed as a reproducible local assignment demo. Default credentials, host port bindings, writable mounts, single-provider trust, and dependency pinning are treated as development conveniences rather than production security controls.
+This repository is designed as a reproducible local assignment demo. Default credentials, host port bindings,
+writable mounts, single-provider trust, and dependency pinning are treated as development conveniences rather
+than production security controls.
 
-Production hardening would require secret management, strong Airflow authentication, network isolation, TLS, immutable deployment artifacts, dependency locking, provider redundancy, chain checkpointing, audit retention, and monitoring.
+Production hardening would require secret management, strong Airflow authentication, network isolation, TLS,
+immutable deployment artifacts, dependency locking, provider redundancy, chain checkpointing, audit retention,
+and monitoring.
 
 ### Threat Model
 
