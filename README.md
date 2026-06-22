@@ -91,8 +91,8 @@ Fixture(고정 테스트 데이터)와 로컬 도구로 검증하는 구현입�
 - 현재 Reorg(체인 재편성) 지원은 finality buffer(확정성 완충 구간)와 idempotent replay(멱등 재실행)로 제한됩니다.
   Block-hash checkpoints(블록 해시 체크포인트) 기반 canonical replacement(정본 교체)는 구현하지 않았습니다.
 - Address entity labels(주소 엔티티 라벨)는 외부 설정이며 protocol truth(프로토콜 수준의 사실)가 아닙니다.
-- 원본 `uint256` hex(16진수 값)는 보존합니다. DuckDB/dbt decimal conversion(십진수 변환)은 의도적으로 제한되어 있으며, 큰 값은 이후 정확한 처리를 위해
-  numeric fields(숫자 필드)에 `null`로 남을 수 있습니다.
+- 원본 `uint256` hex(16진수 값)와 손실 없는 10진수 문자열을 함께 보존합니다.
+  다만, DuckDB/dbt의 DECIMAL(38,0) 범위를 초과하는 값은 정밀도 손실을 방지하기 위해 numeric 파생 필드를 NULL로 유지하며, 정확한 원본 값은 data_uint256_decimal_text 문자열 필드에 보존합니다.
 
 ## Task 2 Ethereum Hourly Pipeline
 
