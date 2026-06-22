@@ -225,4 +225,4 @@ git diff 기준 삭제 파일은 21개다.
 - docs/12_legacy_cleanup_report.md
 ```
 
-`git diff --stat` 요약: tracked files 기준 51 files changed, 1525 insertions, 4410 deletions. 신규 untracked source/test/dbt files는 stat에 포함되지 않을 수 있다.
+`git diff --stat` 요약: tracked files 기준 51 files changed, 1525 insertions, 4410 deletions. 신규 untracked source/test/dbt files는 stat에 포함되지 않을 수 있음.
