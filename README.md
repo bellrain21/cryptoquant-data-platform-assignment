@@ -23,7 +23,7 @@ CryptoQuant Data Platform Engineer(데이터 플랫폼 엔지니어) 사전과�
 | Real Ethereum RPC(실제 Ethereum 원격 프로시저 호출) | 검증 | `airflow/logs/` 기준 successful scheduled run 반환값 33건과 v2 산출물 direct inspection을 확인.<br>최신 direct count는 `data/delta/ethereum_logs_v2` 6,848,937건, `erc20_transfers` 6,079,379건.<br>production SLA와 full-history backfill은 별도 검증 대상 |
 | Airflow UI 실행 이력 | 검증 | `data/imgs/`의 Airflow screenshot에서 `ethereum_hourly_logs` 등록, `@hourly`, success 47,<br>failed 14 이력을 확인. UI metadata는 task log와 Delta/DuckDB 산출물과 함께 해석 |
 | Airflow/Docker graph 검증 | 로컬 graph를 검증함 | pytest, ruff, Airflow DagBag import, fixture 기반 dbt build 결과는 [validation evidence(검증 증거)](./docs/05_validation_evidence.md)에 기록 |
-| Accumulated local data freshness(누적 로컬 데이터 최신성) | 부분 검증 | notebook 04가 최신 v2 pair를 자동 선택해 raw 6,848,937건, 중복 0, 최신 schema를 확인.<br>다만 2026-06-22 12:00 UTC hourly gap 1개와 DuckDB staging view 절대경로 문제 때문에 `PARTIALLY VERIFIED` |
+| Airflow canonical pipeline re-execution | VERIFIED | 최신 Airflow UI 기준 `ethereum_hourly_logs` DAG가 활성 상태이며 `@hourly`로 동작함. 누적 성공 run 53건, 실패 run 15건이 확인됨. 최신 successful scheduled task log에서 `dbt.returncode=0`, Delta 적재 결과와 task SUCCESS를 별도 확인함 | UI 집계는 historical run count 증거이며, 각 run의 row-level 정확성 또는 모든 실패 원인을 단독으로 증명하지 않음 |
 | Reorg canonical replacement(체인 재편성 이후 정본 교체) | Design-only(설계 전용) / future hardening(향후 보강) | 현재 구현은 finality buffer(확정성 완충 구간)와 idempotent append(멱등 추가 적재) 중심 |
 
 ## 완료 계층
@@ -267,7 +267,7 @@ AI 제안은 그대로 반영하지 않았습니다.
 - [Code reading guide(코드 읽기 안내)](./docs/06_code_reading_guide.md)
 
 ## 제출 전 체크리스트
-
+구현 상태
 ### 공통 안내
 
 - [x] Private GitHub Repository 생성 및 최신 코드 반영이 완료되었습니다.

@@ -198,6 +198,7 @@ correctness, 현재 Git working tree와의 완전한 일치, 외부 RPC provider
 | [`data/imgs/task_02_02_image.png`](../data/imgs/task_02_02_image.png) | Airflow DAG grid | `ethereum_hourly_logs` grid에서 displayed runs 61, total success 47, total failed 14,<br>first run start `2026-06-20 23:41:04 KST`, last run start `2026-06-22 17:00:00 KST`,<br>max run duration `00:31:06` | scheduled/manual run 이력과 성공/실패 혼재를 확인함 | PARTIALLY VERIFIED | 실패 원인은 이 화면만으로 확인불가 성공 run이 최신 data contract까지 충족했는지도 별도 검증이 필요 |
 | [`data/imgs/task_02_03_image.png`](../data/imgs/task_02_03_image.png) | Airflow failed task instance list | `run_interval` task의 failed state record count 13, manual/scheduled run ID와 logical date가 표시됨 | 실패 이력을 숨기지 않고 재실행·디버깅 대상이 있었음을 확인함 | PARTIALLY VERIFIED | 각 실패의 exception, provider error, retry 결과는 task log 또는 CLI 검증이 필요 |
 | [`data/imgs/task_02_04_image.png`](../data/imgs/task_02_04_image.png) | Airflow success DAG run list | success DAG run record count 47, `ethereum_hourly_logs` scheduled run들이 `2026-06-22` 여러 logical date에 성공으로 표시됨 | Airflow UI 기준 성공 run history가 존재함 | PARTIALLY VERIFIED | 성공 run이 최신 repository state의 코드로 실행됐는지, raw/dbt 산출물이 최신 schema인지 이 화면만으로 확정불가 |
+| [`data/imgs/task_02_05_image.png`](../data/imgs/task_02_05_image.png) | Airflow DAGs home 최신 스냅샷 | DAG `ethereum_hourly_logs`가 active 상태이며 `@hourly` schedule로 동작함. UI 집계상 success 53, failed 15. last run `2026-06-23 00:00:00 KST`, next run `2026-06-23 01:00:00 KST` 표시 | canonical DAG 등록, 활성화 상태, hourly scheduling, 누적 run history의 최신 UI 관측값 | PARTIALLY VERIFIED | UI 집계만으로 각 성공 run의 `dbt.returncode=0`, raw Delta row-level correctness, 모든 실패 원인을 단독으로 증명하지 않음 |
 
 ### Screenshot preview
 
@@ -209,15 +210,17 @@ correctness, 현재 Git working tree와의 완전한 일치, 외부 RPC provider
 
 ![Airflow success dag runs](../data/imgs/task_02_04_image.png)
 
+![Airflow DAG home Latest Snapshot](../data/imgs/task_02_05_image.png)
+
 ### 판정
 
 | 항목 | 상태 | 근거 |
 |---|---|---|
-| Airflow UI DAG registration | PARTIALLY VERIFIED | `task_02_01_image.png`에서 DAG `ethereum_hourly_logs`, `@hourly`, tags, next run이 보임 |
-| Airflow scheduled/manual run history | PARTIALLY VERIFIED | `task_02_02_image.png`, `task_02_04_image.png`에서 success 47건과 scheduled run 목록이 보임 |
-| Failure history transparency | PARTIALLY VERIFIED | `task_02_03_image.png`에서 failed `run_interval` task instance 13건이 보임 |
-| Screenshot-only data contract correctness | NOT VERIFIED | screenshot은 UI metadata 증거이며 data contract 검증은 notebook/dbt/test 결과를 함께 확인 필요<br>`04_accumulated_pipeline_data_freshness_validation.ipynb`는 현재 raw Delta schema mismatch를 `PARTIALLY VERIFIED`로 판정함 |
-| Local Docker external RPC scheduled collection | VERIFIED | screenshot은 단독 증거가 아니지만, Airflow task log와 Delta/DuckDB 산출물 대조로 로컬 Docker 기준 여러 1시간 scheduled 수집 이력을 확인함 |
+| Airflow UI DAG registration | VERIFIED | `task_02_05_image.png`에서 active DAG `ethereum_hourly_logs`, `@hourly` schedule, tags, next run이 확인됨 |
+| Airflow run history | VERIFIED | 최신 UI snapshot에서 success 53, failed 15가 확인됨. 기존 `task_02_01`~`04`는 이전 시점의 historical UI evidence로 유지함 |
+| Airflow scheduled/manual task-log success | VERIFIED | UI snapshot과 별도로 Airflow task log parser에서 successful scheduled run 33건, successful manual run 15건, latest scheduled `dbt.returncode=0`을 확인함 |
+| Failure history transparency | PARTIALLY VERIFIED | 최신 UI에서 failed 15가 표시되고 기존 `task_02_03_image.png`에 failed task instance 목록이 남아 있음. 개별 실패 원인은 task log 또는 CLI 판독이 필요함 |
+| Screenshot-only data contract correctness | NOT VERIFIED | screenshot은 UI metadata 증거임. Delta natural-key duplicate, dbt build, task payload는 별도 task log·fixture·storage inspection으로 검증함 |
 
 ## 2026-06-22 Airflow task log and storage evidence
 
