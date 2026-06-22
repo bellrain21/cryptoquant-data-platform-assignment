@@ -20,6 +20,7 @@ docs/
 ├── 10_refactoring_report.md
 ├── 11_documentation_consistency_report.md
 ├── 12_legacy_cleanup_report.md
+├── 13_evidence_snapshot_ledger.md
 ├── task_01_bitcoin_velocity/
 │   ├── 00_task_01_index.md
 │   ├── 01_task_01_scope_and_design_direction.md
@@ -65,6 +66,7 @@ docs/
 | 10 | [10_refactoring_report.md](./10_refactoring_report.md) | Python/dbt SQL 리팩토링 범위, 검증 결과, 남은 부채 | 리팩토링 보고 |
 | 11 | [11_documentation_consistency_report.md](./11_documentation_consistency_report.md) | 코드·SQL·Markdown 불일치 수정 결과와 링크/체크리스트 상태 | 문서 정합성 보고 |
 | 12 | [12_legacy_cleanup_report.md](./12_legacy_cleanup_report.md) | 레거시 삭제/유지/보류/FIX 근거, 검증 결과, diff 요약 | 레거시 정리 보고 |
+| 13 | [13_evidence_snapshot_ledger.md](./13_evidence_snapshot_ledger.md) | 실행 증거의 관측 시점, 우선순위, 누적 수치 해석 경계 | 증거 해석 기준 |
 
 기존 `task_02_ethereum_log_pipeline/` 문서는 Reference / exploratory design — not the current implementation source
 of truth. Bronze/Silver canonical, token metadata dimension, 별도 netflow 모델 같은 내용은 현재 실행 구현과 다를 수 있습니다.
@@ -82,7 +84,8 @@ README와 현재 구현 기준 문서가 제출·실행 기준입니다.
 ## Notebook 검증 보조 자료
 
 `src/notebooks/`는 제출 실행 경로를 대체하지 않는 검증 보조 자료입니다. 03번과 04번은 실행 output을 저장해 현재 Python source code, fixture 흐름,
-로컬 canonical data 상태를 점검한 근거로 사용합니다.
+로컬 canonical data 상태를 점검한 근거로 사용합니다. 실행 output의 관측 시점과 누적 수치 해석은
+[13_evidence_snapshot_ledger.md](./13_evidence_snapshot_ledger.md)를 함께 확인합니다.
 
 | 순서 | 파일 | 범위 | 상태 |
 |---:|---|---|---|
@@ -113,6 +116,7 @@ schema나 row-level data correctness를 단독으로 증명하지 않습니다.
 | [10_refactoring_report.md](./10_refactoring_report.md) | 이번 리팩토링 범위와 검증 결과 | 검증 상태 기록 |
 | [11_documentation_consistency_report.md](./11_documentation_consistency_report.md) | 문서-코드 정합성 점검 결과 | 검증 상태 기록 |
 | [12_legacy_cleanup_report.md](./12_legacy_cleanup_report.md) | 레거시 정리 범위, 삭제 근거, 검증 결과 | 검증 상태 기록 |
+| [13_evidence_snapshot_ledger.md](./13_evidence_snapshot_ledger.md) | 실행 증거의 관측 시점과 해석 우선순위 | 증거 해석 기준 |
 
 ## 문서 작성 규칙(Document Convention)
 
@@ -122,3 +126,4 @@ schema나 row-level data correctness를 단독으로 증명하지 않습니다.
 - 외부 문서에 없는 세부 구현은 사실이 아니라 설계 선택으로 명시합니다.
 - 링크 대상 파일은 이 문서 구조에 실제 존재하는 파일만 사용합니다.
 - 주요 기술·도메인 용어는 첫 등장에만 `English(한글)` 병기 후 일관된 용어를 사용합니다.
+- 실행 증거의 누적 수치는 관측 시점이 다른 historical snapshot일 수 있으므로, 수치만으로 현재 상태 또는 모순 여부를 판단하지 않습니다.
