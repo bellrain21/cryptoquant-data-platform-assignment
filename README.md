@@ -355,9 +355,9 @@ AI 제안은 그대로 반영하지 않았습니다.
 
 ## 보안 기준
 
-이 저장소는 reproducible local assignment demo(재현 가능한 로컬 과제 데모)를 목표로 합니다. Default credentials(기본 인증 정보), host port
-bindings(호스트 포트 바인딩), writable mounts(쓰기 가능한 마운트), single-provider trust(단일 제공자 신뢰), dependency
-pinning(의존성 버전 고정)은 운영 보안 통제가 아니라 개발 편의로 취급합니다.
+이 Repository(저장소)는 reproducible local assignment demo(재현 가능한 로컬 과제 데모)를 목표로 합니다. Default credentials(기본 인증 정보), host port
+bindings(호스트 포트 바인딩), writable mounts(쓰기 가능한 마운트), single-provider trust(단일 제공자 신뢰), dependency pinning(의존성 버전 고정)은 
+운영 보안 통제가 아니라 개발 편의로 취급합니다.
 
 Production hardening(운영 환경 보강)에는 secret management(비밀값 관리), strong Airflow authentication(강한 Airflow 인증),
 network isolation(네트워크 격리), TLS(전송 계층 보안), immutable deployment artifacts(불변 배포 산출물), dependency
