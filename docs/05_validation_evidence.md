@@ -509,7 +509,7 @@ Airflow 배포, provider SLA, alerting, full-history backfill은 별도 검증 �
 
 검증하지 않았습니다 당시 항목: 이 2026-06-20 세션에서는 실제 provider에서 `transfer_topic_all_addresses` scope의 1시간 live E2E를 완료하지 못했습니다.
 
-이후 2026-06-22 Airflow task log와 `ethereum_logs_v2` 산출물로 1시간 scheduled 수집 이력은 확인했습니다. 
+이후 2026-06-22 Airflow task log와 `ethereum_logs_v2` 산출물로 1시간 단위 scheduled 수집 이력을 로그와 데이터 적재 사실을 통해 확인했습니다. 
 
 PHASE 0/PHASE 5 provider qualification fingerprint 비교와 staging-to-canonical publication manifest는 여전히 구현하지 않았습니다.
 
