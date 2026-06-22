@@ -492,11 +492,11 @@ Airflow 배포, provider SLA, alerting, full-history backfill은 별도 검증 �
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps -e DELTA_LOGS_PATH=/workspace/data/tmp/dbt_validation/current/ethereum_logs -e DUCKDB_PATH=/workspace/data/tmp/dbt_validation/current/ethereum_analytics.duckdb -e DUCKDB_EXTENSION_DIR=/workspace/data/duckdb_extensions workspace-dev dbt build --project-dir dbt --profiles-dir dbt --select tag:ethereum_hourly --vars '{"window_start": "2024-01-01T00:00:00Z", "window_end": "2024-01-01T01:00:00Z"}'` | `PASS=25 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=25` |
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps -e DUCKDB_PATH=/workspace/data/tmp/dbt_validation/current/ethereum_analytics.duckdb workspace-dev python -c "...count main.erc20_transfers and main.tether_treasury_flow..."` | `{'erc20_transfers': 2, 'tether_treasury_flow': 1, 'non_usdt_amount_usdt_not_null': 0}` |
 
-검증하지 않았습니다 당시 항목: 이 2026-06-20 세션에서는 실제 provider에서
-`transfer_topic_all_addresses` scope의 1시간 live E2E를 완료하지 못했습니다.
-이후 2026-06-22 Airflow task log와 `ethereum_logs_v2` 산출물로 1시간 scheduled 수집
-이력은 확인했습니다. PHASE 0/PHASE 5 provider qualification fingerprint 비교와
-staging-to-canonical publication manifest는 여전히 구현하지 않았습니다.
+검증하지 않았습니다 당시 항목: 이 2026-06-20 세션에서는 실제 provider에서 `transfer_topic_all_addresses` scope의 1시간 live E2E를 완료하지 못했습니다.
+
+이후 2026-06-22 Airflow task log와 `ethereum_logs_v2` 산출물로 1시간 scheduled 수집 이력은 확인했습니다. 
+
+PHASE 0/PHASE 5 provider qualification fingerprint 비교와 staging-to-canonical publication manifest는 여전히 구현하지 않았습니다.
 
 ## Docker Ubuntu/Python 통합 재검증
 
