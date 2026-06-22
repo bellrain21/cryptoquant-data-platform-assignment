@@ -165,10 +165,13 @@ final_status=PARTIALLY VERIFIED
 
 해석: notebook 04는 기본 `data/delta/ethereum_logs` 대신 최신 schema와 downstream row count가 확인되는
 `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` pair를 선택합니다.
+
 raw Delta schema와 중복 key는 통과했지만, 2026-06-22 11:00 UTC 다음 interval이 13:00 UTC라 12:00 UTC hourly gap이 있습니다.
-또한 DuckDB `main.ethereum_logs` staging view는 `/opt/airflow/data/delta/ethereum_logs_v2` 절대경로를 저장해
-`workspace-dev`의 `/workspace` mount에서는 query error가 발생합니다.
-따라서 누적 로컬 산출물은 현재 code contract 기준에서도 `VERIFIED`가 아니라 `PARTIALLY VERIFIED`로 기록합니다.
+
+또한, DuckDB `main.ethereum_logs` staging view는 `/opt/airflow/data/delta/ethereum_logs_v2` 절대경로를 저장해 `workspace-dev`의 `/workspace` mount에서는 query error가 발생합니다.
+
+따라서, 누적 로컬 산출물은 현재 code contract 기준에서도 `VERIFIED`가 아니라 `PARTIALLY VERIFIED`로 기록합니다.
+
 fixture 기반 dbt build는 최신 schema로 별도 검증되어 있으며, 실제 accumulated local data를 fixture로 덮어쓰지 않았습니다.
 
 ### 검증하지 않았습니다 또는 차단
