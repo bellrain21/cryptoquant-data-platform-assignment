@@ -354,7 +354,8 @@ AI 제안은 그대로 반영하지 않았습니다.
     `tether_treasury_flow=2건`을 확인했습니다.
 
     `\data\imgs\task_02_01_image.png`부터 `\data\imgs\task_02_04_image.png` 기준으로는
-    success `47건`, failed `14건`의 실행 이력과 `run_interval` task 상태를 확인했습니다. 
+    success `47건`, failed `14건`의 실행 이력과 `run_interval` task 상태를 확인했습니다.
+      (failed 사항은 Debugging-fixed 완료)
     
 - [ ] canonical reorg replacement를 구현하고 fixture로 검증했습니다.
   - 미완료 사유: 현재 구현은 finality buffer와 raw `block_hash` 보존까지입니다.
