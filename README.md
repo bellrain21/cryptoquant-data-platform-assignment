@@ -85,7 +85,7 @@ Fixture(고정 테스트 데이터)와 로컬 도구로 검증하는 구현입�
 주요 제한:
 
 - Fixture-based validation(고정 테스트 데이터 기반 검증)은 Mainnet validation(메인넷 검증)과 같지 않습니다.
-- Real RPC execution(실제 원격 프로시저 호출 실행)에는 프로젝트 최상위 위치에서 `.env` 파일 내에 `ETH_RPC_URL` 세팅이 필요합니다 
+- Real RPC execution(실제 원격 프로시저 호출 실행)에는 프로젝트 최상위 위치에서 `.env` 파일 내에 `ETH_RPC_URL` 값의 세팅이 필요합니다.
 - Full End-to-End Airflow/Docker validation(전체 경로 Airflow/Docker 검증)은 Airflow task log, Delta/DuckDB 산출물,
   notebook 또는 test 증거가 함께 있는 범위에서만 주장합니다.
 - 현재 Reorg(체인 재편성) 지원은 finality buffer(확정성 완충 구간)와 idempotent replay(멱등 재실행)로 제한됩니다.
