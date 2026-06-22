@@ -34,7 +34,9 @@ best_chain
 = 관측 시점과 chain_revision_id를 가진 체인 스냅샷
 ```
 
-기존 branch와 해당 revision으로 계산된 metric observation을 즉시 물리 삭제하지 않습니다. 다만 현재 소비자용 Gold 결과는 최신 Best Chain 기준
+기존 branch와 해당 revision으로 계산된 metric observation을 즉시 물리 삭제하지 않습니다.
+
+다만, 현재 소비자용 Gold 결과는 최신 Best Chain 기준
 confirmed 결과만 유지하고, 기존 branch와 `superseded_by_reorg` 상태는 audit history에 보존합니다.
 
 ## 12.3 Reorg 감지(Detection)
@@ -66,7 +68,9 @@ current_best_chain_block_hash(height)
 8. audit log와 chain checkpoint를 갱신
 ```
 
-후행 365일 분자의 변경은 일반적으로 최대 364일 이후 지표에 직접 영향을 줍니다. 그러나 분모인 UTXO 공급량은 fork 시점 이후의 날짜 전체에 영향을 줄 수 있으므로, 안전한 기본 복구
+후행 365일 분자의 변경은 일반적으로 최대 364일 이후 지표에 직접 영향을 줍니다. 
+
+그러나 분모인 UTXO 공급량은 fork 시점 이후의 날짜 전체에 영향을 줄 수 있으므로, 안전한 기본 복구
 범위는 **affected start date부터 최신 confirmed metric date까지**입니다.
 
 ## 12.5 최근 구간 Reconciliation(정합성 재검증)
