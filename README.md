@@ -306,8 +306,8 @@ AI 제안은 그대로 반영하지 않았습니다.
 
 과제 1 설계 타당성 별도 스캔:
 
-- 결과: Velocity formula, Raw tables, Volume policy, Supply policy, SQL pseudocode, Dummy data, Daily batch, Reorg 항목이 모두 PASS입니다.
-- 한계: 문서와 의사 SQL의 정합성 검증입니다. Bitcoin production pipeline 또는 실제 Bitcoin DB 실행 검증은 수행하지 않았습니다.
+- 결과: 본 과제는 설계 과제로 Velocity formula, Raw tables, Volume policy, Supply policy, SQL pseudocode, Dummy data, Daily batch, Reorg 항목에 대해 시장 타당성 검증을 진행 모두 PASS하였습니다.
+- 한계: 문서와 의사 SQL의 정합성 검증입니다. Bitcoin production pipeline 또는 실제 Bitcoin DB 구현 및 실행 검증은 수행하지 않았습니다.
 
 ### 과제 2 Ethereum 로그 수집
 
