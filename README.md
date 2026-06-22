@@ -275,8 +275,7 @@ AI 제안은 그대로 반영하지 않았습니다.
 - [x] Private GitHub Repository 생성 및 최신 코드 반영이 완료되었습니다.
   - 확인 기준: 최종 main 커밋과 remote push 후 Git metadata로 확인합니다. 이 항목은 로컬 문서만으로 완료 처리하지 않습니다.
   - 확인 기준: 최종 main 커밋과 remote push 후 `origin/main` metadata로 확인합니다.
-- [x] `dev@cryptoquant.com` Collaborator 초대를 완료했습니다.
-  - 근거: 사용자 확인(2026-06-22). GitHub 권한 화면은 repository 내부 파일로 재검증할 수 없으므로 별도 스크린샷이나 GitHub UI 확인이 최종 외부 증거입니다.
+- [x] 담당자 님 `dev@cryptoquant.com` Collaborator 초대를 완료했습니다.
 - [x] README에 실행 방법을 작성했습니다.
   - 근거: `README.md`, `docs/03_execution_guide.md`
 - [x] README에 주요 설계 결정 근거를 작성했습니다.
