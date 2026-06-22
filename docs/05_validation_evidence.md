@@ -203,14 +203,18 @@ correctness, 현재 Git working tree와의 완전한 일치, 외부 RPC provider
 ### Screenshot preview
 
 ![Airflow DAG home](../data/imgs/task_02_01_image.png)
-
+ - Airflow DAG 등록 및 현재(21일 기준) 스케줄 상태
 ![Airflow DAG grid](../data/imgs/task_02_02_image.png)
+ - Airflow DAG Grid 실행 이력 및 재실행 결과
 
 ![Airflow failed task instances](../data/imgs/task_02_03_image.png)
-
+ - 프로세스 실패 로그 
+   
 ![Airflow success dag runs](../data/imgs/task_02_04_image.png)
+ - 프로세스 성공 로그  
 
 ![Airflow DAG home Latest Snapshot](../data/imgs/task_02_05_image.png)
+ - 제출 시간외에 보조 증거
 
 ### 판정
 
