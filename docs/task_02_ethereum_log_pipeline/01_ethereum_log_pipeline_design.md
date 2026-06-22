@@ -102,13 +102,13 @@ canonical event key
 = chain_id + transaction_hash + log_index
 ```
 
-동일 RPC 응답의 재수집은 observation key로 중복을 제거합니다. `removed`가 누락되거나 false인 관측은 `observed`, `removed=true` 관측은
-`removed`로 정규화합니다. 따라서 같은 raw log의 정상 관측과 reorg removal 관측은 서로 다른 audit observation으로 보존되고, 같은 상태의 retry만 중복
-제거됩니다.
+동일 RPC 응답의 재수집은 observation key로 중복을 제거합니다. `removed`가 누락되거나 false인 관측은 `observed`, `removed=true` 관측은 `removed`로 정규화합니다. 
 
-canonical event는 현재 Best Chain에 속한 `observed` observation만 대상으로 합니다. reorg 영향 범위에서는 단순 MERGE만 수행하지 않고, 해당 범위의
-canonical source 전체를 기준으로 stale target row를 삭제한 뒤 현재 event를 반영합니다. 따라서 retry·backfill은 audit 이력을 잃지 않고,
-consumer-facing view는 중복 없이 현재 체인 상태로 수렴합니다.
+따라서, 같은 raw log의 정상 관측과 reorg removal 관측은 서로 다른 audit observation으로 보존되고, 같은 상태의 retry만 중복 제거됩니다.
+
+canonical event는 현재 Best Chain에 속한 `observed` observation만 대상으로 합니다. reorg 영향 범위에서는 단순 MERGE만 수행하지 않고, 해당 범위의 canonical source 전체를 기준으로 stale target row를 삭제한 뒤 현재 event를 반영합니다. 
+
+따라서, retry·backfill은 audit 이력을 잃지 않고 consumer-facing view는 중복 없이 현재 체인 상태로 수렴합니다.
 
 ## 1.7 Reorg 고려사항(Reorg State Handling)
 
@@ -152,11 +152,11 @@ WHEN NOT MATCHED BY SOURCE
 THEN DELETE
 ```
 
-`WHEN NOT MATCHED BY SOURCE ... DELETE`를 지원하지 않는 실행 환경에서는 같은 영향을 갖도록 affected range의 Silver row를 먼저 DELETE한 뒤
-stage source를 INSERT 또는 MERGE합니다. 전 테이블 삭제는 금지하고, 반드시 common ancestor 이후 범위로 한정합니다.
+`WHEN NOT MATCHED BY SOURCE ... DELETE`를 지원하지 않는 실행 환경에서는 같은 영향을 갖도록 affected range의 Silver row를 먼저 DELETE한 뒤 stage source를 INSERT 또는 MERGE합니다. 
 
-provider가 `removed=true`를 제공하면 이를 `removed` observation state로 보존합니다. 그러나 polling 기반 `eth_getLogs` 수집에서는 이
-플래그만을 reorg 감지의 유일한 근거로 사용하지 않고 block hash reconciliation을 함께 사용합니다.
+전 테이블 삭제는 금지하고, 반드시 common ancestor 이후 범위로 한정합니다.
+
+provider가 `removed=true`를 제공하면 이를 `removed` observation state로 보존합니다. 그러나 polling 기반 `eth_getLogs` 수집에서는 이 플래그만을 reorg 감지의 유일한 근거로 사용하지 않고 block hash reconciliation을 함께 사용합니다.
 
 ## 1.8 구현 검증 체크리스트
 
