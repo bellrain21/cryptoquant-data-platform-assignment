@@ -290,25 +290,23 @@ docker compose exec airflow-scheduler python -c "from deltalake import DeltaTabl
 
 ## 7. 남은 확인 항목
 
-```text
-[ ] dbt-only catch-up 대상 [18:00,19:00) UTC raw interval의 insert/duplicate metric을 Delta 직접 조회로 보강
-[ ] 다음 Airflow scheduled/manual run에서 dbt.returncode=0 및 Airflow SUCCESS 확인
-[ ] Airflow UI served-log 403 영구 보정
-[ ] ETH_AIRFLOW_ENABLE_HOURLY_SCHEDULE 제거 또는 실제 DAG 동작과 연결
-[ ] dbt_project.yml / profiles.yml의 v2 default path 통일 여부 재검증
-[ ] 제출 archive에서 .env, key, logs, target, runtime DB, cache 제외
-```
+- [ ] dbt-only catch-up 대상 `[18:00,19:00)` UTC raw interval의 insert/duplicate metric을 Delta 직접 조회로 보강
+- [x] Airflow scheduled run에서 `dbt.returncode=0` 및 Airflow SUCCESS 확인
+- [ ] Airflow UI served-log 403 영구 보정
+- [x] `ETH_AIRFLOW_ENABLE_HOURLY_SCHEDULE` 제거 또는 실제 DAG 동작과 연결
+- [ ] `dbt_project.yml` / `profiles.yml`의 v2 default path 통일
+- [ ] 제출 archive에서 `.env`, key, logs, target, runtime DB, cache 제외
 
 2026-06-22 재판정:
 
 | 항목 | 상태 | 근거 또는 미완료 사유 |
 |---|---|---|
-| dbt-only catch-up 대상 interval metric 보강 | PARTIALLY VERIFIED | 최신 Airflow successful scheduled run과 Delta/DuckDB row count는 확인함 특정 `[18:00,19:00)` UTC catch-up interval만 별도 조회하지는 않았음 |
-| 다음 Airflow scheduled/manual run 성공 확인 | VERIFIED | `airflow/logs/`에서 최신 successful scheduled run `row_count_after=6082932`, `dbt.returncode=0`을 확인함 |
-| Airflow UI served-log 403 영구 보정 | NOT VERIFIED | UI log serving 설정 보정은 현재 제출 core 기능이 아니며 수행하지 않음 |
-| `ETH_AIRFLOW_ENABLE_HOURLY_SCHEDULE` 정리 | PARTIALLY VERIFIED | active DAG는 `schedule='@hourly'`임 historical env flag cleanup은 legacy cleanup 범위로 남김 |
-| dbt/project default path의 v2 통일 | PARTIALLY VERIFIED | v2 실행 증거와 fixture dbt 검증은 확인함<br>notebook 04는 최신 v2 pair를 선택하지만 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제를 `PARTIALLY VERIFIED`로 판정함 |
-| 제출 archive secret/runtime artifact 제외 | PARTIALLY VERIFIED | `.gitignore`, `.env.example`, secret-like scan은 확인함 실제 archive 생성 직전 `git ls-files` 재확인은 남아 있음 |
+| dbt-only catch-up 대상 interval metric 보강 | NOT VERIFIED | 특정 `[18:00,19:00)` UTC interval의 Delta `inserted` 또는 duplicate natural-key metric을 직접 조회한 증거가 없음 |
+| Airflow scheduled run 성공 확인 | VERIFIED | scheduled run 33건과 최신 `dbt.returncode=0`, `row_count_after=6082932` 기록이 문서화됨. manual run은 이 항목 범위에 포함하지 않음 |
+| Airflow UI served-log 403 영구 보정 | NOT VERIFIED | 영구 설정 변경 또는 재검증 증거가 없음 |
+| `ETH_AIRFLOW_ENABLE_HOURLY_SCHEDULE` 정리 | VERIFIED | active DAG가 `schedule="@hourly"`로 동작하며, 해당 legacy env flag는 현재 원격 실행 코드에서 확인되지 않음 |
+| dbt/project default path의 v2 통일 | NOT VERIFIED | 기본값은 `ethereum_logs`, `ethereum_analytics.duckdb`이며, v2는 누적 검증 산출물 경로일 뿐 default path가 아님 |
+| 제출 archive secret/runtime artifact 제외 | NOT VERIFIED | `.gitignore`와 secret-like scan은 통과했지만, 실제 archive 생성 후 포함 파일을 검사한 증거가 없음 |
 
 ---
 

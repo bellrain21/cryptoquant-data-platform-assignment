@@ -338,53 +338,55 @@ data tests = 30
 
 ### P0 — 제출 차단 가능 항목
 
-```text
-[x] .env / API key / secret / runtime data / logs / dbt target-cache 제외
-[x] clean checkout 또는 clean archive에서 README 실행 경로 검증
-[x] raw commit과 dbt 실패가 분리될 가능성을 validation 문서에 명시합니다.
-[x] archive 생성 직전 git status / git ls-files 재확인
-```
+- [x] secret/runtime artifact 제외
+- [ ] clean checkout 또는 clean archive에서 README 실행 경로 검증
+- [x] raw commit과 dbt 실패 분리 가능성 문서화
+- [ ] archive 직전 `git status` / `git ls-files` 재확인
 
 2026-06-22 재판정:
 
 | 항목 | 상태 | 근거 또는 미완료 사유 |
 |---|---|---|
-| secret/runtime artifact 제외 | VERIFIED | `.gitignore`, `.env.example`, secret-like scan, `data/delta/`, `data/analytics/`, `airflow/logs/`, `dbt/target/` ignore 확인 |
-| clean checkout 또는 clean archive 검증 | NOT VERIFIED | 현재 작업트리가 변경 중이며 clean clone/archive에서 재실행하지 않음 |
-| raw commit과 dbt 실패 분리 문서화 | VERIFIED | `docs/05_validation_evidence.md`, `docs/07_submission_readiness_report.md`,<br>`docs/11_documentation_consistency_report.md`에 raw Delta, dbt, UI 증거 경계를 분리함 |
-| archive 직전 `git status` / `git ls-files` 재확인 | NOT VERIFIED | archive 생성 단계가 아니므로 최종 제출 직전에 다시 실행해야 함 |
+| secret/runtime artifact 제외 | VERIFIED | `.gitignore`에서 `.env`, `.env.*`, `data/delta/`, `data/analytics/`, `airflow/logs/`, `dbt/target/`, `dbt/logs/`, cache를 제외함. `.env.example`에는 실제 RPC URL 또는 API key가 없음 |
+| clean checkout 또는 clean archive 검증 | NOT VERIFIED | clean clone 또는 `git archive` 환경에서 README 실행 명령을 재실행한 증거가 없음 |
+| raw Delta commit과 dbt 실패 분리 문서화 | VERIFIED | `docs/05_validation_evidence.md`, `docs/07_submission_readiness_report.md`, `docs/11_documentation_consistency_report.md`에 raw Delta, dbt, UI 증거 경계를 분리함. 코드도 Delta write 후 dbt build를 순차 실행함 |
+| archive 직전 `git status` / `git ls-files` 재확인 | NOT VERIFIED | 원격 Repository만으로는 archive 직전 로컬 working tree와 추적 파일 상태를 증명할 수 없음 |
 
 ### P1 — 신뢰도·운영성 강화
 
-```text
-[x] 다음 Airflow run에서 dbt.returncode=0 + Airflow SUCCESS 확인
-[x] schedule env flag 제거 또는 실제 DAG 동작 연결
-[x] dbt/project default path의 v2 통일 여부 확인
-[x] legacy eth_pipeline package / docs / scripts 참조 정리
-```
+- [x] Airflow scheduled run에서 `dbt.returncode=0` 및 Airflow SUCCESS 실행 증거 기록
+- [ ] Airflow UI served-log 403 영구 보정
+- [x] schedule env flag 제거 또는 실제 `@hourly` DAG 연결
+- [ ] dbt/project default path의 v2 통일
+- [x] legacy 실행 package 정리
 
 2026-06-22 재판정:
 
 | 항목 | 상태 | 근거 또는 미완료 사유 |
 |---|---|---|
-| 다음 Airflow run 성공 확인 | VERIFIED | Airflow task log에서 successful scheduled run 반환값 33건과 최신 `dbt.returncode=0` 확인 |
-| Airflow UI served-log 403 영구 보정 | NOT VERIFIED | UI served-log 설정 자체는 제출 핵심 기능이 아니며 영구 보정 작업을 수행하지 않음 |
-| schedule env flag 정리 | PARTIALLY VERIFIED | active DAG는 `@hourly` schedule을 코드로 가짐 legacy env flag 존재 여부는 제출 차단 기능이 아니라 문서상 historical risk로 남김 |
-| dbt/project default path의 v2 통일 | PARTIALLY VERIFIED | 실행 증거는 `ethereum_logs_v2`에서 확인했지만 기본 `DELTA_LOGS_PATH`는 clean fixture/dbt 검증 경로와 분리되어 있음 |
-| legacy `eth_pipeline` 참조 정리 | PARTIALLY VERIFIED | canonical 경로는 `src/cryptoquant_pipeline/`로 정리함 현재 작업트리의 삭제/추가 변경이 아직 remote에 반영되지 않음 |
+| Airflow scheduled run 성공 확인 | VERIFIED | Airflow task log 기준 successful scheduled run 33건과 최신 `dbt.returncode=0` 기록이 문서화됨. manual run 성공은 별도 증거 없음 |
+| Airflow UI served-log 403 영구 보정 | NOT VERIFIED | 영구 보정 코드, 설정 변경, 재검증 증거를 확인하지 못함 |
+| schedule env flag 정리 | VERIFIED | active DAG가 코드상 `schedule="@hourly"`로 동작함. 기존 `ETH_AIRFLOW_ENABLE_HOURLY_SCHEDULE`은 현재 원격 실행 코드에서 확인되지 않음 |
+| dbt/project default path의 v2 통일 | NOT VERIFIED | `dbt_project.yml`, `profiles.yml.example`, `PipelineSettings` 기본값은 `ethereum_logs`, `ethereum_analytics.duckdb`임. `ethereum_logs_v2`, `ethereum_analytics_v2.duckdb`는 검증 증거 경로임 |
+| legacy 실행 package 정리 | VERIFIED | canonical 실행 경로는 `src/cryptoquant_pipeline/`이며, 원격 `main`에 `src/eth_pipeline/` 실행 package는 없음. historical 문서 설명은 남아 있음 |
 
 ### P2 — 확장성 개선
 
-```text
-[ ] full-key Python set dedupe 개선
-[ ] incremental hourly test와 full-history audit 분리
-[ ] interval ledger / watermark / repair command
-[ ] canonical publish fence
-```
+- [ ] full-key Python set dedupe 개선
+- [ ] incremental hourly test와 full-history audit 분리
+- [ ] interval ledger / watermark / repair command
+- [ ] canonical publish fence
 
-2026-06-22 재판정: 위 네 항목은 제출 core 요구사항이 아니라 운영 hardening입니다. 현재 구현은 natural key 기반 insert-if-not-exists,
-fixture/dbt test, Airflow retry, task log evidence까지 검증했으며, interval ledger와 canonical publish fence는
-`NOT VERIFIED`로 유지합니다.
+2026-06-22 재판정:
+
+| 항목 | 상태 | 근거 또는 미완료 사유 |
+|---|---|---|
+| full-key Python set dedupe 개선 | NOT VERIFIED | Delta snapshot의 natural key 전체를 읽어 Python `set`으로 비교하는 구조임 |
+| incremental hourly test와 full-history audit 분리 | NOT VERIFIED | 현재 dbt 실행은 `tag:ethereum_hourly` selector 중심이며 별도 full-history audit 실행 경로가 없음 |
+| interval ledger / watermark / repair command | NOT VERIFIED | interval 상태를 영속 관리하거나 repair 대상으로 재실행하는 별도 구조가 없음 |
+| canonical publish fence | NOT VERIFIED | raw Delta write 후 dbt build가 순차 실행됨. dbt 실패 시 raw만 적재된 상태가 가능함 |
+
+P2는 제출 core 요구사항보다 운영 hardening에 가깝습니다. 현재 제출 범위에서는 natural key 기반 insert-if-not-exists, fixture/dbt test, Airflow retry, scheduled task log 증거까지를 구현·검증 범위로 유지합니다.
 
 ---
 
