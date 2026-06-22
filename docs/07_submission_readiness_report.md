@@ -16,14 +16,14 @@
 | Airflow source | `airflow/dags/ethereum_hourly_logs.py` | 유지. deprecated `ethereum_logs_pipeline.py` shim은 삭제 |
 | dbt source | `dbt/dbt_project.yml`, `dbt/macros/`, `dbt/models/`, `dbt/profiles.yml.example` | 유지 |
 | Tests and fixtures | `tests/`, `tests/fixtures/` | 유지 |
-| Docker/dependency files | `Dockerfile`, `docker-compose.yaml`, `.devcontainer/`, `requirements.txt`, `requirements-runtime.txt`, `pyproject.toml`, `.env.example` | 유지 |
-| Core submission docs | `README.md`, `docs/00_documentation_index.md`, `docs/01_system_architecture.md` ~ `docs/07_submission_readiness_report.md`, `docs/09_requirement_traceability_matrix.md`, `docs/10_refactoring_report.md`, `docs/11_documentation_consistency_report.md` | 유지 |
+| Docker/dependency files | `Dockerfile`, `docker-compose.yaml`, `.devcontainer/`, `requirements.txt`,<br>`requirements-runtime.txt`, `pyproject.toml`, `.env.example` | 유지 |
+| Core submission docs | `README.md`, `docs/00_documentation_index.md`,<br>`docs/01_system_architecture.md` ~ `docs/07_submission_readiness_report.md`,<br>`docs/09_requirement_traceability_matrix.md`, `docs/10_refactoring_report.md`,<br>`docs/11_documentation_consistency_report.md` | 유지 |
 | Task 1 docs | `docs/task_01_bitcoin_velocity/` | 유지. 현재 설계 source of truth |
-| Task 2 current docs | `docs/01_system_architecture.md`, `docs/02_data_contracts.md`, `docs/03_execution_guide.md`, `docs/04_failure_retry_backfill_strategy.md`, `docs/05_validation_evidence.md`, `docs/06_code_reading_guide.md` | 유지. 현재 구현 source of truth |
+| Task 2 current docs | `docs/01_system_architecture.md`, `docs/02_data_contracts.md`, `docs/03_execution_guide.md`,<br>`docs/04_failure_retry_backfill_strategy.md`, `docs/05_validation_evidence.md`,<br>`docs/06_code_reading_guide.md` | 유지. 현재 구현 source of truth |
 | AI usage transparency | `docs/08_ai_usage_transparency_and_validation.md` | 유지. PDF 제출 요구에 필요한 범위만 포함 |
 | Personal learning/reference docs | `docs/14_feynman_concept_map.md`, `docs/02_blockchain_concepts_guide.md` | 제출 범위에서 제거 |
 | Exploratory design docs | `docs/task_02_ethereum_log_pipeline/` | 유지하되 Reference / exploratory design — not the current implementation source of truth로 라벨링 |
-| Validation evidence | `docs/05_validation_evidence.md`, `docs/10_refactoring_report.md`, `docs/11_documentation_consistency_report.md`, 이 문서의 Validation Results | 유지 |
+| Validation evidence | `docs/05_validation_evidence.md`, `docs/10_refactoring_report.md`,<br>`docs/11_documentation_consistency_report.md`, 이 문서의 Validation Results | 유지 |
 | Screenshot evidence | `data/imgs/` | 유지. Airflow UI DAG 등록과 run history 보조 증거 |
 | Notebook evidence | `src/notebooks/` | 유지. 03번 fixture ETL/idempotency와 04번 accumulated data freshness output 저장 |
 | Generated artifacts | `data/delta/`, `data/analytics/`, `dbt/target/` | 제출 source of truth가 아니며, ignore 대상임 |
@@ -155,8 +155,8 @@ Likely reviewer questions:
 |---|---|
 | CryptoQuant Velocity와 같은 값인가? | 아님 공개 설명은 context only이고, production estimation method가 없어서 assignment-scoped V1 metric으로 정의함 |
 | 왜 change output을 제거하지 않았나? | change heuristic과 entity label이 없으면 제거 규칙이 불투명해짐 V1은 gross output으로 명시하고 한계를 문서화함 |
-| Dormant UTXO를 lost coins로 봤나? | 아님 dormant는 장기 미사용 상태이며, lost coin은 사실 판정이 아니라 별도 sensitivity analysis로만 다룹니다 |
-| Reorg는 어떻게 처리하나? | stored checkpoint와 current chain hash를 비교하고 common ancestor 이후 affected dates를 같은 transformation logic으로 재계산함 이전 published value는 audit에 남긴다 |
+| Dormant UTXO를 lost coins로 봤나? | 아님 dormant는 장기 미사용 상태이며, lost coin은 사실 판정이 아니라 별도 sensitivity analysis로만 다룸 |
+| Reorg는 어떻게 처리하나? | stored checkpoint와 current chain hash를 비교하고 common ancestor 이후 affected dates를 같은 transformation logic으로 재계산함<br>이전 published value는 audit에 남김 |
 | 이 지표로 가격을 예측하나? | 아님 가격 방향이나 거래소 내부 거래량을 직접 측정하지 않음 |
 
 ## Task 2 Implementation and Integrity Review
@@ -170,9 +170,9 @@ Likely reviewer questions:
 | Stale canonical rows | 별도 canonical table이 없어 stale canonical row 제거 구현이 없음 | 구현되지 않음 |
 | Partial subrange failure | 단일 block 실패 시 `LogFetchError`, raw quality gate에서 failed subrange 실패 처리 | fixture-tested/code-inspected |
 | `eth_chainId` validation | `pipeline.run_interval`에서 RPC endpoint chain id와 `ETH_CHAIN_ID` 일치 여부 확인 | implemented/tested by mock, real basic RPC verified |
-| Collection scope | `CollectionScope.default_transfer_topic_all_addresses`가 `address_filter=None`, Transfer `topic0`만 허용하고 `ETH_LOG_ADDRESS_FILTER` drift를 설정 단계에서 차단 | implemented/fixture-tested. Airflow scheduled-run evidence는 있음 provider qualification manifest는 구현되지 않음 |
+| Collection scope | `CollectionScope.default_transfer_topic_all_addresses`가 `address_filter=None`,<br>Transfer `topic0`만 허용하고 `ETH_LOG_ADDRESS_FILTER` drift를 설정 단계에서 차단 | implemented/fixture-tested. Airflow scheduled-run evidence는 있음 provider qualification manifest는 구현되지 않음 |
 | Airflow UI run history | `data/imgs/` screenshot에서 DAG 등록, `@hourly`, success 47, failed 14, failed task instance 13건을 확인 | VERIFIED as run-history evidence. UI screenshot 단독 row-level correctness는 아님 |
-| Airflow external RPC scheduled runs | `airflow/logs/`에서 successful scheduled 반환값 33건 확인. latest direct inspection 기준 `data/delta/ethereum_logs_v2` row count `6848937`, `erc20_transfers=6079379` | VERIFIED in local Docker Airflow. production SLA는 별도 |
+| Airflow external RPC scheduled runs | `airflow/logs/`에서 successful scheduled 반환값 33건 확인.<br>latest direct inspection 기준 `data/delta/ethereum_logs_v2` row count `6848937`,<br>`erc20_transfers=6079379` | VERIFIED in local Docker Airflow. production SLA는 별도 |
 | Accumulated local raw Delta | `src/notebooks/04_*`가 최신 v2 pair를 선택해 schema current, row count `6848937`, duplicate key `0`을 확인 | PARTIALLY VERIFIED. 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제가 남아 있음 |
 | Block hash checkpoints | raw row `block_hash` 보존 외 checkpoint reconciliation 없음 | P1 gap |
 | DAG concurrency | `max_active_runs=1` 있음 task pool/concurrency/Delta writer lock은 없음 | 부분 통제 |
@@ -281,10 +281,10 @@ Production hardening would require secret management, strong Airflow authenticat
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps workspace-dev python -c "...relation counts..."` | VERIFIED | `{'ethereum_logs': 2, 'erc20_transfers': 2, 'tether_treasury_flow': 1, 'tether_treasury_flow_quality_summary': 1}` |
 | `nbclient` execution of `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` | VERIFIED | `second_inserted_row_count=0`, `duplicate_natural_key_count=0`, saved error output이 없음 |
 | custom code-cell execution of `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | PARTIALLY VERIFIED | `latest_v2_local` 선택, raw `6848937`, duplicate key `0`, schema current. 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제 확인 |
-| `scripts/inspect_outputs.py` with canonical paths | PARTIALLY VERIFIED | `delta_row_count=1`, `delta_duplicate_natural_key_count=0`, `erc20_transfers_row_count=1`, `tether_treasury_flow_row_count=1`. schema freshness는 별도 불일치 |
+| `scripts/inspect_outputs.py` with canonical paths | PARTIALLY VERIFIED | `delta_row_count=1`, `delta_duplicate_natural_key_count=0`, `erc20_transfers_row_count=1`,<br>`tether_treasury_flow_row_count=1`. schema freshness는 별도 불일치 |
 | `data/imgs/` screenshot manual review | PARTIALLY VERIFIED | Airflow UI 기준 DAG 등록, `@hourly`, success 47, failed 14, failed task instance 13건 확인 |
-| Airflow task log parse | VERIFIED | successful scheduled run 반환값 33건, first `scheduled__2026-06-20T21:00:00+00:00`, latest parsed run `scheduled__2026-06-22T08:00:00+00:00`, `row_count_after=6082932`, `dbt.returncode=0` |
-| Delta/DuckDB direct inspection in `workspace-dev` | VERIFIED | latest recheck 기준 `data/delta/ethereum_logs_v2` row count `6848937`, `data/analytics/ethereum_analytics_v2.duckdb`의 `erc20_transfers=6079379`, `tether_treasury_flow=2`, `quality_summary=1` |
+| Airflow task log parse | VERIFIED | successful scheduled run 반환값 33건, first `scheduled__2026-06-20T21:00:00+00:00`,<br>latest parsed run `scheduled__2026-06-22T08:00:00+00:00`, `row_count_after=6082932`,<br>`dbt.returncode=0` |
+| Delta/DuckDB direct inspection in `workspace-dev` | VERIFIED | latest recheck 기준 `data/delta/ethereum_logs_v2` row count `6848937`,<br>`data/analytics/ethereum_analytics_v2.duckdb`의 `erc20_transfers=6079379`,<br>`tether_treasury_flow=2`, `quality_summary=1` |
 | `git diff --check` | VERIFIED | exit 0. 줄끝 변환 경고만 출력됨 |
 | Markdown local link check | VERIFIED | `markdown local links ok` |
 | secret-like value scan | VERIFIED | tracked file에서 secret-like token match가 없음 `.env`는 Git 추적 대상이 아니며 `.env.example`만 추적됨 |

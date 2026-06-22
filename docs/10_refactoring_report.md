@@ -114,11 +114,11 @@ Airflow DAG에는 개별 dbt 모델명이 없습니다.
 | Airflow DagBag import in `/opt/airflow/python` | `import_errors={}`, `dag_ids=['ethereum_hourly_logs']`, `schedule='@hourly'`, `task_ids=['run_interval']` |
 | `dbt ls --project-dir dbt --profiles-dir dbt --select tag:ethereum_hourly --output name --no-partial-parse` | 4 models, 39 data tests, 1 source. `tether_treasury_flow_quality_summary` 포함 |
 | `nbclient` execution of `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` | output 저장 완료. `second_inserted_row_count=0`, `duplicate_natural_key_count=0` |
-| custom code-cell execution of `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | `latest_v2_local`, raw `6848937`, duplicate key `0`, schema current. 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제로 `PARTIALLY VERIFIED` |
+| custom code-cell execution of `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | `latest_v2_local`, raw `6848937`, duplicate key `0`, schema current.<br>12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제로 `PARTIALLY VERIFIED` |
 | `data/imgs/` screenshot manual review | Airflow UI 기준 DAG 등록, `@hourly`, success 47, failed 14, failed task instance 13건 확인. row-level correctness 증거는 아님 |
 | Airflow task log parse | successful scheduled run 반환값 33건, latest parsed run `row_count_after=6082932`, `dbt.returncode=0` |
-| Delta/DuckDB direct inspection in `workspace-dev` | latest recheck 기준 `data/delta/ethereum_logs_v2` row count `6848937`, `data/analytics/ethereum_analytics_v2.duckdb`의 `erc20_transfers=6079379`, `tether_treasury_flow=2`, `quality_summary=1` |
-| Task 1 Bitcoin Velocity design validity scan | `Velocity formula`, `Raw tables`, `Volume policy`, `Supply policy`, `SQL pseudocode`, `Dummy data`, `Daily batch`, `Reorg` 모두 PASS. Bitcoin production pipeline 실행 검증은 아님 |
+| Delta/DuckDB direct inspection in `workspace-dev` | latest recheck 기준 `data/delta/ethereum_logs_v2` row count `6848937`,<br>`data/analytics/ethereum_analytics_v2.duckdb`의 `erc20_transfers=6079379`,<br>`tether_treasury_flow=2`, `quality_summary=1` |
+| Task 1 Bitcoin Velocity design validity scan | `Velocity formula`, `Raw tables`, `Volume policy`, `Supply policy`, `SQL pseudocode`,<br>`Dummy data`, `Daily batch`, `Reorg` 모두 PASS. Bitcoin production pipeline 실행 검증은 아님 |
 | Markdown local link check | `markdown local links ok` |
 | secret-like token scan | match가 없음 |
 | `git diff --check` | exit 0. 줄끝 변환 경고만 출력 |

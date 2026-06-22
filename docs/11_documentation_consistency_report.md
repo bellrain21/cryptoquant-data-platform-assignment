@@ -45,10 +45,10 @@
 | AI 활용 문서가 기준 문서와 레거시 문서로 중복됨 | 어느 문서를 기준으로 판단해야 하는지 혼동할 수 있었음 | 레거시 문서의 고유 내용을 `docs/08_ai_usage_transparency_and_validation.md`로 통합하고 중복 파일을 삭제함 | VERIFIED |
 | `src/notebooks/`에 중복 누적 검증 파일과 stale notebook명이 남아 있었음 | 노트북이 현재 Python source와 데이터 최신성 검증 근거인지, 과거 smoke 기록인지 구분하기 어려웠음 | active notebook을 `00_`~`04_` 번호와 목적 중심 이름으로 정리하고, 03·04번 실행 output을 저장함 | PARTIALLY VERIFIED |
 | README가 notebook smoke output을 현재 검증 경로에서 제외한다고만 설명함 | 03·04번 노트북의 보조 검증 가치와 현재 canonical data mismatch 판정이 문서에 드러나지 않았음 | README와 `docs/05_validation_evidence.md`에 노트북별 역할과 `PARTIALLY VERIFIED` 판정 근거를 추가함 | VERIFIED |
-| `data/imgs/` Airflow screenshot이 문서 증거와 연결되지 않음 | Airflow UI 실행 이력 증거를 어느 상태로 해석해야 하는지 알기 어려웠음 | `docs/05_validation_evidence.md`, `docs/09_requirement_traceability_matrix.md`, README, 실행 가이드에 이미지 판독 결과를 추가하고 task log와 Delta/DuckDB 산출물 대조까지 연결함 | VERIFIED |
+| `data/imgs/` Airflow screenshot이 문서 증거와 연결되지 않음 | Airflow UI 실행 이력 증거를 어느 상태로 해석해야 하는지 알기 어려웠음 | `docs/05_validation_evidence.md`, `docs/09_requirement_traceability_matrix.md`, README,<br>실행 가이드에 이미지 판독 결과를 추가하고 task log와 Delta/DuckDB 산출물 대조까지 연결함 | VERIFIED |
 | legacy error timeline의 E2E 성공 표현이 현재 제출 판정처럼 보일 수 있었음 | 과거 운영 기록과 현재 최신 schema 검증 상태가 섞여 overclaim 위험이 있었음 | `docs/task_02_ethereum_log_pipeline/04`, `05`에 historical record 경계와 current evidence summary를 추가함 | PARTIALLY VERIFIED |
 | historical Task 2 설계 문서의 체크리스트가 모두 미체크 상태였음 | 이미 검증된 Airflow interval, chunking, raw Delta, dbt build 항목까지 검증하지 않음처럼 보였음 | 01~03 설계 문서 체크리스트를 현재 로그·테스트·Delta/DuckDB metadata 기준으로 재판정하고, Bronze/Silver/reorg 확장 항목은 미완료 사유를 남김 | VERIFIED |
-| 과제 1 문서가 설계로는 충분하지만 별도 타당성 검증 결과가 드러나지 않았음 | Velocity 설계의 요구사항 충족 여부를 문서 목차만으로 판단해야 함 | Task 1 validity scan 8개 축 PASS를 `docs/05_validation_evidence.md`, `docs/task_01_bitcoin_velocity/00_task_01_index.md`, 요구사항 추적표에 연결함 | VERIFIED |
+| 과제 1 문서가 설계로는 충분하지만 별도 타당성 검증 결과가 드러나지 않았음 | Velocity 설계의 요구사항 충족 여부를 문서 목차만으로 판단해야 함 | Task 1 validity scan 8개 축 PASS를 `docs/05_validation_evidence.md`,<br>`docs/task_01_bitcoin_velocity/00_task_01_index.md`, 요구사항 추적표에 연결함 | VERIFIED |
 | 과제 2 직접 요구와 Docker/release/bonus/optional 요구가 같은 표에서 섞였음 | 과제 직접 요구 충족과 제출 재현성 보강을 혼동할 수 있었음 | 요구사항 추적표에 `ASSIGNMENT_DIRECT`, `DERIVED_CORE`, `RELEASE`, `BONUS`, `OPTIONAL` origin을 추가함 | VERIFIED |
 | 제출 범위에 개인 학습 문서가 포함되어 있었음 | 파인만식 개념 지도와 기본 개념 가이드는 5분 평가용 제출 자료보다 개인 학습 자료에 가까웠음 | `docs/02_blockchain_concepts_guide.md`, `docs/14_feynman_concept_map.md`를 제거하고 README에서 제출 제외 원칙을 명시함 | VERIFIED |
 
@@ -72,8 +72,8 @@
 | 항목 | 상태 | 사유 |
 |---|---|---|
 | legacy `docs/task_02_ethereum_log_pipeline/`의 확장 설계와 현재 구현 차이 | PARTIALLY VERIFIED | 해당 디렉터리는 reference/exploratory design으로 라벨링되어 있으며 source of truth가 아님 |
-| accumulated raw Delta freshness와 hourly continuity | PARTIALLY VERIFIED | `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`가 최신 v2 pair를 선택해 schema current, duplicate key 0을 확인했지만 2026-06-22 12:00 UTC hourly gap을 감지함 |
-| DuckDB staging view 경로 이식성 | PARTIALLY VERIFIED | `ethereum_analytics_v2.duckdb`의 downstream materialized tables는 조회되지만 `main.ethereum_logs` view는 `/opt/airflow/...` 절대경로에 묶여 `workspace-dev`에서 query error가 발생함 |
+| accumulated raw Delta freshness와 hourly continuity | PARTIALLY VERIFIED | `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`가 최신 v2 pair를 선택해 schema current,<br>duplicate key 0을 확인했지만 2026-06-22 12:00 UTC hourly gap을 감지함 |
+| DuckDB staging view 경로 이식성 | PARTIALLY VERIFIED | `ethereum_analytics_v2.duckdb`의 downstream materialized tables는 조회됨<br>`main.ethereum_logs` view는 `/opt/airflow/...` 절대경로에 묶여 `workspace-dev`에서 query error가 발생함 |
 | production-grade provider 안정성 | NOT VERIFIED | 로컬 Docker Airflow의 여러 1시간 scheduled 수집 이력은 확인했지만 provider SLA, alerting, full-history backfill은 별도 운영 검증 대상임 |
 | canonical reorg replacement 구현 문서 | NOT VERIFIED | 현재 구현하지 않았고 제한사항으로 분리함 |
 | Private GitHub 최신 반영 및 Collaborator 초대 | PARTIALLY VERIFIED | local remote와 branch는 확인함 Collaborator 초대는 사용자 확인을 반영함 최신 GitHub 반영은 final main commit과 remote push 확인이 필요 |

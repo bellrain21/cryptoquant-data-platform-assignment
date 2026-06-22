@@ -32,11 +32,11 @@ AI 출력은 구현 사실이나 검증 결과로 간주하지 않았습니다.
 
 | 결정 항목 | 최종 판단 |
 |---|---|
-| 데이터 모델의 grain | `ethereum_logs`는 Ethereum log 1건, `erc20_transfers`는 Transfer log 1건, `tether_treasury_flow`는 `hour_start_utc + direction` 기준으로 정의함 |
+| 데이터 모델의 grain | `ethereum_logs`는 Ethereum log 1건, `erc20_transfers`는 Transfer log 1건,<br>`tether_treasury_flow`는 `hour_start_utc + direction` 기준으로 정의함 |
 | unique key와 idempotency 기준 | raw 로그는 `chain_id + transaction_hash + log_index`를 natural key로 사용함 |
 | retry 및 backfill 정책 | Airflow `data_interval` 기준으로 재실행 가능하게 하고, RPC transient failure는 bounded retry 대상으로 분리함 |
 | Delta Lake 저장 전략 | raw 로그는 Delta table에 insert-if-not-exists 방식으로 적재하고, canonical reorg replacement는 구현 범위에서 제외함 |
-| dbt 모델 구조 | `ethereum_logs -> erc20_transfers -> tether_treasury_flow -> tether_treasury_flow_quality_summary` graph를 유지하고 `tag:ethereum_hourly` selector로 실행함 |
+| dbt 모델 구조 | `ethereum_logs -> erc20_transfers -> tether_treasury_flow -> tether_treasury_flow_quality_summary` graph 유지<br>`tag:ethereum_hourly` selector로 실행함 |
 | Circulating Supply 정책 | Bitcoin Velocity 설계에서 policy-eligible UTXO supply와 dormancy-adjusted supply를 구분함 |
 | Reorg 재처리 범위 | Task 1은 설계 문서에서 재계산 window를 정의하고, Task 2는 finality buffer와 raw `block_hash` 보존까지 구현함 |
 | 최종 문서와 코드 반영 여부 | 실행 증거가 있는 항목만 `VERIFIED`로 표시하고, 외부 환경 의존 항목은 제한사항으로 남김 |

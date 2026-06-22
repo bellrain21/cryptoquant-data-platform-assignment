@@ -140,7 +140,7 @@ USDT 행에서 numeric 변환이 실패하면 dbt test가 build를 실패시킵�
 | ERC-20 Transfer decode | `dbt/models/silver/erc20_transfers.sql`, `dbt/macros/decode_ethereum_address.sql` | `erc20_transfers` | `dbt/tests/erc20_transfer_integrity.sql` | VERIFIED |
 | Treasury flow 집계 | `dbt/models/gold/tether_treasury_flow.sql` | `tether_treasury_flow` | `dbt/tests/treasury_flow_integrity.sql` | VERIFIED |
 | external RPC raw Delta schema | `data/delta/ethereum_logs_v2` | Airflow scheduled run 산출물 | Delta direct inspection, `docs/05_validation_evidence.md` | VERIFIED |
-| accumulated local raw Delta freshness | `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` | 최신 v2 pair의 schema, duplicate key, DB extraction, hourly gap 비교 | notebook code-cell execution output | PARTIALLY VERIFIED |
+| accumulated local raw Delta freshness | `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`,<br>`data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` | 최신 v2 pair의 schema, duplicate key, DB extraction, hourly gap 비교 | notebook code-cell execution output | PARTIALLY VERIFIED |
 
 ## 구현 및 검증 체크리스트
 

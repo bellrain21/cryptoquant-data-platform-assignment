@@ -302,7 +302,7 @@ docker compose exec airflow-scheduler python -c "from deltalake import DeltaTabl
 | 다음 Airflow scheduled/manual run 성공 확인 | VERIFIED | `airflow/logs/`에서 최신 successful scheduled run `row_count_after=6082932`, `dbt.returncode=0`을 확인함 |
 | Airflow UI served-log 403 영구 보정 | NOT VERIFIED | UI log serving 설정 보정은 현재 제출 core 기능이 아니며 수행하지 않음 |
 | `ETH_AIRFLOW_ENABLE_HOURLY_SCHEDULE` 정리 | PARTIALLY VERIFIED | active DAG는 `schedule='@hourly'`임 historical env flag cleanup은 legacy cleanup 범위로 남김 |
-| dbt/project default path의 v2 통일 | PARTIALLY VERIFIED | v2 실행 증거와 fixture dbt 검증은 확인함 notebook 04는 최신 v2 pair를 선택하지만 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제를 `PARTIALLY VERIFIED`로 판정함 |
+| dbt/project default path의 v2 통일 | PARTIALLY VERIFIED | v2 실행 증거와 fixture dbt 검증은 확인함<br>notebook 04는 최신 v2 pair를 선택하지만 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제를 `PARTIALLY VERIFIED`로 판정함 |
 | 제출 archive secret/runtime artifact 제외 | PARTIALLY VERIFIED | `.gitignore`, `.env.example`, secret-like scan은 확인함 실제 archive 생성 직전 `git ls-files` 재확인은 남아 있음 |
 
 ---

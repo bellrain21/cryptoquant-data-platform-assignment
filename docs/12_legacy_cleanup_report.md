@@ -20,7 +20,7 @@ git diff 기준 삭제 파일은 21개입니다.
 
 | 파일 | 삭제 근거 |
 |---|---|
-| `airflow/dags/ethereum_logs_pipeline.py` | deprecated DAG shim. active DAG는 `airflow/dags/ethereum_hourly_logs.py` 하나이며 DagBag import에서 `dag_ids=['ethereum_hourly_logs']` 확인 |
+| `airflow/dags/ethereum_logs_pipeline.py` | deprecated DAG shim.<br>active DAG는 `airflow/dags/ethereum_hourly_logs.py` 하나이며 DagBag import에서 `dag_ids=['ethereum_hourly_logs']` 확인 |
 | `dbt/models/staging/stg_ethereum_logs.sql` | deprecated compatibility staging view. 현재 canonical staging은 `dbt/models/staging/ethereum_logs.sql`이며 downstream `ref()`가 없음 |
 | `dbt/models/tests/erc20_transfer_integrity.sql` | dbt singular test 위치가 `dbt/tests/erc20_transfer_integrity.sql`로 이동됨 |
 | `dbt/models/tests/treasury_flow_integrity.sql` | dbt singular test 위치가 `dbt/tests/treasury_flow_integrity.sql`로 이동됨 |
@@ -104,11 +104,11 @@ git diff 기준 삭제 파일은 21개입니다.
 | `dbt ls --select tether_treasury_flow_quality_summary --output json --no-partial-parse` in `workspace-dev` | `tags=["ethereum_hourly"]`, `depends_on.nodes=["model.ethereum_analytics.tether_treasury_flow"]` |
 | `dbt build --project-dir dbt --profiles-dir dbt --select tag:ethereum_hourly --vars "{window_start: 2024-01-01T00:00:00Z, window_end: 2024-01-01T01:00:00Z}" --no-partial-parse` in `workspace-dev` | `PASS=43 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=43` |
 | DuckDB relation count query | `{'ethereum_logs': 2, 'erc20_transfers': 2, 'tether_treasury_flow': 1, 'tether_treasury_flow_quality_summary': 1}` |
-| Airflow DagBag import with `/opt/airflow/python/bin/python` | `import_error_count=0`, `dag_ids=['ethereum_hourly_logs']`, `schedule='@hourly'`, `max_active_runs=1`, `task_ids=['run_interval']` |
+| Airflow DagBag import with `/opt/airflow/python/bin/python` | `import_error_count=0`, `dag_ids=['ethereum_hourly_logs']`, `schedule='@hourly'`,<br>`max_active_runs=1`, `task_ids=['run_interval']` |
 | stale reference scan with `rg` excluding generated/notebook paths | stale terms only in REVIEW error timeline or explicit deletion context |
 | secret-like placeholder scan excluding `.env` contents | `.env.example` placeholders and documented local demo credentials only |
 | `nbclient` execution of `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` | 실행 output 저장 완료, error가 없음 |
-| custom code-cell execution of `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | `latest_v2_local`, raw `6848937`, duplicate key `0`, schema current. 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제로 `PARTIALLY VERIFIED` |
+| custom code-cell execution of `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | `latest_v2_local`, raw `6848937`, duplicate key `0`, schema current.<br>12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제로 `PARTIALLY VERIFIED` |
 | `data/imgs/` screenshot manual review | Airflow UI DAG 등록, `@hourly`, success 47, failed 14, failed task instance 13건을 확인함 최신 data contract 증거는 아님 |
 
 ## 8. 검증 실패 또는 실행할 수 없는 항목과 이유
@@ -116,7 +116,7 @@ git diff 기준 삭제 파일은 21개입니다.
 | 항목 | 상태 | 원인 | 영향 | 우회 검증 |
 |---|---|---|---|---|
 | Airflow scheduler/UI run history | VERIFIED | `data/imgs/` screenshot에서 success/failed run history를 확인하고 task log로 보강함 | UI screenshot 단독 row-level correctness는 아님 | Airflow task log, Delta/DuckDB 산출물 대조 |
-| 최신 schema 기준 Airflow end-to-end 재실행 | PARTIALLY VERIFIED | `airflow/logs/` successful scheduled 반환값 33건과 latest direct inspection row count `6848937`을 확인함 2026-06-22 12:00 UTC hourly gap은 남아 있음 | production SLA, full-history backfill, 누락 interval 원인은 검증하지 않음 | task log, Delta direct inspection, DuckDB relation count, notebook 04 |
+| 최신 schema 기준 Airflow end-to-end 재실행 | PARTIALLY VERIFIED | `airflow/logs/` successful scheduled 반환값 33건과 latest direct inspection row count `6848937`을 확인함<br>2026-06-22 12:00 UTC hourly gap은 남아 있음 | production SLA, full-history backfill, 누락 interval 원인은 검증하지 않음 | task log, Delta direct inspection, DuckDB relation count, notebook 04 |
 | real 1-hour historical RPC scheduled collection | PARTIALLY VERIFIED | 1시간 scheduled 수집은 확인. full-history backfill과 provider qualification manifest는 구현되지 않음 | provider plan별 historical lookup 권한 차이 가능 | block range, retry, chunking, idempotency tests로 보강 |
 | reorg canonical replacement | NOT VERIFIED | 현재 구현 범위가 finality buffer와 raw `block_hash` 보존까지임 | long reorg stale canonical row replacement는 구현되지 않음 | 문서에서 design-only/future hardening으로 분리 |
 | generated/local artifact cleanup | PARTIALLY VERIFIED | `.env`, `.venv`, `data/delta/`, `data/analytics/`, `data/tmp/`, `dbt/target/`는 삭제하지 않고 제출 제외로 분리 | 로컬 디스크에는 남을 수 있음 | `.gitignore`, report, README에서 제출 제외 명시 |

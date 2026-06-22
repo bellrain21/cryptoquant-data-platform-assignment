@@ -185,8 +185,8 @@ fixture 기반 dbt build는 최신 schema로 별도 검증되어 있으며, 실�
 
 | 이미지 | 화면 | 관측 내용 | 증거로 볼 수 있는 범위 | 상태 | 한계 |
 |---|---|---|---|---|---|
-| [`data/imgs/task_02_01_image.png`](../data/imgs/task_02_01_image.png) | Airflow DAGs home | DAG `ethereum_hourly_logs` 1개 표시, `@hourly` schedule, tags `dbt`, `delta`, `ethereum`, `ethereum_hourly`, success 47, failed 14, last run `2026-06-22 16:00`, next run `2026-06-22 17:00`, Airflow version `2.10.5` | DAG가 Airflow UI에 등록되고 hourly schedule과 run history가 표시됨 | PARTIALLY VERIFIED | UI snapshot은 실제 task log와 row-level output을 직접 보여주지 않음 |
-| [`data/imgs/task_02_02_image.png`](../data/imgs/task_02_02_image.png) | Airflow DAG grid | `ethereum_hourly_logs` grid에서 displayed runs 61, total success 47, total failed 14, first run start `2026-06-20 23:41:04 KST`, last run start `2026-06-22 17:00:00 KST`, max run duration `00:31:06` | scheduled/manual run 이력과 성공/실패 혼재를 확인함 | PARTIALLY VERIFIED | 실패 원인은 이 화면만으로 확인불가 성공 run이 최신 data contract까지 충족했는지도 별도 검증이 필요 |
+| [`data/imgs/task_02_01_image.png`](../data/imgs/task_02_01_image.png) | Airflow DAGs home | DAG `ethereum_hourly_logs` 1개 표시, `@hourly` schedule, tags `dbt`, `delta`, `ethereum`,<br>`ethereum_hourly`, success 47, failed 14, last run `2026-06-22 16:00`,<br>next run `2026-06-22 17:00`, Airflow version `2.10.5` | DAG가 Airflow UI에 등록되고 hourly schedule과 run history가 표시됨 | PARTIALLY VERIFIED | UI snapshot은 실제 task log와 row-level output을 직접 보여주지 않음 |
+| [`data/imgs/task_02_02_image.png`](../data/imgs/task_02_02_image.png) | Airflow DAG grid | `ethereum_hourly_logs` grid에서 displayed runs 61, total success 47, total failed 14,<br>first run start `2026-06-20 23:41:04 KST`, last run start `2026-06-22 17:00:00 KST`,<br>max run duration `00:31:06` | scheduled/manual run 이력과 성공/실패 혼재를 확인함 | PARTIALLY VERIFIED | 실패 원인은 이 화면만으로 확인불가 성공 run이 최신 data contract까지 충족했는지도 별도 검증이 필요 |
 | [`data/imgs/task_02_03_image.png`](../data/imgs/task_02_03_image.png) | Airflow failed task instance list | `run_interval` task의 failed state record count 13, manual/scheduled run ID와 logical date가 표시됨 | 실패 이력을 숨기지 않고 재실행·디버깅 대상이 있었음을 확인함 | PARTIALLY VERIFIED | 각 실패의 exception, provider error, retry 결과는 task log 또는 CLI 검증이 필요 |
 | [`data/imgs/task_02_04_image.png`](../data/imgs/task_02_04_image.png) | Airflow success DAG run list | success DAG run record count 47, `ethereum_hourly_logs` scheduled run들이 `2026-06-22` 여러 logical date에 성공으로 표시됨 | Airflow UI 기준 성공 run history가 존재함 | PARTIALLY VERIFIED | 성공 run이 최신 repository state의 코드로 실행됐는지, raw/dbt 산출물이 최신 schema인지 이 화면만으로 확정불가 |
 
@@ -207,7 +207,7 @@ fixture 기반 dbt build는 최신 schema로 별도 검증되어 있으며, 실�
 | Airflow UI DAG registration | PARTIALLY VERIFIED | `task_02_01_image.png`에서 DAG `ethereum_hourly_logs`, `@hourly`, tags, next run이 보임 |
 | Airflow scheduled/manual run history | PARTIALLY VERIFIED | `task_02_02_image.png`, `task_02_04_image.png`에서 success 47건과 scheduled run 목록이 보임 |
 | Failure history transparency | PARTIALLY VERIFIED | `task_02_03_image.png`에서 failed `run_interval` task instance 13건이 보임 |
-| Screenshot-only data contract correctness | NOT VERIFIED | screenshot은 UI metadata 증거이며 data contract 검증은 notebook/dbt/test 결과를 함께 확인 필요 `04_accumulated_pipeline_data_freshness_validation.ipynb`는 현재 raw Delta schema mismatch를 `PARTIALLY VERIFIED`로 판정함 |
+| Screenshot-only data contract correctness | NOT VERIFIED | screenshot은 UI metadata 증거이며 data contract 검증은 notebook/dbt/test 결과를 함께 확인 필요<br>`04_accumulated_pipeline_data_freshness_validation.ipynb`는 현재 raw Delta schema mismatch를 `PARTIALLY VERIFIED`로 판정함 |
 | Local Docker external RPC scheduled collection | VERIFIED | screenshot은 단독 증거가 아니지만, Airflow task log와 Delta/DuckDB 산출물 대조로 로컬 Docker 기준 여러 1시간 scheduled 수집 이력을 확인함 |
 
 ## 2026-06-22 Airflow task log and storage evidence
@@ -223,9 +223,9 @@ fixture 기반 dbt build는 최신 schema로 별도 검증되어 있으며, 실�
 
 | 검증 대상 | 재확인 결과 |
 |---|---|
-| Airflow scheduled task log parser | `count=33`, first `scheduled__2026-06-20T21:00:00+00:00`, latest `scheduled__2026-06-22T08:00:00+00:00`, `raw_sum=5411781`, `inserted_sum=5411781` |
-| Latest Airflow task payload | `from_block=25371803`, `to_block=25372102`, `raw_log_count=169451`, `inserted_row_count=169451`, `row_count_after=6082932`, `dbt.returncode=0` |
-| `scripts/inspect_outputs.py` direct inspection | latest recheck: `delta_row_count=6848937`, `delta_duplicate_natural_key_count=0`, `erc20_transfers_row_count=6079379`, `tether_treasury_flow_row_count=2` |
+| Airflow scheduled task log parser | `count=33`, first `scheduled__2026-06-20T21:00:00+00:00`,<br>latest `scheduled__2026-06-22T08:00:00+00:00`, `raw_sum=5411781`, `inserted_sum=5411781` |
+| Latest Airflow task payload | `from_block=25371803`, `to_block=25372102`, `raw_log_count=169451`,<br>`inserted_row_count=169451`, `row_count_after=6082932`, `dbt.returncode=0` |
+| `scripts/inspect_outputs.py` direct inspection | latest recheck: `delta_row_count=6848937`, `delta_duplicate_natural_key_count=0`,<br>`erc20_transfers_row_count=6079379`, `tether_treasury_flow_row_count=2` |
 | DeltaTable direct metadata | latest notebook recheck: `row_count=6848937`, latest event timestamp `2026-06-22T14:59:59Z` |
 | DuckDB downstream relation count | latest recheck: `erc20_transfers=6079379`, `tether_treasury_flow=2`, `tether_treasury_flow_quality_summary=1` |
 
@@ -432,7 +432,7 @@ docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontain
 | 구현 | VERIFIED | 신규 quality summary dbt model과 schema tests 추가 |
 | dbt graph 자동 반영 | VERIFIED | `dbt ls --select tag:ethereum_hourly`에 신규 모델 포함, manifest `depends_on`이 `tether_treasury_flow`를 가리킴 |
 | Airflow 무수정 조건 | VERIFIED | active DAG SHA256 시작/종료가 동일하며, 이번 세션에서 Airflow 파일 patch는 없음 |
-| Airflow end-to-end 실행 | VERIFIED | `airflow/logs/` task 반환값, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb`를 대조해 외부 RPC 수집, Delta 적재, dbt build 성공을 확인함 |
+| Airflow end-to-end 실행 | VERIFIED | `airflow/logs/` task 반환값, `data/delta/ethereum_logs_v2`,<br>`data/analytics/ethereum_analytics_v2.duckdb`를 대조해 외부 RPC 수집, Delta 적재, dbt build 성공을 확인함 |
 | Airflow UI run history | PARTIALLY VERIFIED | `data/imgs/` screenshot에서 DAG 등록, `@hourly`, success/failed history를 확인함 UI screenshot 단독으로는 row-level correctness 증거가 아님 |
 | 가산점 제출 근거 완결성 | VERIFIED | Airflow runtime trigger log 없이도 DAG selector 구조와 dbt graph/build/result evidence로 DAG 수정 없는 dbt dependency expansion을 검증함 |
 
@@ -459,7 +459,7 @@ production-grade 무중단 운영과 provider SLA는 별도 검증 대상입니�
 | `dbt ls --select tether_treasury_flow_quality_summary --output json --no-partial-parse` in `workspace-dev` | `tags=["ethereum_hourly"]`, `depends_on.nodes=["model.ethereum_analytics.tether_treasury_flow"]` |
 | `dbt build --project-dir dbt --profiles-dir dbt --select tag:ethereum_hourly --vars "{window_start: 2024-01-01T00:00:00Z, window_end: 2024-01-01T01:00:00Z}" --no-partial-parse` in `workspace-dev` | `PASS=43 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=43` |
 | DuckDB relation count query | `{'ethereum_logs': 2, 'erc20_transfers': 2, 'tether_treasury_flow': 1, 'tether_treasury_flow_quality_summary': 1}` |
-| Airflow DagBag import with `/opt/airflow/python/bin/python` | `import_error_count=0`, `dag_ids=['ethereum_hourly_logs']`, `schedule='@hourly'`, `max_active_runs=1`, `task_ids=['run_interval']` |
+| Airflow DagBag import with `/opt/airflow/python/bin/python` | `import_error_count=0`, `dag_ids=['ethereum_hourly_logs']`, `schedule='@hourly'`,<br>`max_active_runs=1`, `task_ids=['run_interval']` |
 
 Airflow UI screenshot, task log, Delta/DuckDB 산출물로 scheduler run history와 real RPC
 1시간 E2E를 확인했습니다. 다만 이 결과는 로컬 Docker 실행 이력 기준이며, production

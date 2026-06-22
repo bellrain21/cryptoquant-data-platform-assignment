@@ -78,7 +78,7 @@ DAG는 `max_active_runs=1`을 사용합니다. 동일 구간 동시 write를 피
 | dbt graph 실행 | `src/cryptoquant_pipeline/dbt_runner.py`, `dbt/dbt_project.yml` | `run_dbt_build()`, `tag:ethereum_hourly` | fixture `dbt build`, `tests/test_dbt_contracts.py` | VERIFIED |
 | ERC-20 Transfer 모델 | `dbt/models/silver/erc20_transfers.sql` | `erc20_transfers` | `dbt/tests/erc20_transfer_integrity.sql` | VERIFIED |
 | Treasury flow 모델 | `dbt/models/gold/tether_treasury_flow.sql` | `tether_treasury_flow` | `dbt/tests/treasury_flow_integrity.sql` | VERIFIED |
-| Accumulated local data freshness | `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` | 최신 raw Delta schema, DB extraction, hourly gap 비교 | notebook code-cell execution output | PARTIALLY VERIFIED |
+| Accumulated local data freshness | `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`,<br>`data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` | 최신 raw Delta schema, DB extraction, hourly gap 비교 | notebook code-cell execution output | PARTIALLY VERIFIED |
 | Bitcoin Velocity 계산 설계 | `docs/task_01_bitcoin_velocity/` | 설계 SQL 또는 의사코드 | Task 1 타당성 스캔, 문서 구조와 요구사항 추적표 | VERIFIED |
 
 ## 구현 및 검증 체크리스트

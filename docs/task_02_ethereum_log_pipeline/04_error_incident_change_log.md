@@ -278,7 +278,7 @@ data tests = 30
 |---|---|
 | 확인 이력 | `.env`, runtime data, Airflow/dbt logs, target artifact, analytics DB 등이 archive에 포함된 적 있음 |
 | 위험 | secret 노출, 제출물 비대화, stale artifact와 source 혼동 |
-| 필수 제외 | `.env`, `airflow.cfg`, `data/delta/`, `data/analytics/`, `data/tmp/`, `airflow/logs/`, `dbt/logs/`, `dbt/target/`, cache. `data/imgs/`는 screenshot evidence로 별도 보존 |
+| 필수 제외 | `.env`, `airflow.cfg`, `data/delta/`, `data/analytics/`, `data/tmp/`, `airflow/logs/`,<br>`dbt/logs/`, `dbt/target/`, cache. `data/imgs/`는 screenshot evidence로 별도 보존 |
 | 노출 대응 | endpoint/API key가 외부에 공유된 적이 있다면 provider key rotate |
 
 ---
@@ -347,7 +347,7 @@ data tests = 30
 |---|---|---|
 | secret/runtime artifact 제외 | VERIFIED | `.gitignore`, `.env.example`, secret-like scan, `data/delta/`, `data/analytics/`, `airflow/logs/`, `dbt/target/` ignore 확인 |
 | clean checkout 또는 clean archive 검증 | NOT VERIFIED | 현재 작업트리가 변경 중이며 clean clone/archive에서 재실행하지 않음 |
-| raw commit과 dbt 실패 분리 문서화 | VERIFIED | `docs/05_validation_evidence.md`, `docs/07_submission_readiness_report.md`, `docs/11_documentation_consistency_report.md`에 raw Delta, dbt, UI 증거 경계를 분리함 |
+| raw commit과 dbt 실패 분리 문서화 | VERIFIED | `docs/05_validation_evidence.md`, `docs/07_submission_readiness_report.md`,<br>`docs/11_documentation_consistency_report.md`에 raw Delta, dbt, UI 증거 경계를 분리함 |
 | archive 직전 `git status` / `git ls-files` 재확인 | NOT VERIFIED | archive 생성 단계가 아니므로 최종 제출 직전에 다시 실행해야 함 |
 
 ### P1 — 신뢰도·운영성 강화
