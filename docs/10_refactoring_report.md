@@ -43,11 +43,11 @@
 
 | 파일 | 변경 내용 | 요구사항 연결 |
 |---|---|---|
-| `src/notebooks/00_notebook_validation_index.ipynb` | 노트북 실행 순서, 외부 RPC 미실행 경계, 검증 목적을 정리했습니다. | 평가자가 노트북을 학습 기록이 아니라 검증 보조 증거로 읽을 수 있게 합니다. |
+| `src/notebooks/00_notebook_validation_index.ipynb` | 노트북 실행 순서, 외부 RPC 실행하지 않은 경계, 검증 목적을 정리했습니다. | 검토 시 노트북을 학습 기록이 아니라 검증 보조 증거로 읽으실 수 있게 합니다. |
 | `src/notebooks/01_rpc_provider_connection_smoke_test.ipynb` | 현재 `PipelineSettings`, `EthereumJsonRpcClient` 기준으로 provider 연결 smoke를 재정렬하고 secret 출력 금지 경계를 명시했습니다. | 실제 RPC credential이 있을 때만 연결 검증을 수행합니다. |
 | `src/notebooks/02_eth_getlogs_transfer_sample_validation.ipynb` | 현재 decoder helper와 `Transfer` topic0 기준 sample 검증 흐름으로 정리했습니다. | `eth_getLogs` sample 검증과 외부 RPC 비용 경계를 분리합니다. |
 | `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` | fixture → normalizer → decode → Delta 재실행 멱등성 흐름을 현재 package 기준으로 갱신하고 실행 output을 저장했습니다. | Python source code와 Delta idempotency 검증 근거를 노트북에서 직접 확인할 수 있습니다. |
-| `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | `delta_writer.ethereum_logs_schema()`와 실제 canonical Delta/DuckDB 산출물을 비교하는 판정형 노트북으로 정리했습니다. | 로컬 accumulated data가 최신 code contract와 불일치하면 `PARTIALLY VERIFIED`로 드러냅니다. |
+| `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | Delta/DuckDB 후보 인벤토리, 최신 v2 pair 선택, DB 추출 DataFrame, 시간대별 적재 추이, freshness, hourly gap을 확인하는 판정형 노트북으로 정리했습니다. | 로컬 accumulated data의 최신성·시계열 gap·DuckDB path 이식성을 `PARTIALLY VERIFIED`로 드러냅니다. |
 
 ## 변경 전 문제점
 
@@ -57,7 +57,7 @@
 | `PipelineSettings.max_blocks_per_log_request`가 collector 호출에 직접 전달되지 않았습니다. | 설정 계약과 실제 chunking 호출 사이의 추적성이 약했습니다. | `collect_raw_logs(..., max_blocks=...)`로 연결했습니다. |
 | dbt model/test에 `SELECT *`가 남아 있었습니다. | 모델 grain과 실패 row 증거가 컬럼 단위로 추적되지 않았습니다. | explicit projection과 정적 테스트를 추가했습니다. |
 | docs가 새 리팩토링 산출물을 가리키지 않았습니다. | README와 문서 목차만 읽으면 변경 근거를 찾기 어려웠습니다. | refactoring/documentation consistency report 링크를 추가했습니다. |
-| `src/notebooks/`에 중복 누적 검증 파일과 stale 경로가 섞여 있었습니다. | 평가자가 어떤 노트북이 현재 코드·데이터 검증 기준인지 판단하기 어려웠습니다. | active notebook 5개만 번호화하고 03·04번 실행 output을 최신 상태로 저장했습니다. |
+| `src/notebooks/`에 중복 누적 검증 파일과 stale 경로가 섞여 있었습니다. | 어떤 노트북이 현재 코드·데이터 검증 기준인지 판단하기 어려웠습니다. | active notebook 5개만 번호화하고 03·04번 실행 output을 최신 상태로 저장했습니다. |
 
 ## 변경 후 구조
 
@@ -114,24 +114,24 @@ Airflow DAG에는 개별 dbt 모델명이 없습니다.
 | Airflow DagBag import in `/opt/airflow/python` | `import_errors={}`, `dag_ids=['ethereum_hourly_logs']`, `schedule='@hourly'`, `task_ids=['run_interval']` |
 | `dbt ls --project-dir dbt --profiles-dir dbt --select tag:ethereum_hourly --output name --no-partial-parse` | 4 models, 39 data tests, 1 source. `tether_treasury_flow_quality_summary` 포함 |
 | `nbclient` execution of `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` | output 저장 완료. `second_inserted_row_count=0`, `duplicate_natural_key_count=0` |
-| `nbclient` execution of `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | output 저장 완료. canonical raw Delta schema는 최신 Python 계약과 불일치하여 `PARTIALLY VERIFIED` |
-| `data/imgs/` screenshot manual review | Airflow UI 기준 DAG 등록, `@hourly`, success 47, failed 14, failed task instance 13건 확인. row-level correctness 증거는 아님 |
-| Airflow task log parse | successful scheduled run 반환값 33건, 최신 `row_count_after=6082932`, `dbt.returncode=0` |
-| Delta/DuckDB direct inspection in `workspace-dev` | `data/delta/ethereum_logs_v2` row count `6082932`, `data/analytics/ethereum_analytics_v2.duckdb`의 `erc20_transfers=5400325`, `tether_treasury_flow=2`, `quality_summary=1` |
-| Task 1 Bitcoin Velocity design validity scan | `Velocity formula`, `Raw tables`, `Volume policy`, `Supply policy`, `SQL pseudocode`, `Dummy data`, `Daily batch`, `Reorg` 모두 PASS. Bitcoin production pipeline 실행 검증은 아님 |
+| custom code-cell execution of `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | `latest_v2_local`, raw `6848937`, duplicate key `0`, schema current. 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제로 `PARTIALLY VERIFIED` |
+| `data/imgs/` screenshot manual review | Airflow UI 기준 DAG 등록, `@hourly`, success 47, failed 14, failed task instance 13건 확인. row-level correctness 증거는 아닙니다. |
+| Airflow task log parse | successful scheduled run 반환값 33건, latest parsed run `row_count_after=6082932`, `dbt.returncode=0` |
+| Delta/DuckDB direct inspection in `workspace-dev` | latest recheck 기준 `data/delta/ethereum_logs_v2` row count `6848937`, `data/analytics/ethereum_analytics_v2.duckdb`의 `erc20_transfers=6079379`, `tether_treasury_flow=2`, `quality_summary=1` |
+| Task 1 Bitcoin Velocity design validity scan | `Velocity formula`, `Raw tables`, `Volume policy`, `Supply policy`, `SQL pseudocode`, `Dummy data`, `Daily batch`, `Reorg` 모두 PASS. Bitcoin production pipeline 실행 검증은 아닙니다. |
 | Markdown local link check | `markdown local links ok` |
-| secret-like token scan | match 없음 |
+| secret-like token scan | match가 없습니다. |
 | `git diff --check` | exit 0. 줄끝 변환 경고만 출력 |
 
 최종 검증 결과는 `docs/05_validation_evidence.md`와 최종 응답의 검증 섹션을 함께 봐야 합니다.
 
-## 검증 불가 항목과 이유
+## 검증할 수 없는 항목과 이유
 
 | 항목 | 상태 | 이유 | 대체 검증 |
 |---|---|---|---|
-| 실제 외부 RPC 1시간 수집 | VERIFIED | Airflow task log에서 successful scheduled run 반환값 33건과 최신 `row_count_after=6082932`, `dbt.returncode=0`을 확인했습니다. | Delta/DuckDB direct inspection |
+| 실제 외부 RPC 1시간 수집 | VERIFIED | Airflow task log에서 successful scheduled run 반환값 33건과 v2 direct inspection을 확인했습니다. | Delta/DuckDB direct inspection |
 | Airflow scheduler/UI scheduled run history | VERIFIED | screenshot과 task log를 함께 확인했습니다. UI screenshot 단독 증거가 아니라 task 반환값과 산출물 row count를 대조했습니다. | DagBag import, screenshot evidence, Airflow log evidence |
-| 최신 schema 기준 Airflow end-to-end 재실행 | VERIFIED | `data/delta/ethereum_logs_v2`가 최신 schema fields와 row count `6082932`건을 가집니다. | Delta direct inspection, task log |
+| 최신 schema 기준 Airflow end-to-end 재실행 | PARTIALLY VERIFIED | `data/delta/ethereum_logs_v2`가 최신 schema fields와 row count `6848937`건을 가지지만 2026-06-22 12:00 UTC hourly gap이 남아 있습니다. | Delta direct inspection, notebook 04 |
 | canonical reorg replacement | NOT VERIFIED | 현재 구현 범위가 finality buffer와 raw `block_hash` 보존까지입니다. | 문서에서 future hardening으로 분리 |
 | multi-provider cross-check | NOT VERIFIED | 단일 provider 설정만 구현했습니다. | `eth_chainId` mismatch 실패 처리 |
 
@@ -157,7 +157,7 @@ Airflow DAG에는 개별 dbt 모델명이 없습니다.
   - 결과: `PASS=43 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=43`
 
 - [x] 실제 외부 RPC 환경에서 1시간 end-to-end 수집을 완료했습니다.
-  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, `data/delta/ethereum_logs_v2` row count `6082932`, DuckDB downstream relation count 확인
+  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, latest direct inspection 기준 `data/delta/ethereum_logs_v2` row count `6848937`, DuckDB `erc20_transfers=6079379` 확인
   - 한계: provider SLA, full-history backfill, production monitoring은 별도 검증 대상입니다.
 
 - [x] 과제 1 Bitcoin Velocity 설계 타당성을 별도 검증했습니다.

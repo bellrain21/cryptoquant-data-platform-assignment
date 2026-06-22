@@ -59,7 +59,7 @@ Airflow DAG 파일은 실행 그래프를 정의하는 데 집중합니다. RPC 
 | Docker/pytest/dbt fixture build | Python, dbt graph, idempotency, fixture data contract | provider 장기 운영 SLA | VERIFIED |
 | Airflow task log + Delta/DuckDB v2 | 외부 RPC scheduled 수집, Delta 적재, dbt build return code, downstream row count | 운영 환경의 지속 운영성 | VERIFIED |
 | Airflow UI screenshot `data/imgs/` | DAG 등록, `@hourly`, success/failed run history | screenshot 단독 row-level data correctness | PARTIALLY VERIFIED |
-| Notebook 04 accumulated data check | 로컬 canonical Delta/DuckDB 산출물과 Python schema 비교 | live 재수집 또는 schema migration 완료 | PARTIALLY VERIFIED |
+| Notebook 04 accumulated data check | 최신 v2 Delta/DuckDB pair 선택, DB 추출, freshness, hourly gap 확인 | live RPC 재호출과 누락 interval backfill 완료 | PARTIALLY VERIFIED |
 
 ## 동시성 정책
 
@@ -78,7 +78,7 @@ DAG는 `max_active_runs=1`을 사용합니다. 동일 구간 동시 write를 피
 | dbt graph 실행 | `src/cryptoquant_pipeline/dbt_runner.py`, `dbt/dbt_project.yml` | `run_dbt_build()`, `tag:ethereum_hourly` | fixture `dbt build`, `tests/test_dbt_contracts.py` | VERIFIED |
 | ERC-20 Transfer 모델 | `dbt/models/silver/erc20_transfers.sql` | `erc20_transfers` | `dbt/tests/erc20_transfer_integrity.sql` | VERIFIED |
 | Treasury flow 모델 | `dbt/models/gold/tether_treasury_flow.sql` | `tether_treasury_flow` | `dbt/tests/treasury_flow_integrity.sql` | VERIFIED |
-| Accumulated local data freshness | `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`, `data/delta/ethereum_logs` | 최신 raw Delta schema 비교 | notebook 실행 output | PARTIALLY VERIFIED |
+| Accumulated local data freshness | `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` | 최신 raw Delta schema, DB extraction, hourly gap 비교 | notebook code-cell execution output | PARTIALLY VERIFIED |
 | Bitcoin Velocity 계산 설계 | `docs/task_01_bitcoin_velocity/` | 설계 SQL 또는 의사코드 | Task 1 타당성 스캔, 문서 구조와 요구사항 추적표 | VERIFIED |
 
 ## 구현 및 검증 체크리스트
@@ -93,7 +93,7 @@ DAG는 `max_active_runs=1`을 사용합니다. 동일 구간 동시 write를 피
   - 근거: `src/cryptoquant_pipeline/dbt_runner.py`의 `--select tag:ethereum_hourly`
 
 - [x] 실제 외부 RPC 환경에서 1시간 scheduled DAG end-to-end 검증을 완료했습니다.
-  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, `data/delta/ethereum_logs_v2` row count `6082932`, `data/analytics/ethereum_analytics_v2.duckdb`
+  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, 최신 direct inspection 기준 `data/delta/ethereum_logs_v2` row count `6848937`, `data/analytics/ethereum_analytics_v2.duckdb`의 `erc20_transfers=6079379`
   - 한계: production-grade 무중단 운영과 full-history backfill은 별도 검증 대상입니다.
 
 - [x] Airflow UI screenshot을 실행 이력 보조 증거로 연결했습니다.

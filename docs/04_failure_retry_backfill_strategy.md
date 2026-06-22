@@ -64,7 +64,7 @@ Delta write는 다음 중복을 skip합니다.
 | `data/imgs/task_02_03_image.png` | failed `run_interval` task instance 13건 | PARTIALLY VERIFIED |
 | `data/imgs/task_02_04_image.png` | success DAG run 47건 | PARTIALLY VERIFIED |
 
-Airflow UI screenshot은 성공과 실패 이력이 존재함을 보여줍니다. 그러나 각 실패의 원인, retry 횟수, provider 응답, 최신 raw schema 정합성은 task log, unit test, notebook, dbt build 결과와 함께 확인해야 합니다.
+Airflow UI screenshot은 성공과 실패 이력이 존재한다는 점을 보여줍니다. 그러나 각 실패의 원인, retry 횟수, provider 응답, 최신 raw schema 정합성은 task log, unit test, notebook, dbt build 결과와 함께 확인해야 합니다.
 
 ## Finality/reorg 제한
 

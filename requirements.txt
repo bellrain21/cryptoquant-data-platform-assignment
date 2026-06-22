@@ -2,20 +2,23 @@
 # 이 파일은 /opt/project/python 경로에 설치되는 개발, 테스트, dbt 실행용 의존성임.
 
 # JSON-RPC HTTP client. Ethereum node의 eth_blockNumber, eth_getBlockByNumber,
-# eth_getLogs 요청에 timeout/retry 경계를 적용하기 위해 사용함.
+# eth_getLogs 요청에 timeout/retry 경계를 적용하기 위해 사용합니다.
 httpx==0.28.1
 
 # .env 로딩 보조 도구. 로컬 Docker 실행 시 ETH_RPC_URL 같은 환경 변수를 주입함.
 python-dotenv==1.2.2
 
-# Arrow columnar memory/table 처리. Delta Lake writer가 schema와 column type을 구성할 때 사용함.
+# Arrow columnar memory/table 처리. Delta Lake writer가 schema와 column type을 구성할 때 사용합니다.
 pyarrow==21.0.0
 
 # delta-rs Python binding. Spark 없이 로컬 filesystem Delta raw table을 읽고 씀.
 deltalake==0.25.5
 
-# 로컬 분석 DB. dbt-duckdb target과 결과 검증 쿼리에 사용함.
+# 로컬 분석 DB. dbt-duckdb target과 결과 검증 쿼리에 사용합니다.
 duckdb==1.5.4
+
+# Notebook 검증용 DataFrame 표시 도구. DuckDB 추출 결과와 시간대별 적재 추이를 표로 확인합니다.
+pandas==2.2.3
 
 # dbt core engine. staging, mart, test graph를 실행함.
 dbt-core==1.11.11
@@ -23,10 +26,10 @@ dbt-core==1.11.11
 # DuckDB용 dbt adapter. dbt model을 DuckDB 파일에 materialize함.
 dbt-duckdb==1.10.1
 
-# Python 단위 테스트 runner. RPC/Delta/dbt 경계의 fixture 기반 검증에 사용함.
+# Python 단위 테스트 runner. RPC/Delta/dbt 경계의 fixture 기반 검증에 사용합니다.
 pytest==8.4.2
 
-# async 함수 테스트 지원. JSON-RPC client 같은 비동기 경계 테스트에 사용함.
+# async 함수 테스트 지원. JSON-RPC client 같은 비동기 경계 테스트에 사용합니다.
 pytest-asyncio==1.4.0
 
 # 테스트 커버리지 측정 도구. 필요 시 pytest와 함께 coverage report를 생성함.
@@ -35,5 +38,5 @@ pytest-cov==7.1.0
 # 정적 검사와 import 정렬. Python 코드 스타일과 위험 패턴을 빠르게 검출함.
 ruff==0.15.18
 
-# Airflow는 여기에 설치하지 않음.
+# Airflow는 여기에 설치하지 않습니다.
 # Airflow 2.10.x는 Dockerfile에서 공식 constraints 파일로 /opt/airflow/python에 별도 설치함.

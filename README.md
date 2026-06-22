@@ -6,23 +6,23 @@ CryptoQuant Data Platform Engineer(데이터 플랫폼 엔지니어) 사전과�
 
 | 과제 | 범위 | 현재 성격 |
 |---|---|---|
-| Task 1(과제 1) | Bitcoin Network Velocity pipeline design(비트코인 네트워크 회전율 파이프라인 설계) | 데이터 제품 설계 문서. 실행 파이프라인 구현물이 아님 |
+| Task 1(과제 1) | Bitcoin Network Velocity pipeline design(비트코인 네트워크 회전율 파이프라인 설계) | 데이터 제품 설계 문서이며, 실행 파이프라인 구현물은 아닙니다. |
 | Task 2(과제 2) | Ethereum log ingestion implementation(이더리움 로그 수집 구현) | JSON-RPC(제이슨 원격 프로시저 호출), Airflow DAG(작업 흐름 정의), Delta Lake(델타 레이크), DuckDB(덕디비), dbt(데이터 빌드 도구), pytest fixture(파이테스트 고정 테스트 데이터) 기반 구현 |
 
 ## 구현 상태
 
 | 영역 | 상태 | 근거 또는 제한 |
 |---|---|---|
-| Task 1 metric(과제 1 지표) | 설계 문서화 | [Task 1 README(과제 1 안내 문서)](./docs/task_01_bitcoin_velocity/00_task_01_index.md), [metric definition(지표 정의)](./docs/task_01_bitcoin_velocity/02_velocity_metric_definition.md) |
-| Task 2 Python modules(과제 2 Python 모듈) | 구현 있음 | `src/cryptoquant_pipeline/`. 삭제된 `src/eth_pipeline/`와 `src/cryptoquant_assignment/`는 레거시 구현 |
-| Task 2 tests/fixtures(과제 2 테스트와 고정 테스트 데이터) | Fixture(고정 테스트 데이터) 검증 있음 | `tests/test_*`, `scripts/create_dbt_validation_fixture.py` |
-| Delta/dbt local path(Delta Lake와 dbt 로컬 경로) | 구현 있음 | `dbt/`, `src/cryptoquant_pipeline/delta_writer.py` |
-| Airflow DAG(작업 흐름 정의) | 구현 있음 | `airflow/dags/ethereum_hourly_logs.py` |
-| Refactoring/document consistency(리팩토링 및 문서 정합성) | 갱신 있음 | [refactoring report](./docs/10_refactoring_report.md), [documentation consistency report](./docs/11_documentation_consistency_report.md) |
-| Real Ethereum RPC(실제 Ethereum 원격 프로시저 호출) | 검증 있음 | `airflow/logs/` 기준 successful scheduled run 반환값 33건, 최신 성공 run `row_count_after=6082932`, `dbt.returncode=0` 확인. production SLA와 full-history backfill은 별도 검증 대상 |
-| Airflow UI 실행 이력 | 검증 있음 | `data/imgs/`의 Airflow screenshot에서 `ethereum_hourly_logs` 등록, `@hourly`, success 47, failed 14 이력을 확인. UI metadata는 task log와 Delta/DuckDB 산출물과 함께 해석 |
-| Airflow/Docker graph 검증 | 로컬 graph 검증 | pytest, ruff, Airflow DagBag import, fixture 기반 dbt build 결과는 [validation evidence(검증 증거)](./docs/05_validation_evidence.md)에 기록 |
-| Accumulated local data freshness(누적 로컬 데이터 최신성) | 부분 검증 | `data/delta/ethereum_logs_v2`는 최신 schema로 `6082932`건 적재를 확인. 기본 `data/delta/ethereum_logs`는 구 schema 1건이 남아 있어 notebook 04 기준 `PARTIALLY VERIFIED` |
+| Task 1 metric(과제 1 지표) | 설계 문서화 | [Task 1 README(과제 1 안내)](./docs/task_01_bitcoin_velocity/00_task_01_index.md), [metric definition(지표 정의)](./docs/task_01_bitcoin_velocity/02_velocity_metric_definition.md) |
+| Task 2 Python modules(과제 2 Python 모듈) | 구현되었습니다. | `src/cryptoquant_pipeline/`. 삭제된 `src/eth_pipeline/`와 `src/cryptoquant_assignment/`는 레거시 구현 |
+| Task 2 tests/fixtures(과제 2 테스트와 고정 테스트 데이터) | Fixture(고정 테스트 데이터) 검증되었습니다. | `tests/test_*`, `scripts/create_dbt_validation_fixture.py` |
+| Delta/dbt local path(Delta Lake와 dbt 로컬 경로) | 구현되었습니다. | `dbt/`, `src/cryptoquant_pipeline/delta_writer.py` |
+| Airflow DAG(작업 흐름 정의) | 구현되었습니다. | `airflow/dags/ethereum_hourly_logs.py` |
+| Refactoring/document consistency(리팩토링 및 문서 정합성) | 갱신되었습니다. | [refactoring report](./docs/10_refactoring_report.md), [documentation consistency report](./docs/11_documentation_consistency_report.md) |
+| Real Ethereum RPC(실제 Ethereum 원격 프로시저 호출) | 검증되었습니다. | `airflow/logs/` 기준 successful scheduled run 반환값 33건과 v2 산출물 direct inspection을 확인. 최신 direct count는 `data/delta/ethereum_logs_v2` 6,848,937건, `erc20_transfers` 6,079,379건. production SLA와 full-history backfill은 별도 검증 대상 |
+| Airflow UI 실행 이력 | 검증되었습니다. | `data/imgs/`의 Airflow screenshot에서 `ethereum_hourly_logs` 등록, `@hourly`, success 47, failed 14 이력을 확인. UI metadata는 task log와 Delta/DuckDB 산출물과 함께 해석 |
+| Airflow/Docker graph 검증 | 로컬 graph를 검증했습니다. | pytest, ruff, Airflow DagBag import, fixture 기반 dbt build 결과는 [validation evidence(검증 증거)](./docs/05_validation_evidence.md)에 기록 |
+| Accumulated local data freshness(누적 로컬 데이터 최신성) | 부분 검증되었습니다. | notebook 04가 최신 v2 pair를 자동 선택해 raw 6,848,937건, 중복 0, 최신 schema를 확인. 다만 2026-06-22 12:00 UTC hourly gap 1개와 DuckDB staging view 절대경로 문제 때문에 `PARTIALLY VERIFIED` |
 | Reorg canonical replacement(체인 재편성 이후 정본 교체) | Design-only(설계 전용) / future hardening(향후 보강) | 현재 구현은 finality buffer(확정성 완충 구간)와 idempotent append(멱등 추가 적재) 중심 |
 
 ## 완료 계층
@@ -30,8 +30,8 @@ CryptoQuant Data Platform Engineer(데이터 플랫폼 엔지니어) 사전과�
 | 계층 | 현재 판정 | 근거 | 한계 |
 |---|---|---|---|
 | CORE FUNCTIONAL READY | VERIFIED | 과제 2 직접 요구사항은 Airflow DAG, `eth_getLogs`, logical interval, block range, retry, idempotency, Delta, dbt 필수 모델, Treasury flow 기준으로 코드와 테스트에 연결됨 | canonical reorg replacement는 직접 구현 범위가 아니라 future hardening으로 분리 |
-| SUBMISSION RELEASE READY | PARTIALLY VERIFIED | README, 실행 가이드, validation evidence, AI 활용 요약, secret hygiene, Docker 기반 실행 증거 존재 | 최종 main 커밋과 remote 반영 여부는 Git metadata로 확인해야 함. Collaborator 초대는 사용자 확인 기준으로 반영 |
-| BONUS READY | VERIFIED | `tag:ethereum_hourly` selector와 dbt `ref()` graph로 `tether_treasury_flow_quality_summary`가 DAG 수정 없이 `dbt build` 범위에 포함됨 | Airflow dynamic task mapping은 구현하지 않음 |
+| SUBMISSION RELEASE READY | PARTIALLY VERIFIED | README, 실행 가이드, validation evidence, AI 활용 요약, secret hygiene, Docker 기반 실행 증거 존재 | 최종 main 커밋과 remote 반영 여부는 Git metadata 확인이 필요합니다. Collaborator 초대는 사용자 확인 기준으로 반영했습니다. |
+| BONUS READY | VERIFIED | `tag:ethereum_hourly` selector와 dbt `ref()` graph로 `tether_treasury_flow_quality_summary`가 DAG 수정 없이 `dbt build` 범위에 포함됩니다. | Airflow dynamic task mapping은 구현하지 않았습니다. |
 | LEGACY CLEANUP | PARTIALLY VERIFIED | canonical 경로는 `src/cryptoquant_pipeline/`, `airflow/dags/ethereum_hourly_logs.py`, `dbt/models/`로 정리됨 | historical/exploratory 문서는 제출 판단에서 제외 |
 
 ## 저장소 안내
@@ -41,9 +41,9 @@ CryptoQuant Data Platform Engineer(데이터 플랫폼 엔지니어) 사전과�
 | Core Submission Material(핵심 제출 자료) | [README.md](./README.md), [docs/00_documentation_index.md](./docs/00_documentation_index.md), [docs/07_submission_readiness_report.md](./docs/07_submission_readiness_report.md) | 제출 범위, 현재 상태, 리스크, 검증 경계 |
 | Task 1 Documentation(과제 1 문서) | [docs/task_01_bitcoin_velocity/](./docs/task_01_bitcoin_velocity/) | Bitcoin Velocity(비트코인 회전율) 데이터 제품 설계 |
 | Task 2 Source of Truth(과제 2 현재 기준 구현과 문서) | `src/cryptoquant_pipeline/`, `airflow/dags/ethereum_hourly_logs.py`, `dbt/models/`, [docs/02_data_contracts.md](./docs/02_data_contracts.md), [docs/03_execution_guide.md](./docs/03_execution_guide.md), [docs/04_failure_retry_backfill_strategy.md](./docs/04_failure_retry_backfill_strategy.md) | 현재 구현과 실행 방식 |
-| Validation Evidence(검증 증거) | [docs/05_validation_evidence.md](./docs/05_validation_evidence.md), [docs/07_submission_readiness_report.md](./docs/07_submission_readiness_report.md), [docs/09_requirement_traceability_matrix.md](./docs/09_requirement_traceability_matrix.md), `tests/`, `src/notebooks/`, `data/imgs/` | 실행한 검증, 노트북 검증 보조 증거, Airflow UI screenshot evidence, 미검증 범위 |
+| Validation Evidence(검증 증거) | [docs/05_validation_evidence.md](./docs/05_validation_evidence.md), [docs/07_submission_readiness_report.md](./docs/07_submission_readiness_report.md), [docs/09_requirement_traceability_matrix.md](./docs/09_requirement_traceability_matrix.md), `tests/`, `src/notebooks/`, `data/imgs/` | 실행한 검증, 노트북 검증 보조 증거, Airflow UI screenshot evidence, 검증되지 않은 범위 |
 | AI Usage Transparency(AI 활용 투명성) | [docs/08_ai_usage_transparency_and_validation.md](./docs/08_ai_usage_transparency_and_validation.md) | PDF 결과 보고서 제출 요구에 맞춘 AI 사용 목적, 대표 프롬프트 원문형 요약, 인간 검증 방식 |
-| Generated / Excluded Material(생성 산출물 및 제출 제외 자료) | `.venv/`, `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, `airflow/logs/`, `data/delta/`, `data/analytics/`, `data/duckdb_extensions/`, `dbt/target/`, `dbt/logs/` | 로컬 실행 산출물. 제출 기준 자료가 아님 |
+| Generated / Excluded Material(생성 산출물 및 제출 제외 자료) | `.venv/`, `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, `airflow/logs/`, `data/delta/`, `data/analytics/`, `data/duckdb_extensions/`, `dbt/target/`, `dbt/logs/` | 로컬 실행 산출물이며, 제출 기준 자료는 아닙니다. |
 
 ## 과제 1 범위 경계
 
@@ -63,11 +63,11 @@ assignment_velocity_365d_policy_eligible_utxo_v1
 
 주요 제한:
 
-- `tx_output`에는 recipient payment(수신자 지급분)와 change output(거스름돈 출력)이 함께 들어갈 수 있어 wallet reshuffling(지갑 재정렬), exchange wallet management(거래소 지갑 관리), change output(거스름돈 출력)이 gross output volume(총 출력 이동량)을 키울 수 있음.
-- Exchange-internal spot trade(거래소 내부 현물 거래)는 거래소 내부 장부에서만 발생할 수 있으므로 온체인 데이터에 나타나지 않을 수 있음.
+- `tx_output`에는 recipient payment(수신자 지급분)와 change output(거스름돈 출력)이 함께 들어갈 수 있어 wallet reshuffling(지갑 재정렬), exchange wallet management(거래소 지갑 관리), change output(거스름돈 출력)이 gross output volume(총 출력 이동량)을 키울 수 있습니다.
+- Exchange-internal spot trade(거래소 내부 현물 거래)는 거래소 내부 장부에서만 발생할 수 있으므로 온체인 데이터에 나타나지 않을 수 있습니다.
 - Dormant UTXO(장기 미사용 UTXO)는 장기 미사용 상태일 뿐 lost coins(분실 코인)로 자동 분류하지 않습니다.
 - Coinbase transaction(코인베이스 트랜잭션)은 일반 BTC transfer activity(비트코인 전송 활동)로 취급하지 않습니다.
-- Provably unspendable output(기술적으로 지출 불가능함이 증명되는 출력)은 protocol/script(프로토콜/스크립트) 수준에서 식별 가능한 경우에만 제외합니다.
+- Provably unspendable output(기술적으로 지출할 수 없다고 증명되는 출력)은 protocol/script(프로토콜/스크립트) 수준에서 식별 가능한 경우에만 제외합니다.
 - 이 지표는 다른 on-chain indicators(온체인 지표)와 함께 해석해야 하며 market prediction tool(시장 예측 도구)가 아닙니다.
 
 ## 과제 2 범위 경계
@@ -101,7 +101,7 @@ flowchart LR
 
 핵심 실행 경계:
 
-- Provider abstraction: `ETH_RPC_AUTH_MODE=none|basic|bearer`. Alchemy Free는 `none` 가능. 기존 `CHAINSTACK_*` 환경 변수는 fallback으로만 읽음.
+- Provider abstraction: `ETH_RPC_AUTH_MODE=none|basic|bearer`. Alchemy Free는 `none` 가능. 기존 `CHAINSTACK_*` 환경 변수는 fallback으로만 읽습니다.
 - Alchemy Free 불변식: `MAX_BLOCKS_PER_LOG_REQUEST = 10`, `chunk_end = min(chunk_start + 9, to_block)`.
 - collection scope: 기본 acceptance path는 `transfer_topic_all_addresses`입니다. `address/from/to` filter 없이 `Transfer(address,address,uint256)` `topic0`만 사용하며, run 중 scope를 축소하지 않습니다.
 - 속도 제한: 기본 `ETH_RPC_REQUESTS_PER_SECOND=4`, `ETH_RPC_CONCURRENCY=1`.
@@ -117,7 +117,7 @@ Raw Delta schema 요약:
 |---|---|
 | `chain_id`, `transaction_hash`, `log_index` | retry/backfill natural key |
 | `block_number`, `block_hash`, `removed` | finalized raw event 추적과 reorg 분석 근거 |
-| `contract_address`, `topic0..topic3`, `data_raw` | raw log 원문 재처리 가능성 보존 |
+| `contract_address`, `topic0..topic3`, `data_raw` | raw log 원문 재처리 가능성을 보존합니다 |
 | `block_timestamp_utc`, `block_date_utc` | UTC 시간 분석과 `block_date_utc` partition |
 | `interval_start_utc`, `interval_end_utc`, `ingested_at_utc` | Airflow window 재현성과 감사 추적 |
 
@@ -175,10 +175,11 @@ docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontain
 `src/notebooks/`는 제출 실행 경로를 대체하지 않는 검증 보조 자료입니다.
 `03_fixture_etl_replay_idempotency_validation.ipynb`는 fixture 기반 Python source,
 ERC-20 decode, Delta idempotency 흐름을 실행해 저장한 노트북입니다.
-`04_accumulated_pipeline_data_freshness_validation.ipynb`는 현재 로컬 canonical
-Delta/DuckDB 산출물이 최신 Python data contract와 맞는지 판정합니다.
-이 노트북은 현재 `data/delta/ethereum_logs`가 구 schema임을 `PARTIALLY VERIFIED`로
-표시하며, 이를 VERIFIED로 과장하지 않습니다.
+`04_accumulated_pipeline_data_freshness_validation.ipynb`는 로컬 Delta/DuckDB 후보를
+먼저 인벤토리화하고, 최신 v2 pair를 선택해 DB 추출 결과와 시간대별 적재 추이를
+pandas DataFrame으로 표시합니다. 현재 실행 결과는 raw 6,848,937건과 중복 0건을 확인했지만, 2026-06-22
+12:00 UTC 구간 gap과 DuckDB staging view 절대경로 문제를 `PARTIALLY VERIFIED`로
+표시합니다.
 재현 검증은 위 Docker, pytest, fixture dbt 명령과
 [Validation evidence(검증 증거)](./docs/05_validation_evidence.md)를 기준으로 판단합니다.
 
@@ -201,7 +202,7 @@ Known limitations:
 ## AI 활용 범위
 
 AI는 요구사항 분석, 설계 검토, 코드 초안 보조, SQL 검토, 문서 정합성 점검에 사용했습니다.
-최종 grain, unique key, retry/backfill 정책, Delta Lake 저장 전략, dbt 모델 구조, Bitcoin Velocity 정책, Reorg 재처리 범위는 제출자가 코드와 검증 결과를 기준으로 결정했습니다.
+최종 grain, unique key, retry/backfill 정책, Delta Lake 저장 전략, dbt 모델 구조, Bitcoin Velocity 정책, Reorg 재처리 범위는 작성자가 코드와 검증 결과를 기준으로 결정했습니다.
 
 | 구분 | 활용 목적 | 사용자의 판단 또는 결정 | 검증 방식 |
 |---|---|---|---|
@@ -218,10 +219,10 @@ AI 제안은 그대로 반영하지 않았습니다.
 ## AI 활용 및 검증 체크리스트
 
 - [x] AI 활용 목적을 요구사항 분석, 설계 검토, 코드 보조, 테스트 보완, 문서 정합성 검토로 구분했습니다.
-- [x] 최종 설계 결정과 구현 반영 기준을 제출자가 판단한 것으로 기록했습니다.
+- [x] 최종 설계 결정과 구현 반영 기준을 작성자가 판단한 것으로 기록했습니다.
 - [x] AI 제안 중 실제 코드 또는 테스트로 검증한 항목만 반영했습니다.
 - [x] 로컬 Docker Airflow에서 외부 RPC Provider 기반 여러 1시간 scheduled 수집 이력을 검증했습니다.
-  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, `data/imgs/` success 47건, `data/delta/ethereum_logs_v2` row count `6082932`, `data/analytics/ethereum_analytics_v2.duckdb`의 `erc20_transfers` row count `5400325`
+  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, `data/imgs/` success 47건, `data/delta/ethereum_logs_v2` row count `6848937`, `data/analytics/ethereum_analytics_v2.duckdb`의 `erc20_transfers` row count `6079379`
   - 한계: 로컬 Docker Airflow 실행 이력 기준이며 production-grade 무중단 운영, provider SLA, full-history backfill은 별도 검증 대상입니다.
 - [x] 검증하지 못한 항목을 VERIFIED로 표기하지 않았습니다.
 - [x] AI 프롬프트 목적, 판단, 검증 방식 중심으로 요약했습니다.
@@ -319,7 +320,7 @@ AI 제안은 그대로 반영하지 않았습니다.
 
 ## 제출 제외 자료
 
-제출자의 학습을 위한 파인만식 용어 사전, 학습 지도, 장황한 decision log는 제출 저장소에 포함하지 않습니다. 
+작성 과정의 학습을 위한 파인만식 용어 사전, 학습 지도, 장황한 decision log는 제출 저장소에 포함하지 않습니다.
 필요한 개인 복기 자료는 최종 응답의 private note로만 분리합니다.
 
 ## 보안 기준

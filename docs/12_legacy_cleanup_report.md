@@ -5,23 +5,23 @@
 
 ## 1. 정리 범위와 원칙
 
-정리 기준은 삭제량이 아니라 과제 요구사항 증거, 재현성, 멱등성, backfill, retry, incremental 처리, dbt 의존성 자동 반영 구조 보존이다. 삭제는 아래 조건을 만족한 항목만 확정했다.
+정리 기준은 삭제량이 아니라 과제 요구사항 증거, 재현성, 멱등성, backfill, retry, incremental 처리, dbt 의존성 자동 반영 구조 보존이다. 삭제는 아래 조건을 만족한 항목만 확정했습니다.
 
-- 현재 Python import, Airflow DAG, Docker Compose, dbt project, test, README/docs에서 참조되지 않음.
-- Task 1 설계 증거 또는 Task 2 구현/검증 증거로 쓰이지 않음.
-- backfill, retry, idempotency, reorg 제한 설명, incremental 처리, dbt selector/ref 구조에 필요하지 않음.
-- 삭제 후 `compileall`, `pytest`, `docker compose config`, Airflow DagBag import, `dbt parse`, `dbt build`가 통과함.
+- 현재 Python import, Airflow DAG, Docker Compose, dbt project, test, README/docs에서 참조되지 않습니다.
+- Task 1 설계 증거 또는 Task 2 구현/검증 증거로 쓰이지 않습니다.
+- backfill, retry, idempotency, reorg 제한 설명, incremental 처리, dbt selector/ref 구조에 필요하지 않습니다.
+- 삭제 후 `compileall`, `pytest`, `docker compose config`, Airflow DagBag import, `dbt parse`, `dbt build`가 통과했습니다.
 
-실제 `.env` 내용은 출력하지 않았다. `.env.example`은 placeholder와 local demo credential만 남겼고, 실제 RPC URL/API key는 Git 추적 대상으로 만들지 않았다.
+실제 `.env` 내용은 출력하지 않았습니다. `.env.example`은 placeholder와 local demo credential만 남겼고, 실제 RPC URL/API key는 Git 추적 대상으로 만들지 않았습니다.
 
 ## 2. DELETE 파일 목록 및 삭제 근거
 
-git diff 기준 삭제 파일은 21개다.
+git diff 기준 삭제 파일은 21개입니다.
 
 | 파일 | 삭제 근거 |
 |---|---|
 | `airflow/dags/ethereum_logs_pipeline.py` | deprecated DAG shim. active DAG는 `airflow/dags/ethereum_hourly_logs.py` 하나이며 DagBag import에서 `dag_ids=['ethereum_hourly_logs']` 확인 |
-| `dbt/models/staging/stg_ethereum_logs.sql` | deprecated compatibility staging view. 현재 canonical staging은 `dbt/models/staging/ethereum_logs.sql`이며 downstream `ref()`가 없음 |
+| `dbt/models/staging/stg_ethereum_logs.sql` | deprecated compatibility staging view. 현재 canonical staging은 `dbt/models/staging/ethereum_logs.sql`이며 downstream `ref()`가 없습니다. |
 | `dbt/models/tests/erc20_transfer_integrity.sql` | dbt singular test 위치가 `dbt/tests/erc20_transfer_integrity.sql`로 이동됨 |
 | `dbt/models/tests/treasury_flow_integrity.sql` | dbt singular test 위치가 `dbt/tests/treasury_flow_integrity.sql`로 이동됨 |
 | `dbt/models/tests/unique_log_identity.sql` | dbt singular test 위치가 `dbt/tests/unique_log_identity.sql`로 이동됨 |
@@ -30,7 +30,7 @@ git diff 기준 삭제 파일은 21개다.
 | `src/cryptoquant_assignment/ethereum/__init__.py` | old package namespace. 현재 import/test 경로에서 사용되지 않음 |
 | `src/cryptoquant_assignment/py.typed` | old package marker. 현재 package marker는 `src/cryptoquant_pipeline/py.typed`가 아니라 typed source/test 기준으로 관리 |
 | `src/cryptoquant_assignment/settings.py` | old settings scaffold. 현재 config는 `src/cryptoquant_pipeline/config.py`, `provider.py` |
-| `src/eth_pipeline/__init__.py` | old package namespace. 현재 실행 경로에 없음 |
+| `src/eth_pipeline/__init__.py` | old package namespace. 현재 실행 경로에 없습니다. |
 | `src/eth_pipeline/block_range.py` | old block range implementation. 현재 `src/cryptoquant_pipeline/block_range.py`와 tests 사용 |
 | `src/eth_pipeline/config.py` | old config implementation. 현재 `src/cryptoquant_pipeline/config.py`, `provider.py` 사용 |
 | `src/eth_pipeline/delta_writer.py` | old Delta writer. 현재 `src/cryptoquant_pipeline/delta_writer.py` 사용 |
@@ -44,11 +44,11 @@ git diff 기준 삭제 파일은 21개다.
 
 ## 3. 삭제한 코드, SQL, 설정의 핵심 내용과 삭제 근거
 
-- old Airflow DAG shim: active DAG가 하나로 정리되어 scheduler/import 혼선을 줄임. DAG 무수정 dbt expansion 검증은 active DAG와 `dbt_runner.run_dbt_build()` 기준으로 유지.
+- old Airflow DAG shim: active DAG가 하나로 정리되어 scheduler/import 혼선을 줄입니다. DAG 무수정 dbt expansion 검증은 active DAG와 `dbt_runner.run_dbt_build()` 기준으로 유지.
 - old dbt staging/test location: `dbt/models/tests/`는 dbt convention과 현재 `dbt/tests/` 구조가 중복되므로 제거. `dbt build --select tag:ethereum_hourly`로 test coverage 유지 확인.
 - unused dbt macro block: `safe_uint256_decimal_string`는 current models/tests에서 참조되지 않고 Python exact decimal text 정책과 맞지 않아 제거.
-- old Python packages: `src/eth_pipeline/`, `src/cryptoquant_assignment/`는 current package와 책임이 중복되고 current tests/import에서 참조되지 않음.
-- old API tests: 삭제된 modules를 테스트하던 파일이라 유지하면 현재 API와 충돌함. 동일 요구사항은 current tests에서 검증.
+- old Python packages: `src/eth_pipeline/`, `src/cryptoquant_assignment/`는 current package와 책임이 중복되고 current tests/import에서 참조되지 않습니다.
+- old API tests: 삭제된 modules를 테스트하던 파일이라 유지하면 현재 API와 충돌합니다. 동일 요구사항은 current tests에서 검증.
 
 ## 4. KEEP 파일 목록과 과제 요구사항상 유지 근거
 
@@ -70,11 +70,11 @@ git diff 기준 삭제 파일은 21개다.
 
 | 항목 | 분류 | 이유 |
 |---|---|---|
-| `src/notebooks/` | REVIEW | 번호 prefix 기준 검증 보조 노트북으로 정리함. 현재 실행 source of truth는 아니지만 Python source와 로컬 데이터 최신성 점검 근거로 유지 |
-| `docs/task_02_ethereum_log_pipeline/04_error_incident_change_log.md` | REVIEW | 오류 해결 기록과 legacy candidate 기록. 현재 구현 기준 문서는 아니지만 검증 이력 가치 있음 |
+| `src/notebooks/` | REVIEW | 번호 prefix 기준 검증 보조 노트북으로 정리했습니다. 현재 실행 source of truth는 아니지만 Python source와 로컬 데이터 최신성 점검 근거로 유지 |
+| `docs/task_02_ethereum_log_pipeline/04_error_incident_change_log.md` | REVIEW | 오류 해결 기록과 legacy candidate 기록. 현재 구현 기준 문서는 아니지만 검증 이력 가치 있습니다. |
 | `docs/task_02_ethereum_log_pipeline/05_error_debugging_timeline.md` | REVIEW | debugging timeline. `ethereum_logs_v2`, old dbt path 같은 stale term이 있으나 historical context로 보존 |
 | `.env` | 제출 제외 | 실제 local config 가능성이 있어 내용 미출력/미추적 유지 |
-| `.venv/`, `dbt/target/`, `data/delta/`, `data/analytics/`, `data/tmp/`, `airflow/logs/` | 제출 제외 | generated/local artifact. 삭제하지 않고 ignore 대상 및 보고서에서 제외 |
+| `.venv/`, `dbt/target/`, `data/delta/`, `data/analytics/`, `data/tmp/`, `airflow/logs/` | 제출 제외 | generated/local artifact입니다. 삭제하지 않고 ignore 대상과 보고서 제외 항목으로 분리합니다. |
 | `docs/task_02_ethereum_log_pipeline/*.md` | REVIEW | exploratory design. README/DOCS에서 current source of truth가 아니라고 라벨링 |
 
 ## 6. FIX 처리한 문서, 코드, 경로, 설정 목록
@@ -107,30 +107,30 @@ git diff 기준 삭제 파일은 21개다.
 | Airflow DagBag import with `/opt/airflow/python/bin/python` | `import_error_count=0`, `dag_ids=['ethereum_hourly_logs']`, `schedule='@hourly'`, `max_active_runs=1`, `task_ids=['run_interval']` |
 | stale reference scan with `rg` excluding generated/notebook paths | stale terms only in REVIEW error timeline or explicit deletion context |
 | secret-like placeholder scan excluding `.env` contents | `.env.example` placeholders and documented local demo credentials only |
-| `nbclient` execution of `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` | 실행 output 저장 완료, error 없음 |
-| `nbclient` execution of `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | 실행 output 저장 완료, canonical raw Delta schema는 `PARTIALLY VERIFIED`로 판정 |
-| `data/imgs/` screenshot manual review | Airflow UI DAG 등록, `@hourly`, success 47, failed 14, failed task instance 13건 확인. 최신 data contract 증거는 아님 |
+| `nbclient` execution of `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` | 실행 output 저장 완료, error가 없습니다. |
+| custom code-cell execution of `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | `latest_v2_local`, raw `6848937`, duplicate key `0`, schema current. 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제로 `PARTIALLY VERIFIED` |
+| `data/imgs/` screenshot manual review | Airflow UI DAG 등록, `@hourly`, success 47, failed 14, failed task instance 13건을 확인했습니다. 최신 data contract 증거는 아닙니다. |
 
-## 8. 검증 실패 또는 실행 불가 항목과 이유
+## 8. 검증 실패 또는 실행할 수 없는 항목과 이유
 
 | 항목 | 상태 | 원인 | 영향 | 우회 검증 |
 |---|---|---|---|---|
-| Airflow scheduler/UI run history | VERIFIED | `data/imgs/` screenshot에서 success/failed run history를 확인하고 task log로 보강 | UI screenshot 단독 row-level correctness는 아님 | Airflow task log, Delta/DuckDB 산출물 대조 |
-| 최신 schema 기준 Airflow end-to-end 재실행 | VERIFIED | `airflow/logs/` successful scheduled 반환값 33건과 `data/delta/ethereum_logs_v2` row count `6082932` 확인 | production SLA와 full-history backfill은 미검증 | task log, Delta direct inspection, DuckDB relation count |
-| real 1-hour historical RPC scheduled collection | PARTIALLY VERIFIED | 1시간 scheduled 수집은 확인. full-history backfill과 provider qualification manifest는 미구현 | provider plan별 historical lookup 권한 차이 가능 | block range, retry, chunking, idempotency tests로 보강 |
-| reorg canonical replacement | NOT VERIFIED | 현재 구현 범위가 finality buffer와 raw `block_hash` 보존까지임 | long reorg stale canonical row replacement는 미구현 | 문서에서 design-only/future hardening으로 분리 |
-| generated/local artifact cleanup | PARTIALLY VERIFIED | `.env`, `.venv`, `data/delta/`, `data/analytics/`, `data/tmp/`, `dbt/target/`는 삭제하지 않고 제출 제외로 분리 | 로컬 디스크에는 남을 수 있음 | `.gitignore`, report, README에서 제출 제외 명시 |
+| Airflow scheduler/UI run history | VERIFIED | `data/imgs/` screenshot에서 success/failed run history를 확인하고 task log로 보강했습니다. | UI screenshot 단독 row-level correctness는 아닙니다. | Airflow task log, Delta/DuckDB 산출물 대조 |
+| 최신 schema 기준 Airflow end-to-end 재실행 | PARTIALLY VERIFIED | `airflow/logs/` successful scheduled 반환값 33건과 latest direct inspection row count `6848937`을 확인했습니다. 2026-06-22 12:00 UTC hourly gap은 남아 있습니다. | production SLA, full-history backfill, 누락 interval 원인은 검증하지 않았습니다. | task log, Delta direct inspection, DuckDB relation count, notebook 04 |
+| real 1-hour historical RPC scheduled collection | PARTIALLY VERIFIED | 1시간 scheduled 수집은 확인. full-history backfill과 provider qualification manifest는 구현되지 않았습니다. | provider plan별 historical lookup 권한 차이 가능 | block range, retry, chunking, idempotency tests로 보강 |
+| reorg canonical replacement | NOT VERIFIED | 현재 구현 범위가 finality buffer와 raw `block_hash` 보존까지입니다 | long reorg stale canonical row replacement는 구현되지 않았습니다. | 문서에서 design-only/future hardening으로 분리 |
+| generated/local artifact cleanup | PARTIALLY VERIFIED | `.env`, `.venv`, `data/delta/`, `data/analytics/`, `data/tmp/`, `dbt/target/`는 삭제하지 않고 제출 제외로 분리 | 로컬 디스크에는 남을 수 있습니다. | `.gitignore`, report, README에서 제출 제외 명시 |
 
 ## 9. 발견했지만 삭제하지 않은 위험 요소
 
-- `.env`가 local ignored file로 존재함. 비밀값 유출 방지를 위해 내용은 읽거나 출력하지 않았고, Git 추적 대상으로 만들지 않았다.
-- `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`는 현재 canonical raw Delta가 최신 Python schema와 다르다고 판정한다. 이 항목은 로컬 accumulated data freshness 리스크이며, fixture 검증 성공과 별개로 남겨야 한다.
-- `data/imgs/`는 Airflow UI screenshot 증거로 보존한다. success run history는 task log와 Delta/DuckDB 산출물 대조 후에만 외부 RPC scheduled 수집 이력으로 해석한다.
-- `data/delta/ethereum_logs_v2`와 `data/analytics/ethereum_analytics_v2.duckdb`는 Airflow scheduled 실행 증거로 확인했지만 generated/local artifact이므로 제출 source file로 보지 않는다.
-- error timeline 문서는 과거 command/path를 포함할 수 있다. 현재 source of truth는 README와 `docs/01`~`docs/08`로 제한했다.
-- `data/delta/`, `data/analytics/`, `data/tmp/`, `dbt/target/`, `.venv/`는 generated artifact이므로 삭제하지 않았다. 제출물에 포함하면 stale output 오해 위험이 있다.
-- Airflow local default credential과 port mapping은 demo 편의 설정이다. 운영 보안 통제로 주장하지 않는다.
-- Tether Treasury address label provenance/version registry는 구현하지 않았다. external assumption으로 문서화했다.
+- `.env`가 local ignored file로 존재합니다. 비밀값 유출 방지를 위해 내용은 읽거나 출력하지 않았고, Git 추적 대상으로 만들지 않았습니다.
+- `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`는 최신 v2 raw Delta의 schema와 duplicate key는 통과하지만 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제를 `PARTIALLY VERIFIED`로 판정합니다. 이 항목은 로컬 accumulated data freshness 리스크이며, fixture 검증 성공과 별개로 남겨야 합니다.
+- `data/imgs/`는 Airflow UI screenshot 증거로 보존합니다. success run history는 task log와 Delta/DuckDB 산출물 대조 후에만 외부 RPC scheduled 수집 이력으로 해석합니다.
+- `data/delta/ethereum_logs_v2`와 `data/analytics/ethereum_analytics_v2.duckdb`는 Airflow scheduled 실행 증거로 확인했지만 generated/local artifact이므로 제출 source file로 보지 않습니다.
+- error timeline 문서는 과거 command/path를 포함할 수 있습니다. 현재 source of truth는 README와 `docs/01`~`docs/08`로 제한했습니다.
+- `data/delta/`, `data/analytics/`, `data/tmp/`, `dbt/target/`, `.venv/`는 generated artifact이므로 삭제하지 않았습니다. 제출물에 포함하면 stale output 오해 위험이 있습니다.
+- Airflow local default credential과 port mapping은 demo 편의 설정이다. 운영 보안 통제로 주장하지 않습니다.
+- Tether Treasury address label provenance/version registry는 구현하지 않았습니다. external assumption으로 문서화했습니다.
 
 ## 10. 과제 요구사항 추적표 링크
 
@@ -201,7 +201,7 @@ git diff 기준 삭제 파일은 21개다.
 
 ## 12. git diff 요약
 
-이 보고서는 커밋 전 git diff 산정 기준으로 아래 변경 범위를 기록한다.
+이 보고서는 커밋 전 git diff 산정 기준으로 아래 변경 범위를 기록합니다.
 
 ```text
 삭제 파일: 21
@@ -225,4 +225,4 @@ git diff 기준 삭제 파일은 21개다.
 - docs/12_legacy_cleanup_report.md
 ```
 
-`git diff --stat` 요약: tracked files 기준 51 files changed, 1525 insertions, 4410 deletions. 신규 untracked source/test/dbt files는 stat에 포함되지 않을 수 있음.
+`git diff --stat` 요약: tracked files 기준 51 files changed, 1525 insertions, 4410 deletions. 신규 untracked source/test/dbt files는 stat에 포함되지 않을 수 있습니다.

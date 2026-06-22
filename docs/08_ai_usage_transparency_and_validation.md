@@ -1,11 +1,11 @@
 # 08. AI 활용과 검증 기준
 
 > 기준일: 2026-06-22 KST
-> 목적: AI를 사용한 범위와 제출자가 직접 판단한 설계 결정을 분리하여 기록합니다.
+> 목적: AI를 사용한 범위와 작성자가 직접 판단한 설계 결정을 분리하여 기록합니다.
 > 상태: 문서화 완료. 로컬 Docker Airflow 환경에서 외부 RPC Provider 기반 여러 1시간 scheduled 수집 이력을 확인했습니다.
 
 이 프로젝트에서 AI는 요구사항을 구조화하고 검토 범위를 넓히는 보조 도구로 사용했습니다.
-최종 설계 선택, 구현 반영 여부, 검증 상태 판단은 제출자가 코드, 테스트, 정적 분석, 문서 대조 결과를 기준으로 결정했습니다.
+최종 설계 선택, 구현 반영 여부, 검증 상태 판단은 작성자가 코드, 테스트, 정적 분석, 문서 대조 결과를 기준으로 결정했습니다.
 
 AI 출력은 구현 사실이나 검증 결과로 간주하지 않았습니다.
 검증하지 못한 제안은 요구사항 추적표와 제한사항에 `PARTIALLY VERIFIED`, `NOT VERIFIED`, `BLOCKED`로 분리했습니다.
@@ -70,11 +70,11 @@ AI 제안은 그대로 반영하지 않았습니다.
 | Airflow 외부 RPC scheduled 수집 | `airflow/logs/`, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` 확인 | VERIFIED |
 | Notebook 기반 코드·데이터 흐름 | `src/notebooks/03_*`, `src/notebooks/04_*` 실행 output | PARTIALLY VERIFIED |
 | Markdown 링크와 파일 경로 | Markdown local link 검사, `rg` 기반 경로 대조 | VERIFIED |
-| Production-grade provider 안정성 | 지속 무중단 운영, provider SLA, rate limit 여유, alerting은 별도 운영 검증 필요 | NOT VERIFIED |
+| Production-grade provider 안정성 | 지속 무중단 운영, provider SLA, rate limit 여유, alerting은 별도 운영 검증 필요합니다 | NOT VERIFIED |
 
 ## 대표 프롬프트 원문형 요약
 
-아래 프롬프트는 전체 대화 로그가 아니라 평가자가 AI 활용 범위를 이해하는 데 필요한 대표 입력만 짧게 정리한 것입니다.
+아래 프롬프트는 전체 대화 로그가 아니라 검토 시 AI 활용 범위를 이해하는 데 필요한 대표 입력만 짧게 정리한 것입니다.
 개인 메모, 반복 지시, 중간 시행착오 전문은 제출 문서에 포함하지 않습니다.
 
 | 순서 | 대표 프롬프트 | 사용 목적 | 반영 전 검증 |
@@ -83,7 +83,7 @@ AI 제안은 그대로 반영하지 않았습니다.
 | 2 | “AI 활용 투명성과 채용 가능성 균형 원칙을 지키고, AI가 확장한 검토 범위와 사용자가 책임진 최종 판단을 분리해서 보여줘.” | AI 사용 기록의 문체와 책임 경계 정의 | README, 이 문서, 요구사항 추적표 대조 |
 | 3 | “`/workspace/src/notebooks` 하위 주피터 노트북 파일에서 내용 확인하고, 파이썬 소스 코드 검증 및 데이터 확인에 주안점을 두어 리팩토링해줘.” | 노트북을 학습 기록이 아니라 코드·데이터 검증 보조 증거로 정리 | `nbclient` 실행 output, notebook JSON parse |
 | 4 | “`/workspace/data/imgs` 하위 이미지 파일을 분석하고 Markdown 문서에 실행 증거로 명시해줘.” | Airflow UI screenshot을 실행 증거 범위에 연결 | 이미지 수동 판독, Airflow task log와 Delta/DuckDB 증거 대조 |
-| 5 | “미검증과 체크 안 된 사항들을 로그와 메타데이터로 재고하고, 과제 1의 타당성도 별도 검증해서 문서 최신화해줘.” | 체크리스트 재판정과 Task 1 설계 타당성 확인 | Airflow logs, Delta metadata, Task 1 정적 스캔 |
+| 5 | “검증되지 않은 항목과 체크 안 된 사항들을 로그와 메타데이터로 재고하고, 과제 1의 타당성도 별도 검증해서 문서 최신화해줘.” | 체크리스트 재판정과 Task 1 설계 타당성 확인 | Airflow logs, Delta metadata, Task 1 정적 스캔 |
 
 ## 대표 활용 예시
 
@@ -109,7 +109,7 @@ AI 제안은 그대로 반영하지 않았습니다.
 - AI 입력: Transaction Volume, Circulating Supply, dormant UTXO, Reorg 재처리 설명의 충돌 가능성을 검토하도록 요청했습니다.
 - 사용자 판단: 공개 지표는 참고 배경으로만 사용하고, `assignment_velocity_365d_policy_eligible_utxo_v1`을 별도 정의했습니다.
 - 검증: Task 1 문서와 요구사항 추적표를 대조했습니다.
-- 결과: Task 1이 설계 문서 산출물이며 production pipeline 구현물이 아님을 README와 docs에 반영했습니다.
+- 결과: Task 1이 설계 문서 산출물이며 production pipeline 구현물이 아니라는 점을 README와 docs에 반영했습니다.
 
 ## 보조 검토 범위 상세
 
@@ -122,7 +122,7 @@ AI 제안은 초안 후보로만 취급했고, 반영 여부는 과제 원문, �
 | Task 1 정책 설계 검토 | Bitcoin Velocity의 volume, circulating supply, Reorg 영향을 반례 중심으로 검토 | dormant UTXO, burn, coinbase maturity, current snapshot 사용 위험 후보 비교 | 분실 코인 단정은 폐기하고 policy-eligible supply와 dormancy-adjusted supply를 분리했습니다. |
 | 계산 SQL 검토 | 365일 window의 결측과 재처리 조건을 SQL 또는 의사코드로 점검 | NULL 제거 후 row window 적용 시 연속 날짜를 오인할 위험 식별 | date spine 유지와 calendar/source completeness 검증 기준을 문서화했습니다. |
 | Task 2 모델 계약 검토 | `eth_getLogs`, Delta Lake, dbt incremental, reorg 삭제 범위의 멱등성 검토 | Bronze/Silver 분리, canonical reconcile, bounded rebuild 후보 비교 | 현재 구현은 raw Delta insert-if-not-exists와 natural key idempotency 중심으로 제한했습니다. |
-| USDT Treasury 범위 검토 | ERC-20 Transfer decoding과 Tether Treasury USDT 집계의 대상 식별 조건 점검 | topic0 단독 판정의 오탐 가능성과 token metadata 조건 후보 확인 | USDT contract address와 Treasury address 설정값으로 범위를 제한하고, token metadata dimension은 미구현으로 분리했습니다. |
+| USDT Treasury 범위 검토 | ERC-20 Transfer decoding과 Tether Treasury USDT 집계의 대상 식별 조건 점검 | topic0 단독 판정의 오탐 가능성과 token metadata 조건 후보를 확인했습니다 | USDT contract address와 Treasury address 설정값으로 범위를 제한하고, token metadata dimension은 구현되지 않은 항목으로 분리했습니다. |
 | 문서 표현 교정 | 완료되지 않은 구현을 완료처럼 보이지 않게 상태와 체크리스트를 교정 | 상태 표기와 체크리스트 불일치 후보 추출 | 설계 문서 완료와 구현·실행 검증 대기 상태를 분리했습니다. |
 
 ## 검증 기준 상세
@@ -150,9 +150,9 @@ AI 제안은 초안 후보로만 취급했고, 반영 여부는 과제 원문, �
 - [x] dbt build와 dbt test를 fixture 기반으로 검증했습니다.
 - [x] README 실행 명령 일부와 실제 실행 결과를 대조했습니다.
 - [x] 최신 raw schema 기준의 실제 Airflow scheduler 여러 1시간 실행 이력을 확인했습니다.
-  - 근거: `airflow/logs/dag_id=ethereum_hourly_logs`에서 successful scheduled run 반환값 33건, 최신 성공 run `scheduled__2026-06-22T08:00:00+00:00`, `raw_log_count=169451`, `inserted_row_count=169451`, `row_count_after=6082932`, `dbt.returncode=0`을 확인했습니다.
+  - 근거: `airflow/logs/dag_id=ethereum_hourly_logs`에서 successful scheduled run 반환값 33건을 확인했고, latest direct inspection에서 `data/delta/ethereum_logs_v2` row count `6848937`, duplicate key `0`을 확인했습니다.
 - [x] 실제 RPC 수집 결과와 여러 scheduled interval의 block range를 대조했습니다.
-  - 근거: Airflow task log에서 `from_block`, `to_block`, `raw_log_count`, `inserted_row_count`가 1시간 interval별로 기록되어 있고, `data/delta/ethereum_logs_v2` row count `6082932`건과 최신 task log의 `row_count_after`가 일치합니다.
+  - 근거: Airflow task log에서 `from_block`, `to_block`, `raw_log_count`, `inserted_row_count`가 1시간 interval별로 기록되어 있고, notebook 04가 latest v2 raw의 hourly series와 2026-06-22 12:00 UTC gap을 표시합니다.
 - [ ] Reorg 또는 synthetic reorg fixture 기반 복구 테스트를 완료했습니다.
   - 미완료 사유: 현재 구현은 finality buffer와 raw `block_hash` 보존까지입니다.
 
@@ -199,12 +199,12 @@ AI가 제안한 canonical reorg replacement, token metadata dimension, address l
 
 - [x] AI 활용 목적을 요구사항 분석, 설계 검토, 코드 보조, 테스트 보완, 문서 정합성 검토로 구분했습니다.
 
-- [x] 최종 설계 결정과 구현 반영 기준을 제출자가 판단한 것으로 기록했습니다.
+- [x] 최종 설계 결정과 구현 반영 기준을 작성자가 판단한 것으로 기록했습니다.
 
 - [x] AI 제안 중 실제 코드 또는 테스트로 검증한 항목만 반영했습니다.
 
 - [x] 로컬 Docker Airflow에서 외부 RPC Provider 기반 여러 1시간 scheduled 수집 이력을 검증했습니다.
-  - 근거: Airflow task log에서 successful scheduled run 반환값 33건, Airflow UI screenshot에서 success 47건, Delta `ethereum_logs_v2` row count `6082932`, DuckDB `erc20_transfers` row count `5400325`건을 확인했습니다.
+  - 근거: Airflow task log에서 successful scheduled run 반환값 33건, Airflow UI screenshot에서 success 47건, Delta `ethereum_logs_v2` row count `6848937`, DuckDB `erc20_transfers` row count `6079379`건을 확인했습니다.
   - 한계: 로컬 Docker 실행 이력 기준이며 production-grade 무중단 운영과 provider SLA는 별도 검증 대상입니다.
 
 - [x] 검증하지 못한 항목을 VERIFIED로 표기하지 않았습니다.

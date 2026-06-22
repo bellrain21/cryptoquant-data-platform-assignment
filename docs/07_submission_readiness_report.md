@@ -2,13 +2,13 @@
 
 > 상태: 제출 전 점검 보고서
 > 기준일: 2026-06-22 KST
-> 원칙: 검증된 동작, 설계-only 항목, 제출 제외 개인 자료, generated/local artifact를 분리함.
+> 원칙: 검증된 동작, 설계-only 항목, 제출 제외 개인 자료, generated/local artifact를 분리합니다.
 
 ## Repository Inventory Summary
 
 레거시 정리 기준으로 현재 실행 경로에 연결되지 않은 구 패키지와 deprecated DAG shim은
-삭제 대상이다. source/test/fixture/docs/Docker/dbt/Airflow 중 현재 요구사항 증거에
-연결된 파일은 유지하고, local/generated artifact는 `.gitignore`와 문서 경계로 제외한다.
+삭제 대상입니다. source/test/fixture/docs/Docker/dbt/Airflow 중 현재 요구사항 증거에
+연결된 파일은 유지하고, local/generated artifact는 `.gitignore`와 문서 경계로 제외합니다.
 
 | 분류 | 파일 또는 디렉터리 | 제출 판단 |
 |---|---|---|
@@ -26,20 +26,20 @@
 | Validation evidence | `docs/05_validation_evidence.md`, `docs/10_refactoring_report.md`, `docs/11_documentation_consistency_report.md`, 이 문서의 Validation Results | 유지 |
 | Screenshot evidence | `data/imgs/` | 유지. Airflow UI DAG 등록과 run history 보조 증거 |
 | Notebook evidence | `src/notebooks/` | 유지. 03번 fixture ETL/idempotency와 04번 accumulated data freshness output 저장 |
-| Generated artifacts | `data/delta/`, `data/analytics/`, `dbt/target/` | 제출 source of truth 아님. ignore 대상 |
-| Caches | `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, `.mypy_cache/` | ignore 대상 |
-| Local environments | `.venv/`, `venv/` | ignore 대상 |
-| Local logs/config | `airflow/logs/`, `logs/`, `airflow.cfg`, `dbt/profiles.yml`, `dbt/.user.yml` | ignore 대상. `profiles.yml.example`은 유지 |
-| Binaries/extensions | `data/duckdb_extensions/` | ignore 대상 |
-| Possible sensitive files | `.env`, `.env.*`, real RPC URLs, local generated config | ignore 대상. `.env.example`만 유지 |
+| Generated artifacts | `data/delta/`, `data/analytics/`, `dbt/target/` | 제출 source of truth가 아니며, ignore 대상입니다. |
+| Caches | `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, `.mypy_cache/` | ignore 대상입니다. |
+| Local environments | `.venv/`, `venv/` | ignore 대상입니다. |
+| Local logs/config | `airflow/logs/`, `logs/`, `airflow.cfg`, `dbt/profiles.yml`, `dbt/.user.yml` | ignore 대상입니다. `profiles.yml.example`은 유지합니다. |
+| Binaries/extensions | `data/duckdb_extensions/` | ignore 대상입니다. |
+| Possible sensitive files | `.env`, `.env.*`, real RPC URLs, local generated config | ignore 대상입니다. `.env.example`만 유지합니다. |
 
-Tracked generated artifact는 `git ls-files` 기준으로 관측하지 못했다. 비추적 local artifact는 삭제하지 않았고, 제출 범위에서 제외되도록 `.gitignore`를 보강했다.
+Tracked generated artifact는 `git ls-files` 기준으로 관측하지 못했습니다. 비추적 local artifact는 삭제하지 않았고, 제출 범위에서 제외되도록 `.gitignore`를 보강했습니다.
 
 ## Task 1 Architecture and Policy Explainability
 
 ### Metric Purpose
 
-Task 1 지표는 Bitcoin 공급량 대비 온체인 output movement가 얼마나 크게 관측되는지 보는 assignment-scoped activity indicator다. 가격 방향, exchange spot trading volume, 실제 경제 주체 간 순가치 이전, CryptoQuant production metric 재현을 주장하지 않는다.
+Task 1 지표는 Bitcoin 공급량 대비 온체인 output movement가 얼마나 크게 관측되는지 보는 assignment-scoped activity indicator다. 가격 방향, exchange spot trading volume, 실제 경제 주체 간 순가치 이전, CryptoQuant production metric 재현을 주장하지 않습니다.
 
 ### Formula
 
@@ -62,9 +62,9 @@ policy_eligible_utxo_supply_v1_btc(d)
 
 - day-end cutoff block 기준 policy-eligible UTXO supply.
 - 미소비 output, coinbase maturity 100-block 조건, canonical chain membership, unspendable exclusion 정책을 적용.
-- Dormant UTXO는 자동으로 lost coins가 아니므로 기본 분모에서 제외하지 않는다.
+- Dormant UTXO는 자동으로 lost coins가 아니므로 기본 분모에서 제외하지 않습니다.
 
-이 정의는 universal truth가 아니라 V1 policy choice다. 과제에 production source tables, proprietary estimation method, entity label contract가 제공되지 않았기 때문에 재현 가능한 투명 정책을 우선한다.
+이 정의는 universal truth가 아니라 V1 policy choice입니다. 과제에 production source tables, proprietary estimation method, entity label contract가 제공되지 않았기 때문에 재현 가능한 투명 정책을 우선합니다.
 
 ### Data Source Roles
 
@@ -72,9 +72,9 @@ policy_eligible_utxo_supply_v1_btc(d)
 |---|---|
 | `block` | chain linkage, height, UTC date, confirmation/reorg checkpoint |
 | `tx` | block 안의 transaction, coinbase 여부, tx identity |
-| `tx_input` | 이전 output 소비 참조. UTXO lifecycle 재구성에 필요 |
+| `tx_input` | 이전 output 소비 참조입니다. UTXO lifecycle 재구성에 필요합니다. |
 | `tx_output` | 새 spendable right 생성. gross output volume과 UTXO 생성 근거 |
-| `utxo` | day-end supply 계산 또는 lifecycle 검증 보조. 현재 snapshot만으로 과거 supply를 단독 복원하지 않음 |
+| `utxo` | day-end supply 계산 또는 lifecycle 검증 보조입니다. 현재 snapshot만으로 과거 supply를 단독 복원하지 않습니다. |
 
 관계:
 
@@ -89,9 +89,9 @@ unspent tx_outputs -> UTXOs
 | 정책 | 결정 | 이유 |
 |---|---|---|
 | Coinbase treatment | 일반 transaction volume에서 제외 | 신규 발행/채굴 보상은 regular BTC transfer activity와 다름 |
-| Change output limitation | V1은 change output을 제거하지 않음 | 주소 군집화와 change heuristic이 제공되지 않아 투명한 gross output 기준을 선택 |
-| Dormant UTXO treatment | long-dormant UTXO를 lost coins로 단정하지 않음 | 장기 미사용은 관측 상태이지 소유권 상실 사실이 아님 |
-| Unspendable/burn treatment | protocol/script 수준에서 식별 가능한 provably unspendable output만 제외 | 외부 burn label은 별도 registry와 provenance가 필요 |
+| Change output limitation | V1은 change output을 제거하지 않습니다. | 주소 군집화와 change heuristic이 제공되지 않아 투명한 gross output 기준을 선택했습니다. |
+| Dormant UTXO treatment | long-dormant UTXO를 lost coins로 단정하지 않습니다. | 장기 미사용은 관측 상태이지 소유권 상실 사실이 아닙니다. |
+| Unspendable/burn treatment | protocol/script 수준에서 식별 가능한 provably unspendable output만 제외 | 외부 burn label은 별도 registry와 provenance가 필요합니다 |
 | Coinbase maturity | cutoff height에서 100-block maturity 조건 적용 | 미성숙 coinbase output은 소비 가능 UTXO로 보지 않음 |
 | Canonical chain / confirmation | Best Chain snapshot과 successor-block policy를 적용 | reorg로 바뀔 수 있는 값을 즉시 확정값처럼 게시하지 않기 위함 |
 
@@ -99,11 +99,11 @@ unspent tx_outputs -> UTXOs
 
 Hard fail:
 
-- 365-day window의 source date가 누락됨.
+- 365-day window의 source date가 누락됩니다.
 - `block -> tx -> tx_output` 관계가 깨짐.
-- UTXO lifecycle에서 생성/소비 관계가 모순됨.
-- denominator가 0 또는 null임.
-- reorg checkpoint 불일치가 감지되었으나 영향 범위를 재계산하지 못함.
+- UTXO lifecycle에서 생성/소비 관계가 모순됩니다.
+- denominator가 0 또는 null입니다.
+- reorg checkpoint 불일치가 감지되었으나 영향 범위를 재계산하지 못했습니다.
 
 Review alert:
 
@@ -112,15 +112,15 @@ Review alert:
 - denominator supply의 비정상 변화.
 - exchange/wallet reorganization 가능성이 있는 큰 movement.
 
-Hard fail은 publish하면 잘못된 metric이 되는 구조적/논리적 무결성 실패다. Review alert는 실제 chain 또는 market event일 수 있으므로 publish 중단보다 조사 플래그가 맞다.
+Hard fail은 publish하면 잘못된 metric이 되는 구조적/논리적 무결성 실패입니다. Review alert는 실제 chain 또는 market event일 수 있으므로 publish 중단보다 조사 플래그가 맞습니다.
 
 ### Recovery Design
 
-- Rerun은 logical key와 metric contract version 기준으로 idempotent해야 한다.
-- Backfill은 scheduled run과 같은 transformation logic을 사용해야 한다.
-- Reorg 감지 시 stored block hash와 current best chain block hash를 비교한다.
-- Common ancestor를 찾고 affected start date부터 최신 confirmed metric date까지 daily component와 velocity를 재계산한다.
-- 기존 published value는 조용히 삭제하지 않고 audit history에서 superseded 상태로 보존한다.
+- Rerun은 logical key와 metric contract version 기준으로 idempotent해야 합니다.
+- Backfill은 scheduled run과 같은 transformation logic을 사용해야 합니다.
+- Reorg 감지 시 stored block hash와 current best chain block hash를 비교합니다.
+- Common ancestor를 찾고 affected start date부터 최신 confirmed metric date까지 daily component와 velocity를 재계산합니다.
+- 기존 published value는 조용히 삭제하지 않고 audit history에서 superseded 상태로 보존합니다.
 
 ### Task 1 Validity Scan
 
@@ -153,35 +153,35 @@ Likely reviewer questions:
 
 | 질문 | 답변 |
 |---|---|
-| CryptoQuant Velocity와 같은 값인가? | 아니다. 공개 설명은 context only이고, production estimation method가 없어서 assignment-scoped V1 metric으로 정의했다. |
-| 왜 change output을 제거하지 않았나? | change heuristic과 entity label이 없으면 제거 규칙이 불투명해진다. V1은 gross output으로 명시하고 한계를 문서화했다. |
-| Dormant UTXO를 lost coins로 봤나? | 아니다. dormant는 장기 미사용 상태이며, lost coin은 사실 판정이 아니라 별도 sensitivity analysis로만 다룬다. |
-| Reorg는 어떻게 처리하나? | stored checkpoint와 current chain hash를 비교하고 common ancestor 이후 affected dates를 같은 transformation logic으로 재계산한다. 이전 published value는 audit에 남긴다. |
-| 이 지표로 가격을 예측하나? | 아니다. 가격 방향이나 거래소 내부 거래량을 직접 측정하지 않는다. |
+| CryptoQuant Velocity와 같은 값인가? | 아닙니다. 공개 설명은 context only이고, production estimation method가 없어서 assignment-scoped V1 metric으로 정의했습니다. |
+| 왜 change output을 제거하지 않았나? | change heuristic과 entity label이 없으면 제거 규칙이 불투명해집니다. V1은 gross output으로 명시하고 한계를 문서화했습니다. |
+| Dormant UTXO를 lost coins로 봤나? | 아닙니다. dormant는 장기 미사용 상태이며, lost coin은 사실 판정이 아니라 별도 sensitivity analysis로만 다룹니다. |
+| Reorg는 어떻게 처리하나? | stored checkpoint와 current chain hash를 비교하고 common ancestor 이후 affected dates를 같은 transformation logic으로 재계산합니다. 이전 published value는 audit에 남긴다. |
+| 이 지표로 가격을 예측하나? | 아닙니다. 가격 방향이나 거래소 내부 거래량을 직접 측정하지 않습니다. |
 
 ## Task 2 Implementation and Integrity Review
 
 | 점검 항목 | 현재 확인 결과 | 제출 상태 |
 |---|---|---|
-| Raw log unique key chain identity | raw row에 `chain_id`와 `block_hash`는 저장됨. Delta dedup key는 `chain_id + transaction_hash + log_index`이며 `block_hash`는 포함하지 않음 | retry dedup은 구현. reorg replacement key는 미구현 |
+| Raw log unique key chain identity | raw row에 `chain_id`와 `block_hash`는 저장됩니다. Delta dedup key는 `chain_id + transaction_hash + log_index`이며 `block_hash`는 포함하지 않습니다. | retry dedup은 구현했습니다. reorg replacement key는 구현되지 않았습니다. |
 | Duplicate ingestion | batch 내부 중복과 기존 Delta key 중복 skip 구현 | fixture-tested |
-| Retry duplication | 같은 raw batch 재실행 시 row count 불변 테스트 있음 | fixture-tested |
-| Reorg replacement | finality buffer는 있음. block-hash checkpoint/canonical stale row replacement는 없음 | design-only/future hardening |
-| Stale canonical rows | 별도 canonical table이 없어 stale canonical row 제거 구현 없음 | 미구현 |
+| Retry duplication | 같은 raw batch 재실행 시 row count 불변 테스트 있습니다. | fixture-tested |
+| Reorg replacement | finality buffer는 있습니다. block-hash checkpoint/canonical stale row replacement는 없습니다. | design-only/future hardening |
+| Stale canonical rows | 별도 canonical table이 없어 stale canonical row 제거 구현이 없습니다. | 구현되지 않았습니다. |
 | Partial subrange failure | 단일 block 실패 시 `LogFetchError`, raw quality gate에서 failed subrange 실패 처리 | fixture-tested/code-inspected |
 | `eth_chainId` validation | `pipeline.run_interval`에서 RPC endpoint chain id와 `ETH_CHAIN_ID` 일치 여부 확인 | implemented/tested by mock, real basic RPC verified |
-| Collection scope | `CollectionScope.default_transfer_topic_all_addresses`가 `address_filter=None`, Transfer `topic0`만 허용하고 `ETH_LOG_ADDRESS_FILTER` drift를 설정 단계에서 차단 | implemented/fixture-tested. Airflow scheduled-run evidence는 있음. provider qualification manifest는 미구현 |
-| Airflow UI run history | `data/imgs/` screenshot에서 DAG 등록, `@hourly`, success 47, failed 14, failed task instance 13건을 확인 | VERIFIED as run-history evidence. UI screenshot 단독 row-level correctness는 아님 |
-| Airflow external RPC scheduled runs | `airflow/logs/`에서 successful scheduled 반환값 33건, `row_count_after=6082932`, `dbt.returncode=0` 확인 | VERIFIED in local Docker Airflow. production SLA는 별도 |
-| Accumulated local raw Delta | `data/delta/ethereum_logs_v2`는 최신 schema와 row count `6082932` 확인. `src/notebooks/04_*`는 기본 `data/delta/ethereum_logs` 구 schema를 감지 | PARTIALLY VERIFIED. 기본 경로와 v2 실행 증거 경로를 분리해야 함 |
-| Block hash checkpoints | raw row `block_hash` 보존 외 checkpoint reconciliation 없음 | P1 gap |
-| DAG concurrency | `max_active_runs=1` 있음. task pool/concurrency/Delta writer lock은 없음 | 부분 통제 |
-| `uint256` handling | raw hex 보존, Python exact decimal text 생성, dbt `DECIMAL(38,0)` 파생은 38자리 이하만 채움 | 제한 명시. float conversion 없음 |
+| Collection scope | `CollectionScope.default_transfer_topic_all_addresses`가 `address_filter=None`, Transfer `topic0`만 허용하고 `ETH_LOG_ADDRESS_FILTER` drift를 설정 단계에서 차단 | implemented/fixture-tested. Airflow scheduled-run evidence는 있습니다. provider qualification manifest는 구현되지 않았습니다. |
+| Airflow UI run history | `data/imgs/` screenshot에서 DAG 등록, `@hourly`, success 47, failed 14, failed task instance 13건을 확인 | VERIFIED as run-history evidence. UI screenshot 단독 row-level correctness는 아닙니다. |
+| Airflow external RPC scheduled runs | `airflow/logs/`에서 successful scheduled 반환값 33건 확인. latest direct inspection 기준 `data/delta/ethereum_logs_v2` row count `6848937`, `erc20_transfers=6079379` | VERIFIED in local Docker Airflow. production SLA는 별도 |
+| Accumulated local raw Delta | `src/notebooks/04_*`가 최신 v2 pair를 선택해 schema current, row count `6848937`, duplicate key `0`을 확인 | PARTIALLY VERIFIED. 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제가 남아 있습니다. |
+| Block hash checkpoints | raw row `block_hash` 보존 외 checkpoint reconciliation 없습니다. | P1 gap |
+| DAG concurrency | `max_active_runs=1` 있습니다. task pool/concurrency/Delta writer lock은 없습니다. | 부분 통제 |
+| `uint256` handling | raw hex 보존, Python exact decimal text 생성, dbt `DECIMAL(38,0)` 파생은 38자리 이하만 채움 | 제한 명시. float conversion 없습니다. |
 | `uint256` boundary tests | DECIMAL38 범위 안/밖 상태값과 raw decimal text 계약을 fixture/dbt test로 검증 | fixture-tested |
-| Address labels | USDT contract와 Tether Treasury-labelled address는 dbt env var로 설정. label provenance/version registry 없음 | external assumption |
+| Address labels | USDT contract와 Tether Treasury-labelled address는 dbt env var로 설정. label provenance/version registry 없습니다. | external assumption |
 | Claimed reorg behavior | current docs must state finality/idempotency only. legacy docs are exploratory | 문서 라벨 보강 |
 
-Task 2의 현재 source of truth는 `src/cryptoquant_pipeline/`, `airflow/dags/ethereum_hourly_logs.py`, `dbt/models/`, `docs/01_system_architecture.md`, `docs/02_data_contracts.md`, `docs/03_execution_guide.md`, `docs/04_failure_retry_backfill_strategy.md`다. 삭제된 `src/eth_pipeline/`와 `src/cryptoquant_assignment/`는 이전 구현이며 현재 실행 경로가 아니다.
+Task 2의 현재 source of truth는 `src/cryptoquant_pipeline/`, `airflow/dags/ethereum_hourly_logs.py`, `dbt/models/`, `docs/01_system_architecture.md`, `docs/02_data_contracts.md`, `docs/03_execution_guide.md`, `docs/04_failure_retry_backfill_strategy.md`다. 삭제된 `src/eth_pipeline/`와 `src/cryptoquant_assignment/`는 이전 구현이며 현재 실행 경로가 아닙니다.
 
 ## Security and Operational Risk Assessment
 
@@ -193,10 +193,10 @@ Production hardening would require secret management, strong Airflow authenticat
 
 | Threat actor/failure | 설명 |
 |---|---|
-| External attacker | Local Airflow UI, exposed port, default credentials, weak auth를 악용할 수 있음 |
-| Local developer/operator mistake | `.env`, RPC URL, generated logs/data를 Git에 추가하거나 잘못된 backfill을 실행할 수 있음 |
-| Malicious or faulty RPC provider | rate limit, partial response, malformed payload, wrong chain endpoint, stale data를 반환할 수 있음 |
-| Normal chain/data failure | Ethereum reorg, retry duplication, partial ingestion, Delta writer conflict, uint256 precision loss가 발생할 수 있음 |
+| External attacker | Local Airflow UI, exposed port, default credentials, weak auth를 악용할 수 있습니다. |
+| Local developer/operator mistake | `.env`, RPC URL, generated logs/data를 Git에 추가하거나 잘못된 backfill을 실행할 수 있습니다. |
+| Malicious or faulty RPC provider | rate limit, partial response, malformed payload, wrong chain endpoint, stale data를 반환할 수 있습니다. |
+| Normal chain/data failure | Ethereum reorg, retry duplication, partial ingestion, Delta writer conflict, uint256 precision loss가 발생할 수 있습니다. |
 
 ### Protected Assets
 
@@ -210,30 +210,30 @@ Production hardening would require secret management, strong Airflow authenticat
 
 | Scenario | Impact | Current control | Gap | Recommended mitigation | Implementation status |
 |---|---|---|---|---|---|
-| Real `.env` or RPC key committed | Credential exposure | `.env`, `.env.*` ignored; `.env.example` placeholder only | Generated logs/shell history는 별도 통제 없음 | secret scanning, pre-commit checks, rotate exposed keys | P0 documented |
-| Airflow default credentials | Unauthorized local UI access | `.env.example` labels `airflow/airflow`; local demo only | Strong auth 없음 | strong password, SSO/RBAC, network isolation | P2 |
-| Airflow web UI host port `8080` | Local network exposure | Docker compose explicit port mapping | TLS/network restriction 없음 | bind to localhost only, TLS/reverse proxy, firewall | P2 |
-| Empty Fernet key | Airflow connection/variable encryption 약화 | Demo config only | production secret encryption 없음 | set strong Fernet key via secret manager | P2 |
-| Default Postgres credentials | Metadata DB compromise in local network | Docker local volume | hardened DB auth 없음 | strong password, network isolation | P2 |
-| Writable host mounts | DAG/source tampering affects runtime | Local dev convenience | immutable deploy 없음 | read-only mounts, image-baked DAGs, signed artifacts | P2 |
-| Single RPC provider trust | Wrong/stale/partial data accepted | bounded retry, malformed payload handling | provider redundancy/chain checkpoint 없음 | multi-provider cross-check, `eth_chainId`, block hash checkpoints | P1 |
+| Real `.env` or RPC key committed | Credential exposure | `.env`, `.env.*` ignored; `.env.example` placeholder only | Generated logs/shell history는 별도 통제 없습니다. | secret scanning, pre-commit checks, rotate exposed keys | P0 documented |
+| Airflow default credentials | Unauthorized local UI access | `.env.example` labels `airflow/airflow`; local demo only | Strong auth 없습니다. | strong password, SSO/RBAC, network isolation | P2 |
+| Airflow web UI host port `8080` | Local network exposure | Docker compose explicit port mapping | TLS/network restriction 없습니다. | bind to localhost only, TLS/reverse proxy, firewall | P2 |
+| Empty Fernet key | Airflow connection/variable encryption 약화 | Demo config only | production secret encryption 없습니다. | set strong Fernet key via secret manager | P2 |
+| Default Postgres credentials | Metadata DB compromise in local network | Docker local volume | hardened DB auth 없습니다. | strong password, network isolation | P2 |
+| Writable host mounts | DAG/source tampering affects runtime | Local dev convenience | immutable deploy 없습니다. | read-only mounts, image-baked DAGs, signed artifacts | P2 |
+| Single RPC provider trust | Wrong/stale/partial data accepted | bounded retry, malformed payload handling | provider redundancy/chain checkpoint 없습니다. | multi-provider cross-check, `eth_chainId`, block hash checkpoints | P1 |
 | Rate limit or partial responses | Missing logs or failed DAG | adaptive split, failed subrange hard failure | real provider behavior unverified | provider-specific integration tests, alerting | P1 |
-| Ethereum reorg | stale raw/canonical rows | finality buffer, `block_hash` stored | canonical replacement 미구현 | checkpoint reconciliation, reorg lookback rebuild | P1 |
+| Ethereum reorg | stale raw/canonical rows | finality buffer, `block_hash` stored | canonical replacement 구현되지 않았습니다. | checkpoint reconciliation, reorg lookback rebuild | P1 |
 | Retry/manual backfill duplication | duplicate analytics rows | Delta dedup key, dbt unique_key | concurrent writer conflict not fully controlled | transactional merge/delete-insert by affected range, lock/pool | P1 |
-| Delta concurrent writer conflict | failed or partial writes | `max_active_runs=1` | task/pool level lock 없음 | Airflow pool, file lock, single writer policy | P1 |
+| Delta concurrent writer conflict | failed or partial writes | `max_active_runs=1` | task/pool level lock 없습니다. | Airflow pool, file lock, single writer policy | P1 |
 | Partial ingestion treated as success | downstream false success | failed subrange exception, raw quality gate | real provider partial semantics unverified | response completeness checks, run manifest | P1 |
 | Large `uint256` precision loss | wrong transfer amount | raw hex preserved, no float conversion | full decimal conversion not implemented | Python exact int/UDF, boundary tests | P1 |
-| Address label drift | wrong entity flow | env-configured address | provenance/version/expiry 없음 | label registry with source, valid_from/to, confidence | P1 |
+| Address label drift | wrong entity flow | env-configured address | provenance/version/expiry가 없습니다. | label registry with source, valid_from/to, confidence | P1 |
 | Docker image tag drift | non-reproducible runtime | some package pins | base image/postgres tag not digest-pinned | digest pinning, SBOM, vulnerability scan | P2 |
 | Dependency drift/supply chain | changed behavior or vulnerable package | version pins in requirements | no lockfile/hash validation | lockfile, hash checking, vulnerability scan | P2 |
 
 ### Minimum P0 Submission Controls
 
-- No real secrets in repository: 현재 스캔 범위에서 실제 key는 확인되지 않았고 `.env.example` placeholder만 있음.
+- No real secrets in repository: 현재 스캔 범위에서 실제 key는 확인되지 않았고 `.env.example` placeholder만 있습니다.
 - Local/demo credentials clearly labeled: README와 이 문서에 default credential risk를 명시.
 - Generated logs/data excluded: `.gitignore`에서 data, dbt target/logs, Airflow logs, caches 제외.
 - Validation status honesty: fixture/static/real RPC/Airflow runtime 범위를 분리.
-- Unresolved reorg limitation documented: finality/idempotency와 canonical replacement 미구현을 분리.
+- Unresolved reorg limitation documented: finality/idempotency와 canonical replacement 구현되지 않은 항목을 분리.
 - No false production-ready claims: local assignment demo로만 표현.
 
 ### P1 Code/Design Hardening
@@ -259,16 +259,16 @@ Production hardening would require secret management, strong Airflow authenticat
 
 ## Validation Results
 
-이번 제출 점검 세션에서 실행한 명령이다. 상태 라벨은 `VERIFIED`, `PARTIALLY VERIFIED`, `NOT VERIFIED`, `BLOCKED`만 사용한다.
+이번 제출 점검 세션에서 실행한 명령입니다. 상태 라벨은 `VERIFIED`, `PARTIALLY VERIFIED`, `NOT VERIFIED`, `BLOCKED`만 사용합니다.
 
 | Command | Status | Direct result/cause |
 |---|---|---|
-| `python -m pytest -q` | BLOCKED | 호스트 Python 3.13 환경에서 `No module named pytest`. 의존성 미설치로 차단됨. 코드 실패로 판정하지 않음 |
+| `python -m pytest -q` | BLOCKED | 호스트 Python 3.13 환경에서 `No module named pytest`가 발생했습니다. 의존성 미설치로 차단됐으며, 코드 실패로 판정하지 않습니다. |
 | `python -m compileall src tests airflow/dags scripts` | PARTIALLY VERIFIED | `src`, `tests`, `airflow/dags`, `scripts` 문법 compile 통과 |
-| `$env:PYTHONPATH='src'; python -c "...PipelineConfig...EthereumIngestionSettings..."` | PARTIALLY VERIFIED | 핵심 설정 객체 import와 기본 env parse 통과. Airflow/dbt/Delta optional dependency import는 검증하지 않음 |
+| `$env:PYTHONPATH='src'; python -c "...PipelineConfig...EthereumIngestionSettings..."` | PARTIALLY VERIFIED | 핵심 설정 객체 import와 기본 env parse는 통과했습니다. Airflow/dbt/Delta optional dependency import는 검증하지 않았습니다. |
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml config --quiet` | VERIFIED | exit 0 |
-| `dbt parse --project-dir dbt --profiles-dir dbt --no-partial-parse` | BLOCKED | 호스트 환경에서 `dbt` executable 없음 |
-| `ruff check .` | BLOCKED | 호스트 환경에서 `ruff` executable 없음 |
+| `dbt parse --project-dir dbt --profiles-dir dbt --no-partial-parse` | BLOCKED | 호스트 환경에 `dbt` executable이 없습니다. |
+| `ruff check .` | BLOCKED | 호스트 환경에 `ruff` executable이 없습니다. |
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml images workspace-dev` | VERIFIED | 기존 `workspace-dev` image 존재 확인 |
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps workspace-dev python --version` | VERIFIED | `Python 3.12.3` |
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps workspace-dev airflow version` | VERIFIED | `2.10.5` |
@@ -279,20 +279,21 @@ Production hardening would require secret management, strong Airflow authenticat
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps -e DELTA_LOGS_PATH=/workspace/data/tmp/dbt_validation/final_refactor/ethereum_logs -e DUCKDB_PATH=/workspace/data/tmp/dbt_validation/final_refactor/ethereum_analytics.duckdb -e DUCKDB_EXTENSION_DIR=/workspace/data/duckdb_extensions workspace-dev dbt build --project-dir dbt --profiles-dir dbt --select tag:ethereum_hourly --vars '{"window_start": "2024-01-01T00:00:00Z", "window_end": "2024-01-01T01:00:00Z"}' --no-partial-parse` | VERIFIED | `PASS=43 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=43` |
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps -e DELTA_LOGS_PATH=/workspace/data/tmp/dbt_validation/final_refactor/ethereum_logs -e DUCKDB_PATH=/workspace/data/tmp/dbt_validation/final_refactor/ethereum_analytics.duckdb -e DUCKDB_EXTENSION_DIR=/workspace/data/duckdb_extensions workspace-dev dbt ls --project-dir dbt --profiles-dir dbt --select tag:ethereum_hourly --output name --no-partial-parse` | VERIFIED | `Found 4 models, 39 data tests, 1 source, 486 macros`; `tether_treasury_flow_quality_summary` 포함 |
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps workspace-dev python -c "...relation counts..."` | VERIFIED | `{'ethereum_logs': 2, 'erc20_transfers': 2, 'tether_treasury_flow': 1, 'tether_treasury_flow_quality_summary': 1}` |
-| `nbclient` execution of `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` | VERIFIED | `second_inserted_row_count=0`, `duplicate_natural_key_count=0`, saved error output 없음 |
-| `nbclient` execution of `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | PARTIALLY VERIFIED | canonical raw Delta schema는 최신 Python 계약과 불일치. downstream relation은 조회됨 |
+| `nbclient` execution of `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` | VERIFIED | `second_inserted_row_count=0`, `duplicate_natural_key_count=0`, saved error output이 없습니다. |
+| custom code-cell execution of `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | PARTIALLY VERIFIED | `latest_v2_local` 선택, raw `6848937`, duplicate key `0`, schema current. 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제 확인 |
 | `scripts/inspect_outputs.py` with canonical paths | PARTIALLY VERIFIED | `delta_row_count=1`, `delta_duplicate_natural_key_count=0`, `erc20_transfers_row_count=1`, `tether_treasury_flow_row_count=1`. schema freshness는 별도 불일치 |
 | `data/imgs/` screenshot manual review | PARTIALLY VERIFIED | Airflow UI 기준 DAG 등록, `@hourly`, success 47, failed 14, failed task instance 13건 확인 |
-| Airflow task log parse | VERIFIED | successful scheduled run 반환값 33건, first `scheduled__2026-06-20T21:00:00+00:00`, latest `scheduled__2026-06-22T08:00:00+00:00`, latest `row_count_after=6082932`, `dbt.returncode=0` |
-| Delta/DuckDB direct inspection in `workspace-dev` | VERIFIED | `data/delta/ethereum_logs_v2` row count `6082932`, `data/analytics/ethereum_analytics_v2.duckdb`의 `erc20_transfers=5400325`, `tether_treasury_flow=2`, `quality_summary=1` |
+| Airflow task log parse | VERIFIED | successful scheduled run 반환값 33건, first `scheduled__2026-06-20T21:00:00+00:00`, latest parsed run `scheduled__2026-06-22T08:00:00+00:00`, `row_count_after=6082932`, `dbt.returncode=0` |
+| Delta/DuckDB direct inspection in `workspace-dev` | VERIFIED | latest recheck 기준 `data/delta/ethereum_logs_v2` row count `6848937`, `data/analytics/ethereum_analytics_v2.duckdb`의 `erc20_transfers=6079379`, `tether_treasury_flow=2`, `quality_summary=1` |
 | `git diff --check` | VERIFIED | exit 0. 줄끝 변환 경고만 출력됨 |
 | Markdown local link check | VERIFIED | `markdown local links ok` |
-| secret-like value scan | VERIFIED | tracked file에서 secret-like token match 없음. `.env`는 Git 추적 대상이 아니며 `.env.example`만 추적됨 |
+| secret-like value scan | VERIFIED | tracked file에서 secret-like token match가 없습니다. `.env`는 Git 추적 대상이 아니며 `.env.example`만 추적됩니다. |
 
 NOT VERIFIED:
 
 - production-grade provider SLA, alerting, secret rotation, full-history backfill.
-- default `data/delta/ethereum_logs` 경로의 구 schema migration 또는 재수집.
+- 2026-06-22 12:00 UTC hourly gap 원인 확인 및 필요 시 backfill.
+- DuckDB `main.ethereum_logs` staging view의 `/opt/airflow/...` 절대경로 이식성 보강.
 - Docker image build 재실행.
 - Reorg replacement fixture.
 - Full `uint256` decimal boundary behavior.
@@ -301,17 +302,17 @@ NOT VERIFIED:
 
 | Impact | Risk | Current handling |
 |---|---|---|
-| High | Real Ethereum RPC/mainnet ingestion은 로컬 Docker에서 검증됐지만 production SLA는 미검증 | Airflow log, Delta/DuckDB evidence로 검증 범위를 명시하고 production hardening은 별도 처리 |
+| High | Real Ethereum RPC/mainnet ingestion은 로컬 Docker에서 검증됐지만 production SLA는 검증하지 않았습니다. | Airflow log, Delta/DuckDB evidence로 검증 범위를 명시하고 production hardening은 별도 처리 |
 | High | Reorg canonical replacement not implemented | finality buffer only로 문서화 |
-| Medium | Multi-provider chain identity/cross-check 미구현 | 단일 provider `eth_chainId` 일치 확인만 구현 |
+| Medium | Multi-provider chain identity/cross-check 구현되지 않았습니다. | 단일 provider `eth_chainId` 일치 확인만 구현 |
 | Medium | Full `uint256` DECIMAL(38,0) conversion not implemented in DuckDB/dbt | raw hex and exact decimal text preserved; fixed-precision numeric limitation documented |
 | Medium | Tether Treasury label provenance/version missing | externally sourced label assumption으로 문서화 |
-| Medium | Airflow UI/default credentials are local demo settings | production security control 아님을 문서화 |
+| Medium | Airflow UI/default credentials are local demo settings | production security control이 아니라는 점을 문서화했습니다. |
 | Medium | dbt/DuckDB local generated artifacts can be stale | `.gitignore` exclusion and validation evidence separation |
 
 ## Sequential Implementation Plan to Deadline
 
-마감 시한은 2026-06-22 월요일 23:59 KST로 둔다. 아래 순서는 새 기능 확장보다 제출 리스크를 낮추는 순서다.
+마감 시한은 2026-06-22 월요일 23:59 KST로 둡니다. 아래 순서는 새 기능 확장보다 제출 리스크를 낮추는 순서입니다.
 
 | 순서 | 목표 시점 | 작업 | 완료 기준 |
 |---:|---|---|---|
@@ -321,5 +322,5 @@ NOT VERIFIED:
 | 4 | 2026-06-21 | `uint256` boundary test 추가 | 큰 `uint256`은 raw hex 보존, numeric null 또는 exact conversion 정책이 테스트로 고정됨 |
 | 5 | 2026-06-21 | label provenance 문서/config 보강 | Tether Treasury-labelled address가 외부 라벨 가정이며 source/version/validity가 기록됨 |
 | 6 | 2026-06-21 | collection scope 교정 | raw 수집 기본 scope가 `transfer_topic_all_addresses`로 코드/README/test에 일치 |
-| 7 | 2026-06-22 | reorg 한계 최종 정리 | 구현된 finality/idempotency와 미구현 canonical replacement가 README/report에 일치 |
-| 8 | 2026-06-22 | 최종 제출 검증 | 실제 실행한 명령과 Airflow log/Delta/DuckDB evidence만 VERIFIED로 갱신하고, production 미검증 항목은 숨기지 않음 |
+| 7 | 2026-06-22 | reorg 한계 최종 정리 | 구현된 finality/idempotency와 구현되지 않은 canonical replacement가 README/report에 일치합니다. |
+| 8 | 2026-06-22 | 최종 제출 검증 | 실제 실행한 명령과 Airflow log/Delta/DuckDB evidence만 VERIFIED로 갱신하고, production에서 검증하지 않은 항목은 숨기지 않습니다. |

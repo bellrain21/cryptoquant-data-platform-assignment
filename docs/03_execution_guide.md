@@ -66,7 +66,7 @@ DuckDB 경로는 `DUCKDB_PATH=/opt/airflow/data/analytics/ethereum_analytics.duc
 
 `ethereum_hourly_logs`는 Airflow UI manual trigger에서 프로젝트를 실제 실행합니다.
 `.env.example`은 acceptance 경로를 우선해 `ETH_AIRFLOW_MANUAL_RUN_MODE=data_interval`을
-사용한다. 개발 중 provider 연결만 빠르게 확인하려면 opt-in으로
+사용합니다. 개발 중 provider 연결만 빠르게 확인하려면 opt-in으로
 `recent_finalized` smoke mode를 설정할 수 있습니다.
 
 ```powershell
@@ -75,7 +75,7 @@ ETH_AIRFLOW_RECENT_WINDOW_SECONDS=120
 ETH_AIRFLOW_RECENT_FINALIZED_LAG_SECONDS=0
 ```
 
-특정 구간을 실행하려면 DAG run conf에 아래처럼 둘 다 넣음.
+특정 구간을 실행하려면 DAG run conf에 아래처럼 둘 다 넣습니다.
 
 ```json
 {
@@ -85,7 +85,7 @@ ETH_AIRFLOW_RECENT_FINALIZED_LAG_SECONDS=0
 ```
 
 `ethereum_hourly_logs`는 `@hourly` schedule을 갖지만 `is_paused_upon_creation=True`로
-생성됨. UI에서 pause를 해제하면 Airflow data interval 기준 scheduled run이 생성됨.
+생성됩니다. UI에서 pause를 해제하면 Airflow data interval 기준 scheduled run이 생성됩니다.
 
 1시간 DAG interval을 실제 실행하려면 먼저 provider가 해당 interval start까지
 `eth_getBlockByNumber` 조회를 허용하는지 확인해야 합니다. provider가 이 범위를
@@ -111,10 +111,10 @@ Airflow DAG 목록의 `Failed` 숫자는 과거 DAG run 이력입니다. DAG를 
 
 | 파일 | 읽을 수 있는 사실 | 주의 |
 |---|---|---|
-| `data/imgs/task_02_01_image.png` | DAG `ethereum_hourly_logs`, `@hourly`, success 47, failed 14 | row-level data correctness 증거가 아님 |
-| `data/imgs/task_02_02_image.png` | grid 기준 displayed runs 61, success 47, failed 14 | 실패 원인은 task log 확인 필요 |
+| `data/imgs/task_02_01_image.png` | DAG `ethereum_hourly_logs`, `@hourly`, success 47, failed 14 | row-level data correctness 증거는 아닙니다. |
+| `data/imgs/task_02_02_image.png` | grid 기준 displayed runs 61, success 47, failed 14 | 실패 원인은 task log 확인이 필요합니다. |
 | `data/imgs/task_02_03_image.png` | failed `run_interval` task instance 13건 | 실패를 숨기지 않는 운영 이력 |
-| `data/imgs/task_02_04_image.png` | success DAG run 47건 | task log와 Delta/DuckDB 산출물 대조 필요 |
+| `data/imgs/task_02_04_image.png` | success DAG run 47건 | task log와 Delta/DuckDB 산출물 대조가 필요합니다. |
 
 Airflow UI에서 success run이 보이더라도, row-level data correctness는 task log와
 Delta/DuckDB 산출물로 별도 확인합니다. 2026-06-22 기준 scheduled 실행 증거는
@@ -131,8 +131,8 @@ docker compose run --rm airflow-scheduler airflow dags backfill ethereum_hourly_
 
 ## 7. 실패 확인 포인트
 
-- `ETH_RPC_URL` 없음 또는 예시 placeholder: DAG 실행 실패가 정상입니다. 실제 provider URL을 `.env`에 설정해야 합니다.
-- DuckDB Delta extension download 실패: 네트워크 필요.
+- `ETH_RPC_URL`이 없거나 예시 placeholder만 있는 경우: DAG 실행 실패가 정상입니다. 실제 provider URL을 `.env`에 설정해야 합니다.
+- DuckDB Delta extension download 실패: 네트워크 필요합니다.
 - Provider too many results: 구현은 항상 10블록 이하로 요청합니다. 단일 block까지 split 후에도 실패하면 provider tier 또는 해당 block log 밀도를 확인합니다.
 - Provider HTTP 403 on block metadata lookup: 현재 확인한 Chainstack Basic endpoint는
   `eth_chainId`, finalized block, 최근 짧은 구간 `eth_getLogs`는 통과했지만
@@ -152,7 +152,7 @@ docker compose run --rm airflow-scheduler airflow dags backfill ethereum_hourly_
   - 근거: `DELTA_LOGS_PATH=/opt/airflow/data/delta/ethereum_logs`, `DUCKDB_PATH=/opt/airflow/data/analytics/ethereum_analytics.duckdb`
 
 - [x] 실제 provider에서 1시간 scheduled run을 완료했습니다.
-  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, `data/delta/ethereum_logs_v2` row count `6082932`, DuckDB downstream relation count 확인
+  - 근거: `airflow/logs/` successful scheduled run 반환값 33건, latest direct inspection 기준 `data/delta/ethereum_logs_v2` row count `6848937`, DuckDB `erc20_transfers=6079379` 확인
   - 한계: production-grade 무중단 운영과 provider SLA는 별도 검증 대상입니다.
 
 - [x] Airflow UI screenshot의 증거 범위와 한계를 문서화했습니다.

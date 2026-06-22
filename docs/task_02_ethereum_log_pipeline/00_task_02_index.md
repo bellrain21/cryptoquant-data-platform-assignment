@@ -1,25 +1,25 @@
 # 과제 2. Ethereum Log Ingestion(이더리움 로그 수집) 파이프라인 구현
 
 > Reference / exploratory design — not the current implementation source of truth.
-> 현재 구현 기준은 저장소 루트 `README.md`, `docs/01_system_architecture.md`부터 `docs/07_submission_readiness_report.md`, `src/cryptoquant_pipeline/`, `airflow/dags/`, `dbt/models/`임.
+> 현재 구현 기준은 저장소 루트 `README.md`, `docs/01_system_architecture.md`부터 `docs/07_submission_readiness_report.md`, `src/cryptoquant_pipeline/`, `airflow/dags/`, `dbt/models/`입니다.
 
 ## 문서 목적
 
-본 과제는 Ethereum Event Log를 RPC에서 수집해 Delta Lake에 적재하고, dbt로 ERC-20 Transfer와 Tether Treasury 흐름을 모델링하는 구현 과제다.
+본 과제는 Ethereum Event Log를 RPC에서 수집해 Delta Lake에 적재하고, dbt로 ERC-20 Transfer와 Tether Treasury 흐름을 모델링하는 구현 과제입니다.
 
-현재 이 디렉터리의 문서는 **구현 전 확장 설계 메모**다. 실제 구현 기준은 저장소 루트 `README.md`와 `docs/01_system_architecture.md`부터 `docs/06_code_reading_guide.md`까지를 우선한다.
+현재 이 디렉터리의 문서는 **구현 전 확장 설계 메모**입니다. 실제 구현 기준은 저장소 루트 `README.md`와 `docs/01_system_architecture.md`부터 `docs/06_code_reading_guide.md`까지를 우선합니다.
 
-주의: 아래 문서에는 Bronze/Silver canonical 분리, token metadata dimension, 별도 `tether_treasury_netflow` 모델처럼 현재 코드에 구현되지 않은 후보 설계가 포함됨. 채용 과제 제출 기준으로는 현재 구현된 raw Delta `ethereum_logs`, dbt `erc20_transfers`, `tether_treasury_flow`, fixture 검증 증거를 우선함.
+주의: 아래 문서에는 Bronze/Silver canonical 분리, token metadata dimension, 별도 `tether_treasury_netflow` 모델처럼 현재 코드에 구현되지 않은 후보 설계가 포함됩니다. 사전 과제 제출 기준으로는 현재 구현된 raw Delta `ethereum_logs`, dbt `erc20_transfers`, `tether_treasury_flow`, fixture 검증 증거를 우선합니다.
 
 ## 현재 실행 증거 기준
 
 | 증거 | 현재 판정 | 해석 |
 |---|---|---|
 | fixture Delta + dbt build | VERIFIED | 최신 schema 기준 dbt graph와 tests는 `docs/05_validation_evidence.md`의 `PASS=43` 결과를 기준으로 판단 |
-| Airflow UI screenshot `data/imgs/` | PARTIALLY VERIFIED | DAG 등록, `@hourly`, success/failed run history 확인. screenshot 단독으로 row-level correctness를 증명하지 않음 |
+| Airflow UI screenshot `data/imgs/` | PARTIALLY VERIFIED | DAG 등록, `@hourly`, success/failed run history를 확인했습니다. screenshot 단독으로 row-level correctness를 증명하지 않습니다. |
 | Airflow task log + Delta/DuckDB metadata | VERIFIED | `airflow/logs/`, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` 대조로 외부 RPC scheduled 수집과 downstream 산출을 확인 |
-| accumulated local Delta notebook | PARTIALLY VERIFIED | `src/notebooks/04_*`가 현재 `data/delta/ethereum_logs`의 구 schema를 감지 |
-| historical incident/timeline docs | REFERENCE | 04/05 문서는 과거 장애·복구 기록이며 현재 제출 source of truth가 아님 |
+| accumulated local Delta notebook | PARTIALLY VERIFIED | `src/notebooks/04_*`가 최신 v2 pair의 schema와 중복 key를 확인하고, 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제를 감지 |
+| historical incident/timeline docs | REFERENCE | 04/05 문서는 과거 장애·복구 기록이며 현재 제출 source of truth가 아닙니다. |
 
 ## 과제 요구사항 매핑
 
@@ -33,13 +33,13 @@
 
 ```text
 현재 구현함:
-1. Airflow는 data interval을 기준으로 1시간 수집 구간을 처리한다.
-2. 시간 구간은 block number range로 변환하고 provider 제한에 맞춰 chunk한다.
-3. 동일 구간의 scheduled run, rerun, backfill은 같은 수집·정규화 경로를 사용한다.
+1. Airflow는 data interval을 기준으로 1시간 수집 구간을 처리합니다.
+2. 시간 구간은 block number range로 변환하고 provider 제한에 맞춰 chunk합니다.
+3. 동일 구간의 scheduled run, rerun, backfill은 같은 수집·정규화 경로를 사용합니다.
 4. Raw Delta `ethereum_logs`는 `chain_id + transaction_hash + log_index`로 중복 적재를 막는다.
-5. dbt는 `ethereum_logs` -> `erc20_transfers` -> `tether_treasury_flow` -> `tether_treasury_flow_quality_summary`를 fixture Delta 기준으로 검증했다.
+5. dbt는 `ethereum_logs` -> `erc20_transfers` -> `tether_treasury_flow` -> `tether_treasury_flow_quality_summary`를 fixture Delta 기준으로 검증했습니다.
 
-현재 구현하지 않음:
+현재 구현하지 않은 항목은 다음과 같습니다.
 1. Bronze observation / Silver canonical 이중 계층.
 2. common ancestor 기반 stale orphan row 삭제.
 3. token metadata dimension과 on-chain `decimals()` 자동 검증.

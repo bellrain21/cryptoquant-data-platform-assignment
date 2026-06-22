@@ -1,6 +1,6 @@
 # CryptoQuant Task 2 — 장애·변경·운영 이슈 기록
 
-> **목적**: 실제 장애, 정상 보호 동작, 변경 이력, 미해결 운영 리스크를 분리해 관리한다.
+> **목적**: 실제 장애, 정상 보호 동작, 변경 이력, 미해결 운영 리스크를 분리해 관리합니다.
 > **대상 경로**: Docker Compose → Airflow → Ethereum RPC → Delta Lake → dbt → DuckDB
 > **시간 기준**: 런타임과 저장은 UTC.
 > **마지막 업데이트**: dbt singular test 경로 복구 결과 반영
@@ -18,12 +18,12 @@
 |---|---|---|
 | Provider metadata lookup | **RECOVERED / VERIFIED** | historical run 기록. 2026-06-22 Airflow log 기준 외부 RPC 1시간 scheduled E2E는 `VERIFIED` |
 | uint256 overflow | **RECOVERED / VERIFIED** | 현재 code/fixture/dbt tests 기준으로 `VERIFIED` |
-| Delta schema mismatch | **RECOVERED / VERIFIED** | 현재 accumulated local Delta는 다시 `PARTIALLY VERIFIED`. fixture path와 구분 필요 |
+| Delta schema mismatch | **RECOVERED / VERIFIED** | 현재 accumulated local Delta는 다시 `PARTIALLY VERIFIED`. fixture path와 구분 필요합니다 |
 | Notebook DuckDB lock | **RECOVERED / OPEN** | notebook 04는 query 단위 실행으로 저장 완료. live reader race는 운영 hardening 대상 |
 | Finality retry | **EXPECTED BEHAVIOR / VERIFIED** | unit/mock 및 historical 기록 근거. production-grade provider SLA는 별도 검증 대상 |
 | dbt singular test path | **RECOVERED / VERIFIED** | 최신 fixture dbt build는 `PASS=43`으로 갱신 |
 | UI served-log 403 | **OPEN** | data path 비차단. UI screenshot은 run history 보조 증거 |
-| submission archive hygiene | **OPEN / P0** | `.env`, generated data, runtime artifact 제외 필요 |
+| submission archive hygiene | **OPEN / P0** | `.env`, generated data, runtime artifact 제외 필요합니다 |
 
 ---
 
@@ -46,7 +46,7 @@ Docker Compose
             └─ dbt build → DuckDB silver / gold
 ```
 
-> Docker가 직접 DAG을 실행하는 것은 아니다. Docker Compose가 scheduler를 기동하고, scheduler가 Airflow metadata와 DAG 정의를 기준으로 schedule·retry를 수행한다.
+> Docker가 직접 DAG을 실행하는 것은 아닙니다. Docker Compose가 scheduler를 기동하고, scheduler가 Airflow metadata와 DAG 정의를 기준으로 schedule·retry를 수행합니다.
 
 ### 1.2 시간·grain·idempotency
 
@@ -56,10 +56,10 @@ raw grain: 1 row = 1 EVM event log
 raw natural key: chain_id + transaction_hash + log_index
 ```
 
-- 동일 natural key 재수집 시 append하지 않는다.
-- `max_active_runs=1`은 과제 범위의 single-writer 제약이다.
-- raw Delta commit과 dbt materialization은 하나의 transaction이 아니다.
-- 따라서 raw success와 analytics success는 별도 증적으로 확인한다.
+- 동일 natural key 재수집 시 append하지 않습니다.
+- `max_active_runs=1`은 과제 범위의 single-writer 제약입니다.
+- raw Delta commit과 dbt materialization은 하나의 transaction이 아닙니다.
+- 따라서 raw success와 analytics success는 별도 증적으로 확인합니다.
 
 ### 1.3 uint256 raw contract
 
@@ -73,7 +73,7 @@ data_uint256_decode_status
 |---|---|
 | `DECIMAL38_AVAILABLE` | exact decimal text 존재, `DECIMAL(38,0)` 파생 가능 |
 | `OUTSIDE_DECIMAL38_RANGE` | exact decimal text 존재, fixed precision 범위 초과 |
-| `NOT_UINT256_WORD` | 유효 raw log지만 uint256 data word 형태가 아님 |
+| `NOT_UINT256_WORD` | 유효 raw log지만 uint256 data word 형태가 아닙니다. |
 
 정책:
 
@@ -99,15 +99,15 @@ configured USDT numeric 변환 실패
 | 증상 | `eth_getBlockByNumber` numeric lookup이 interval start까지 도달하지 못함 |
 | 오류 | `provider block metadata lookup window does not reach interval_start_utc` |
 | 영향 | UTC 시간→block range 자동 계산 실패 |
-| 근본 원인 | 초기 provider가 필요한 block metadata lookup 범위를 제공하지 않음 |
+| 근본 원인 | 초기 provider가 필요한 block metadata lookup 범위를 제공하지 않았습니다. |
 | 조치 | metadata lookup이 가능한 provider configuration으로 전환 |
 | 검증 | finalized·numeric probe 및 1시간 scheduled E2E 성공 |
 
 운영 원칙:
 
 ```text
-provider 제한을 이유로 address/topic scope를 조용히 축소하지 않는다.
-provider capability 또는 처리 가능한 interval 범위를 명시한다.
+provider 제한을 이유로 address/topic scope를 조용히 축소하지 않습니다.
+provider capability 또는 처리 가능한 interval 범위를 명시합니다.
 ```
 
 ---
@@ -133,10 +133,10 @@ provider capability 또는 처리 가능한 interval 범위를 명시한다.
 
 | 구분 | 기록 |
 |---|---|
-| 증상 | dbt staging이 새 uint256 컬럼을 참조했으나 기존 Delta schema에 컬럼 없음 |
+| 증상 | dbt staging이 새 uint256 컬럼을 참조했으나 기존 Delta schema에 컬럼 없습니다. |
 | 근본 원인 | normalizer/writer/dbt만 새 contract로 바뀌고 기존 Delta table은 구 schema |
 | 잘못된 대응 | dbt `--full-refresh`만 수행 |
-| 왜 부족한가 | full-refresh는 dbt relation만 재생성하며 raw Delta migration은 수행하지 않음 |
+| 왜 부족한가 | full-refresh는 dbt relation만 재생성하며 raw Delta migration은 수행하지 않습니다. |
 | 조치 | legacy backup 생성 후 raw Delta와 DuckDB clean rebuild |
 | 검증 | 새 schema 기준 scheduled / backfill / replay E2E 성공 |
 
@@ -150,10 +150,10 @@ provider capability 또는 처리 가능한 interval 범위를 명시한다.
 |---|---|
 | 증상 | raw Delta commit 뒤 dbt build가 DuckDB write lock 획득에 실패 |
 | 직접 원인 | 초기 validation notebook이 live DuckDB read connection을 지속 보유 |
-| 영향 | raw는 commit됐지만 silver/gold가 stale할 수 있음 |
+| 영향 | raw는 commit됐지만 silver/gold가 stale할 수 있습니다. |
 | 즉시 복구 | notebook kernel 종료 → writer lock preflight → dbt-only catch-up |
 | 개선 | notebook을 query 단위 open/close 방식으로 변경 |
-| 남은 리스크 | live DB reader race를 구조적으로 완전히 제거한 것은 아님 |
+| 남은 리스크 | live DB reader race를 구조적으로 완전히 제거한 것은 아닙니다. |
 
 운영 규칙:
 
@@ -161,7 +161,7 @@ provider capability 또는 처리 가능한 interval 범위를 명시한다.
 raw Delta commit 성공 ≠ analytics materialization 성공
 
 raw가 이미 commit된 interval은
-RPC 재수집보다 dbt-only catch-up을 먼저 검토한다.
+RPC 재수집보다 dbt-only catch-up을 먼저 검토합니다.
 ```
 
 ---
@@ -192,7 +192,7 @@ attempt 3 → raw 105,719 / dbt rc 0 / SUCCESS
 
 ### observability 상태
 
-이전에는 finality log 수정안만 존재했다. 현재는 아래 runtime log가 실제로 확인됐다.
+이전에는 finality log 수정안만 존재했습니다. 현재는 아래 runtime log가 실제로 확인됐습니다.
 
 ```text
 Finality check:
@@ -249,7 +249,7 @@ data tests = 30
 | 구분 | 기록 |
 |---|---|
 | 증상 | Web UI task log fetch 403 발생 이력 |
-| 데이터 영향 | 없음. scheduler local task log와 CLI direct read 가능 |
+| 데이터 영향 | 없습니다. scheduler local task log와 CLI direct read 가능 |
 | 가능 원인 | component 간 `AIRFLOW__WEBSERVER__SECRET_KEY` 또는 log serving configuration 불일치 |
 | 임시 우회 | `/opt/airflow/logs/.../attempt=n.log` 직접 조회 |
 | 영구 조치 | 공통 secret key 정합 후 component 재생성, UI log 재검증 |
@@ -263,7 +263,7 @@ data tests = 30
 | 구분 | 기록 |
 |---|---|
 | 증상 | `ETH_AIRFLOW_ENABLE_HOURLY_SCHEDULE`가 있어도 DAG가 `@hourly` hard-coded로 동작 |
-| 위험 | env false만으로 scheduling이 멈춘다고 오해할 수 있음 |
+| 위험 | env false만으로 scheduling이 멈춘다고 오해할 수 있습니다. |
 | 선택지 A | flag 제거, Airflow Pause/Unpause를 유일한 운영 스위치로 문서화 |
 | 선택지 B | DAG schedule 인자에 env flag를 실제 연결 |
 | 권장 | 과제 제출 범위에서는 A가 단순하고 혼동이 적음 |
@@ -276,7 +276,7 @@ data tests = 30
 
 | 구분 | 기록 |
 |---|---|
-| 확인 이력 | `.env`, runtime data, Airflow/dbt logs, target artifact, analytics DB 등이 archive에 포함된 적 있음 |
+| 확인 이력 | `.env`, runtime data, Airflow/dbt logs, target artifact, analytics DB 등이 archive에 포함된 적 있습니다. |
 | 위험 | secret 노출, 제출물 비대화, stale artifact와 source 혼동 |
 | 필수 제외 | `.env`, `airflow.cfg`, `data/delta/`, `data/analytics/`, `data/tmp/`, `airflow/logs/`, `dbt/logs/`, `dbt/target/`, cache. `data/imgs/`는 screenshot evidence로 별도 보존 |
 | 노출 대응 | endpoint/API key가 외부에 공유된 적이 있다면 provider key rotate |
@@ -293,7 +293,7 @@ data tests = 30
 | legacy candidate | `src/eth_pipeline/` |
 | runtime 판정 | Airflow 실행은 `cryptoquant_pipeline.*` import를 사용 |
 | 사전 조건 | scripts/tests/docs의 `eth_pipeline` 참조를 current package 기준으로 제거 |
-| 확인 필요 | `git grep -n "eth_pipeline"` 및 `pytest -q` |
+| 확인이 필요합니다 | `git grep -n "eth_pipeline"` 및 `pytest -q` |
 | 목표 | source-of-truth를 하나로 유지하고 reviewer 혼동 방지 |
 
 ---
@@ -325,7 +325,7 @@ data tests = 30
 | PI-04 | notebook live DuckDB direct read | PARTIALLY MITIGATED | immutable snapshot 또는 exported parquet |
 | PI-05 | cold environment Delta extension cache/network 의존 | POTENTIAL | image preinstall 또는 preflight 문서화 |
 | PI-06 | legacy `eth_pipeline`과 canonical `cryptoquant_pipeline` 공존 | OPEN | legacy package·문서 참조 정리 |
-| PI-07 | canonical publish fence 미구현 | OPEN ARCHITECTURE | run-id staging → all-success promotion |
+| PI-07 | canonical publish fence 구현되지 않았습니다. | OPEN ARCHITECTURE | run-id staging → all-success promotion |
 | PI-08 | error policy와 run manifest 분산 | OPEN ARCHITECTURE | reason code / retryable / recovery action 계약화 |
 
 ---
@@ -337,7 +337,7 @@ data tests = 30
 ```text
 [ ] .env / API key / secret / runtime data / logs / dbt target-cache 제외
 [ ] clean checkout 또는 clean archive에서 README 실행 경로 검증
-[ ] raw commit과 dbt 실패가 분리될 수 있음을 validation 문서에 명시
+[ ] raw commit과 dbt 실패가 분리될 가능성을 validation 문서에 명시합니다.
 [ ] archive 생성 직전 git status / git ls-files 재확인
 ```
 

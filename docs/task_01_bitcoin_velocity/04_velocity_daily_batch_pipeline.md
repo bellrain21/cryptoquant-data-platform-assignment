@@ -1,7 +1,7 @@
 # 9~11. 일 단위 배치, 데이터 품질, 멱등성(Daily Batch, Data Quality, and Idempotency)
 
 > **문서 상태(Status)**: 설계 문서 정리 완료
-> **문서 역할(Role)**: Airflow, Spark SQL, Delta Lake를 사용한 일 단위 생산·검증·재처리 절차를 정의한다.
+> **문서 역할(Role)**: Airflow, Spark SQL, Delta Lake를 사용한 일 단위 생산·검증·재처리 절차를 정의합니다.
 
 ## 9. 일 단위 배치 파이프라인 설계(Daily Batch Pipeline Design)
 
@@ -36,7 +36,7 @@ Airflow data interval
 
 ## 9.3 Airflow Data Interval과 Backfill
 
-Airflow의 logical date는 실제 실행 시각이 아니라 data interval의 시작을 나타낸다. 따라서 DAG는 `now()`가 아니라 data interval로 대상 날짜를 결정한다.
+Airflow의 logical date는 실제 실행 시각이 아니라 data interval의 시작을 나타냅니다. 따라서 DAG는 `now()`가 아니라 data interval로 대상 날짜를 결정합니다.
 
 ```text
 scheduled run
@@ -49,11 +49,11 @@ backfill
 = 과거 data interval을 같은 DAG와 같은 변환 경로로 처리
 ```
 
-Backfill용 별도 계산 코드를 만들지 않는다. 같은 DAG에 날짜 범위만 다르게 전달해야 scheduled run과 historical run의 결과 규칙이 갈라지지 않는다.
+Backfill용 별도 계산 코드를 만들지 않습니다. 같은 DAG에 날짜 범위만 다르게 전달해야 scheduled run과 historical run의 결과 규칙이 갈라지지 않습니다.
 
 ## 9.4 Successor Block 기반 게시 정책(Policy-confirmation Publication)
 
-Bitcoin은 결정론적 finality를 제공하지 않는다. 따라서 `confirmed_by_policy`는 프로토콜 절대 확정이 아니라 내부 게시 정책을 충족했다는 뜻이다.
+Bitcoin은 결정론적 finality를 제공하지 않습니다. 따라서 `confirmed_by_policy`는 프로토콜 절대 확정이 아니라 내부 게시 정책을 충족했다는 뜻입니다.
 
 ```text
 required_successor_blocks
@@ -67,11 +67,11 @@ observed_best_chain_tip_height
 required_successor_blocks
 ```
 
-기준일 종료 block의 height가 이 cutoff 이하일 때만 해당 날짜의 결과를 current Gold에 `confirmed_by_policy` 상태로 게시한다. cutoff 밖의 결과와 reorg로 대체된 이전 결과는 audit history에는 남길 수 있지만 current Gold에는 게시하지 않는다.
+기준일 종료 block의 height가 이 cutoff 이하일 때만 해당 날짜의 결과를 current Gold에 `confirmed_by_policy` 상태로 게시합니다. cutoff 밖의 결과와 reorg로 대체된 이전 결과는 audit history에는 남길 수 있지만 current Gold에는 게시하지 않습니다.
 
 ## 9.5 Spark SQL 처리 역할(Spark SQL Responsibilities)
 
-Spark SQL은 아래 대량 조인과 window 계산에 사용한다.
+Spark SQL은 아래 대량 조인과 window 계산에 사용합니다.
 
 - Best Chain block과 거래·출력 join
 - `tx_input`과 `tx_output` 기반 UTXO lifecycle 구성
@@ -80,7 +80,7 @@ Spark SQL은 아래 대량 조인과 window 계산에 사용한다.
 - staging 중복 검증과 품질 집계
 - Delta Lake `MERGE` 대상 준비
 
-로컬 환경에서는 데이터량과 실행 환경에 따라 PySpark local mode를 사용할 수 있다. 설계의 핵심은 Spark 사용 여부 자체가 아니라, 계산 계층을 raw fact·derived lifecycle·gold metric으로 분리하는 것이다.
+로컬 환경에서는 데이터량과 실행 환경에 따라 PySpark local mode를 사용할 수 있습니다. 설계의 핵심은 Spark 사용 여부 자체가 아니라, 계산 계층을 raw fact·derived lifecycle·gold metric으로 분리하는 것입니다.
 
 ## 9.6 Delta Lake 저장 및 갱신 전략(Delta Lake Write Strategy)
 
@@ -116,7 +116,7 @@ reorg recovery
 - 영향 날짜 범위를 staging에서 전체 재생성 후 검증하고 current Gold에 MERGE하며, 대체 전 revision을 audit history에 superseded 상태로 기록
 ```
 
-단순 blind append는 retry·backfill 시 중복을 만들 수 있으므로 사용하지 않는다. 이 설계에서 “incremental”은 새 날짜 또는 영향 날짜만 계산 대상으로 삼는다는 뜻이며, 최종 적재는 논리 키 기반 upsert로 통제한다.
+단순 blind append는 retry·backfill 시 중복을 만들 수 있으므로 사용하지 않습니다. 이 설계에서 “incremental”은 새 날짜 또는 영향 날짜만 계산 대상으로 삼는다는 뜻이며, 최종 적재는 논리 키 기반 upsert로 통제합니다.
 
 ## 10. 데이터 품질 검증(Data Quality Validation)
 
@@ -140,13 +140,13 @@ reorg recovery
 | 공급량 변동 이상 | 예상 발행량과 큰 차이 | alert와 검토 대상 생성 |
 | dormant spent volume 급증 | 장기 미활성 UTXO 소비 급증 | alert와 해석 보조 정보 기록 |
 
-급변은 실제 시장·온체인 이벤트일 수 있으므로 자동 hard fail이 아니라 review alert로 분리한다.
+급변은 실제 시장·온체인 이벤트일 수 있으므로 자동 hard fail이 아니라 review alert로 분리합니다.
 
 ## 11. 멱등성 및 재계산 전략(Idempotency and Recomputation)
 
 ## 11.1 멱등성 정의
 
-멱등성은 같은 `metric_date`만을 뜻하지 않는다. 아래 입력이 동일한 경우 최종 게시 상태가 하나로 수렴해야 한다.
+멱등성은 같은 `metric_date`만을 뜻하지 않습니다. 아래 입력이 동일한 경우 최종 게시 상태가 하나로 수렴해야 합니다.
 
 ```text
 - Best Chain snapshot
@@ -156,7 +156,7 @@ reorg recovery
 - Airflow data interval
 ```
 
-Reorg가 발생해 체인 상태가 바뀌면 결과가 달라지는 것은 멱등성 위반이 아니라 입력 변경에 따른 정상 재계산이다.
+Reorg가 발생해 체인 상태가 바뀌면 결과가 달라지는 것은 멱등성 위반이 아니라 입력 변경에 따른 정상 재계산입니다.
 
 ## 11.2 버전 분리(Version Separation)
 
@@ -168,7 +168,7 @@ Reorg가 발생해 체인 상태가 바뀌면 결과가 달라지는 것은 멱�
 | `pipeline_code_version` | 구현 로직 |
 | `chain_revision_id` | 관측 체인 스냅샷 |
 
-`calculation_version` 하나에 모든 변경 원인을 넣지 않는다. 그래야 재계산 결과가 왜 달라졌는지 분해할 수 있다.
+`calculation_version` 하나에 모든 변경 원인을 넣지 않습니다. 그래야 재계산 결과가 왜 달라졌는지 분해할 수 있습니다.
 
 ## 11.3 게시 전 staging과 감사 로그
 

@@ -1,8 +1,8 @@
 # CryptoQuant Task 2 — 디버깅 타임라인 및 검증 기록
 
-> **목적**: Ethereum hourly logs 파이프라인에서 발생한 장애·정상 보호 동작·수정·복구를 시간순으로 기록한다.
+> **목적**: Ethereum hourly logs 파이프라인에서 발생한 장애·정상 보호 동작·수정·복구를 시간순으로 기록합니다.
 > **대상 경로**: Docker Compose → Airflow → Ethereum RPC → Delta Lake → dbt → DuckDB
-> **시간 기준**: 런타임·저장·Airflow logical interval은 UTC. KST는 운영 확인용 보조 표기다.
+> **시간 기준**: 런타임·저장·Airflow logical interval은 UTC. KST는 운영 확인용 보조 표기입니다.
 > **마지막 업데이트**: 2026-06-21 세션 증적 반영
 
 > 현재 제출 판정: 이 문서는 historical debugging timeline입니다. 최신 상태 판단은 `docs/05_validation_evidence.md`와 `docs/09_requirement_traceability_matrix.md`를 우선합니다.
@@ -22,7 +22,7 @@
 | dbt graph / singular tests | **RECOVERED · VERIFIED** | 최신 fixture dbt build는 `PASS=43`으로 갱신 |
 | Finality observability log | **VERIFIED** | historical runtime log 근거. 현재 source of truth는 validation evidence |
 | Airflow UI served-log 403 | **OPEN** | CLI/local log 우회 가능, UI 영구 보정 미완료 |
-| 제출 archive 위생 | **OPEN · P0** | secret·runtime artifact·target/cache 제외 재점검 필요 |
+| 제출 archive 위생 | **OPEN · P0** | secret·runtime artifact·target/cache 제외 재점검 필요합니다 |
 
 ---
 
@@ -52,7 +52,7 @@ eth_getLogs block range: [from_block, to_block] inclusive
 UTC [01:00:00, 02:00:00)
 KST [10:00:00, 11:00:00)
 
-02:00:00 UTC는 이전 interval에 포함되지 않는다.
+02:00:00 UTC는 이전 interval에 포함되지 않습니다.
 ```
 
 ---
@@ -84,7 +84,7 @@ dbt was unable to infer all dependencies for singular test resources
 Done. PASS=25 WARN=0 ERROR=17 SKIP=0 NO-OP=0 TOTAL=42
 ```
 
-이 run은 finality guard를 통과하고 `Running dbt build` 단계까지 도달했다. 파이프라인 구현 순서상 Delta write는 dbt 호출보다 앞선다. 다만 이 실패 attempt 로그에는 해당 interval의 raw insert/duplicate metric이 직접 출력되지 않았으므로, raw 적재 완료 여부는 이 문서에서 **INFERRED**로만 기록한다.
+이 run은 finality guard를 통과하고 `Running dbt build` 단계까지 도달했습니다. 파이프라인 구현 순서상 Delta write는 dbt 호출보다 앞선다. 다만 이 실패 attempt 로그에는 해당 interval의 raw insert/duplicate metric이 직접 출력되지 않았으므로, raw 적재 완료 여부는 이 문서에서 **INFERRED**로만 기록합니다.
 
 ### 2.3 수정
 
@@ -170,7 +170,7 @@ INC-005 dbt test/model 이중 등록
 | T-16 | 2026-06-21 20:05~20:07 | test path 분리 후 parse/build 실행 | graph 재구성 |
 | T-17 | 2026-06-21 20:07:20 | dbt build 성공 | `PASS=34`, `ERROR=0` |
 
-> T-16~T-17은 container dbt console 출력 기준이다. 출력 자체에 timezone suffix가 없으므로, 이 문서에서는 KST 환산값을 단정하지 않는다.
+> T-16~T-17은 container dbt console 출력 기준이다. 출력 자체에 timezone suffix가 없으므로, 이 문서에서는 KST 환산값을 단정하지 않습니다.
 
 ---
 
@@ -198,15 +198,15 @@ finalized_block_timestamp_utc >= interval_end_utc
 finalized_block_timestamp_utc < interval_end_utc
 → RetryableIntervalNotFinalized
 → Airflow UP_FOR_RETRY
-→ eth_getLogs / Delta / dbt 미실행
+→ eth_getLogs / Delta / dbt 실행하지 않았습니다
 ```
 
 ### attempt 판정
 
 | attempt | KST 시작 | 결과 | 수집·Delta·dbt |
 |---|---:|---|---|
-| 1 | 11:00:01 | finality 미도달 | 미실행 |
-| 2 | 11:09:58 | finality 미도달 | 미실행 |
+| 1 | 11:00:01 | finality 미도달 | 실행하지 않았습니다 |
+| 2 | 11:09:58 | finality 미도달 | 실행하지 않았습니다 |
 | 3 | 11:29:19 | finality 통과 | 실행 및 성공 |
 
 ### attempt 3 결과
@@ -244,7 +244,7 @@ max(block_timestamp_utc)=2026-06-21 01:59:59 UTC
 | replay | 동일 `[2026-06-20 20:00, 21:00)` | insert 0 / duplicate skip 228,965 / dbt rc 0 / SUCCESS |
 | scheduled | `[2026-06-20 23:00, 2026-06-21 00:00)` | raw 134,475 / invalid 0 / inserted 134,475 / dbt rc 0 / SUCCESS |
 | finality retry case | `[2026-06-21 01:00, 02:00)` | retry 2회 후 raw 105,719 / dbt rc 0 / SUCCESS |
-| dbt-only catch-up | `[2026-06-21 18:00, 19:00)` | dbt `PASS=34 / ERROR=0`; raw result metric은 이 실행 로그에 없음 |
+| dbt-only catch-up | `[2026-06-21 18:00, 19:00)` | dbt `PASS=34 / ERROR=0`; raw result metric은 이 실행 로그에 없습니다. |
 
 ---
 
@@ -302,14 +302,14 @@ docker compose exec airflow-scheduler python -c "from deltalake import DeltaTabl
 | 다음 Airflow scheduled/manual run 성공 확인 | VERIFIED | `airflow/logs/`에서 최신 successful scheduled run `row_count_after=6082932`, `dbt.returncode=0`을 확인했습니다. |
 | Airflow UI served-log 403 영구 보정 | NOT VERIFIED | UI log serving 설정 보정은 현재 제출 core 기능이 아니며 수행하지 않았습니다. |
 | `ETH_AIRFLOW_ENABLE_HOURLY_SCHEDULE` 정리 | PARTIALLY VERIFIED | active DAG는 `schedule='@hourly'`입니다. historical env flag cleanup은 legacy cleanup 범위로 남깁니다. |
-| dbt/project default path의 v2 통일 | PARTIALLY VERIFIED | v2 실행 증거와 fixture dbt 검증은 확인했습니다. 기본 raw path에는 구 schema 1건이 남아 있어 notebook 04에서 `PARTIALLY VERIFIED`로 판정합니다. |
+| dbt/project default path의 v2 통일 | PARTIALLY VERIFIED | v2 실행 증거와 fixture dbt 검증은 확인했습니다. notebook 04는 최신 v2 pair를 선택하지만 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제를 `PARTIALLY VERIFIED`로 판정합니다. |
 | 제출 archive secret/runtime artifact 제외 | PARTIALLY VERIFIED | `.gitignore`, `.env.example`, secret-like scan은 확인했습니다. 실제 archive 생성 직전 `git ls-files` 재확인은 남아 있습니다. |
 
 ---
 
 ## 8. 결론
 
-이 파이프라인의 재시도는 두 가지 성격으로 분리된다.
+이 파이프라인의 재시도는 두 가지 성격으로 분리됩니다.
 
 ```text
 1. finality retry
@@ -321,4 +321,5 @@ docker compose exec airflow-scheduler python -c "from deltalake import DeltaTabl
    → tests 경로 분리 후 dbt parse/build 성공으로 복구 검증
 ```
 
-현재 핵심 수집·적재·변환 경로는 검증됐고, 남은 작업은 운영 관측성과 제출 위생을 닫는 것이다.
+현재 핵심 수집·적재·변환 경로는 검증됐고,
+남은 작업은 운영 관측성과 제출 위생을 닫는 것입니다.

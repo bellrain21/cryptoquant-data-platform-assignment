@@ -29,9 +29,9 @@ to_address_filter=null
 
 아래 schema는 현재 Python writer 계약입니다. `src/cryptoquant_pipeline/delta_writer.py`의 `ethereum_logs_schema()`가 정본입니다.
 
-2026-06-22에 실행한 `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`는 기본 로컬 `data/delta/ethereum_logs`가 이 최신 계약과 완전히 일치하지 않는다고 판정했습니다.
-반면 Airflow 여러 1시간 scheduled 실행 산출물인 `data/delta/ethereum_logs_v2`는 최신 계약 컬럼과 row count `6082932`건을 직접 확인했습니다.
-따라서 schema 구현과 `ethereum_logs_v2` 실행 산출물은 `VERIFIED`로 보고, 기본 `ethereum_logs` 경로에 남은 구 schema는 `PARTIALLY VERIFIED`로 분리합니다.
+2026-06-22에 리팩토링한 `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`는 기본 로컬 `data/delta/ethereum_logs`를 stale candidate로 표시하고, 최신 schema와 downstream row count가 확인되는 `data/delta/ethereum_logs_v2` pair를 선택합니다.
+latest direct inspection 기준 `ethereum_logs_v2`는 최신 계약 컬럼, row count `6848937`, duplicate natural key count `0`을 확인했습니다.
+따라서 schema 구현과 `ethereum_logs_v2` 실행 산출물은 raw contract 관점에서 `VERIFIED`로 보고, 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 이식성은 notebook 04에서 `PARTIALLY VERIFIED`로 분리합니다.
 
 | column | type | nullable | rule |
 |---|---|---:|---|
@@ -41,7 +41,7 @@ to_address_filter=null
 | block_timestamp_utc | TIMESTAMP | no | block 조회 결과, UTC |
 | block_date_utc | DATE | no | UTC date partition |
 | transaction_hash | STRING | no | lowercase hex |
-| transaction_index | BIGINT | yes | provider payload에 없을 수 있음 |
+| transaction_index | BIGINT | yes | provider payload에 없을 수 있습니다. |
 | log_index | BIGINT | no | RPC가 제공한 log position/index. 관련 block 또는 transaction execution context 안에서의 식별 값으로만 사용 |
 | contract_address | STRING | no | event를 낸 contract address |
 | topic0 | STRING | yes | event signature |
@@ -72,8 +72,8 @@ Transaction 하나에서 여러 event log가 발생할 수 있으므로 transact
 
 선택 이유:
 
-- hourly/daily backfill 영향 범위를 날짜로 좁힐 수 있음.
-- `transaction_hash`는 cardinality가 너무 높음.
+- hourly/daily backfill 영향 범위를 날짜로 좁힐 수 있습니다.
+- `transaction_hash`는 cardinality가 너무 높습니다.
 - `block_number` partition은 작은 파일과 과도한 partition을 만들 가능성이 큼.
 
 ## Normalization rule
@@ -140,7 +140,7 @@ USDT 행에서 numeric 변환이 실패하면 dbt test가 build를 실패시킵�
 | ERC-20 Transfer decode | `dbt/models/silver/erc20_transfers.sql`, `dbt/macros/decode_ethereum_address.sql` | `erc20_transfers` | `dbt/tests/erc20_transfer_integrity.sql` | VERIFIED |
 | Treasury flow 집계 | `dbt/models/gold/tether_treasury_flow.sql` | `tether_treasury_flow` | `dbt/tests/treasury_flow_integrity.sql` | VERIFIED |
 | external RPC raw Delta schema | `data/delta/ethereum_logs_v2` | Airflow scheduled run 산출물 | Delta direct inspection, `docs/05_validation_evidence.md` | VERIFIED |
-| accumulated local raw Delta schema | `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`, `data/delta/ethereum_logs` | 실제 로컬 Delta schema와 `ethereum_logs_schema()` 비교 | notebook 실행 output | PARTIALLY VERIFIED |
+| accumulated local raw Delta freshness | `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` | 최신 v2 pair의 schema, duplicate key, DB extraction, hourly gap 비교 | notebook code-cell execution output | PARTIALLY VERIFIED |
 
 ## 구현 및 검증 체크리스트
 
@@ -154,10 +154,10 @@ USDT 행에서 numeric 변환이 실패하면 dbt test가 build를 실패시킵�
   - 검증: `tests/test_dbt_contracts.py::test_dbt_models_and_tests_do_not_use_select_star`
 
 - [x] 실제 외부 RPC에서 생성한 1시간 raw Delta table을 이 계약으로 검증했습니다.
-  - 근거: `data/delta/ethereum_logs_v2` version `36`, row count `6082932`, 최신 schema fields 확인
+  - 근거: `data/delta/ethereum_logs_v2` row count `6848937`, duplicate key `0`, 최신 schema fields 확인
 
 - [x] 현재 accumulated local Delta가 최신 schema와 일치하는지 확인했습니다.
-  - 결과: `PARTIALLY VERIFIED`. 기본 `data/delta/ethereum_logs`에는 구 schema가 감지되어 migration 또는 재수집이 필요합니다.
+  - 결과: schema와 duplicate key는 통과. 다만 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제 때문에 notebook 04 최종 판정은 `PARTIALLY VERIFIED`입니다.
 
 - [x] 요구사항 추적표 상태를 갱신했습니다.
   - 경로: `docs/09_requirement_traceability_matrix.md`

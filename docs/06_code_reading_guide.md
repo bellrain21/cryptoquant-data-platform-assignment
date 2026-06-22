@@ -1,6 +1,6 @@
 # 06. Code Reading Guide
 
-> 상태: 코드 검토 안내 문서
+> 상태: 코드 검토 안내 문서입니다.
 > 읽는 법: 아래 순서대로 읽으면 수집 입력부터 최종 집계까지 추적 가능.
 
 목적: Airflow, Delta Lake, dbt, Ethereum JSON-RPC 구현 구조를 검토할 때 권장되는 읽기 순서와 파일별 책임을 정리합니다.
@@ -49,13 +49,13 @@ Airflow logical interval
 ## 2. `src/cryptoquant_pipeline/block_range.py`
 
 - 무엇을 하는가: UTC 시간 구간을 Ethereum block number 범위로 바꿈.
-- 없으면 무엇이 깨지는가: Airflow hourly interval을 `eth_getLogs`에 넣을 수 없음.
+- 없으면 무엇이 깨지는가: Airflow hourly interval을 `eth_getLogs`에 넣을 수 없습니다.
 - 입력은 어디서 오는가: Airflow `data_interval_start`, `data_interval_end`.
 - 출력은 어디로 가는가: `log_collector.collect_raw_logs`.
 - 가장 중요한 함수: `resolve_interval_block_range`, `find_first_block_at_or_after`.
 - 대표 입력값: `2024-01-01T00:00:00Z` ~ `2024-01-01T01:00:00Z`.
 - 대표 출력값: `start_block=100`, `end_block=299`.
-- 가능한 실패: timezone 없음, interval 역전, block timestamp 누락.
+- 가능한 실패: timezone 누락, interval 역전, block timestamp 누락입니다.
 - 먼저 볼 테스트: `tests/test_block_range.py`.
 - 설계 설명 핵심: `eth_getLogs`는 시간 조회가 없어 block timestamp binary search로 range 계산.
 
@@ -88,20 +88,20 @@ Airflow logical interval
 ## 5. `src/cryptoquant_pipeline/delta_writer.py`
 
 - 무엇을 하는가: normalized rows를 Delta Lake raw table에 신규 row만 append합니다.
-- 없으면 무엇이 깨지는가: retry/backfill 시 같은 log가 중복 저장될 수 있음.
+- 없으면 무엇이 깨지는가: retry/backfill 시 같은 log가 중복 저장될 수 있습니다.
 - 입력은 어디서 오는가: `log_normalizer.py`.
 - 출력은 어디로 가는가: Delta table `ethereum_logs`, 이후 dbt `delta_scan()`.
 - 가장 중요한 함수: `write_ethereum_logs_insert_only`.
 - 대표 입력값: `chain_id=1`, `transaction_hash=0xabc`, `log_index=5`.
 - 대표 출력값: `inserted_row_count`, `duplicate_skipped_count`.
-- 가능한 실패: Delta dependency 없음, schema mismatch, duplicate filtering 오류.
+- 가능한 실패: Delta dependency 누락, schema mismatch, duplicate filtering 오류입니다.
 - 먼저 볼 테스트: `tests/test_delta_idempotency.py`.
 - 설계 설명 핵심: raw log identity는 chain_id, transaction_hash, log_index 조합.
 
 ## 6. `src/cryptoquant_pipeline/pipeline.py`
 
 - 무엇을 하는가: 한 Airflow interval을 RPC 수집, Delta write, dbt build로 연결합니다.
-- 없으면 무엇이 깨지는가: DAG가 orchestration을 넘어 business logic을 직접 갖게 됨.
+- 없으면 무엇이 깨지는가: DAG가 orchestration을 넘어 business logic을 직접 갖게 됩니다.
 - 입력은 어디서 오는가: Airflow `data_interval_start`, `data_interval_end`.
 - 출력은 어디로 가는가: Delta raw table과 dbt DuckDB 모델.
 - 가장 중요한 함수: `run_interval`, `run_recent_finalized_interval`.
@@ -120,14 +120,14 @@ Airflow logical interval
 - 가장 중요한 함수: `run_dbt_build`.
 - 대표 입력값: `window_start`, `window_end`, `DELTA_LOGS_PATH`, `DUCKDB_PATH`.
 - 대표 출력값: `{"returncode": 0, "vars": ...}`.
-- 가능한 실패: dbt executable 없음, timeout, SQL/test 실패.
+- 가능한 실패: dbt executable 누락, timeout, SQL/test 실패입니다.
 - 먼저 볼 테스트: `tests/test_pipeline_idempotency.py`, fixture `dbt build`.
 - 설계 설명 핵심: DAG에 dbt 모델명을 하드코딩하지 않고 `tag:ethereum_hourly` selector로 graph 실행.
 
 ## 8. `dbt/models/silver/erc20_transfers.sql`
 
 - 무엇을 하는가: raw log 중 ERC-20 Transfer event만 decoding합니다.
-- 없으면 무엇이 깨지는가: Treasury flow의 입력 테이블이 없음.
+- 없으면 무엇이 깨지는가: Treasury flow의 입력 테이블이 없습니다.
 - 입력은 어디서 오는가: `ref('ethereum_logs')`.
 - 출력은 어디로 가는가: `ref('tether_treasury_flow')`.
 - 가장 중요한 로직: `topic0` Transfer signature filter, topic1/topic2 address decoding.
@@ -140,7 +140,7 @@ Airflow logical interval
 ## 9. `dbt/models/gold/tether_treasury_flow.sql`
 
 - 무엇을 하는가: Ethereum USDT와 Tether Treasury 주소 관련 transfer를 hourly 집계합니다.
-- 없으면 무엇이 깨지는가: 최종 hourly INFLOW/OUTFLOW 집계가 없음.
+- 없으면 무엇이 깨지는가: 최종 hourly INFLOW/OUTFLOW 집계가 없습니다.
 - 입력은 어디서 오는가: `ref('erc20_transfers')`.
 - 출력은 어디로 가는가: DuckDB table `tether_treasury_flow`.
 - 가장 중요한 로직: token address filter, Treasury inflow/outflow case expression.
@@ -165,20 +165,20 @@ Airflow logical interval
 ## 11. `airflow/dags/ethereum_hourly_logs.py`
 
 - 무엇을 하는가: 전체 작업 순서와 retry/backfill 경계를 정의합니다.
-- 없으면 무엇이 깨지는가: 로컬 Docker Airflow에서 자동 실행할 DAG가 없음.
+- 없으면 무엇이 깨지는가: 로컬 Docker Airflow에서 자동 실행할 DAG가 없습니다.
 - 입력은 어디서 오는가: Airflow scheduler, `.env` 환경 변수.
 - 출력은 어디로 가는가: Delta table, DuckDB table, Airflow logs.
 - 가장 중요한 함수: `ethereum_hourly_logs`.
 - 대표 입력값: hourly logical interval.
 - 대표 출력값: task metadata와 산출물 파일.
-- 가능한 실패: `ETH_RPC_URL` 없음, provider 실패, dbt build 실패.
+- 가능한 실패: `ETH_RPC_URL` 누락, provider 실패, dbt build 실패입니다.
 - 먼저 볼 검증: Docker/Airflow `DagBag` import check.
 - 설계 설명 핵심: Airflow는 orchestration만 담당. 대량 raw payload는 XCom 대신 파일 전달.
 
 ## 12. `tests/`
 
 - 무엇을 하는가: 외부 RPC 없이 핵심 데이터 계약을 검증합니다.
-- 없으면 무엇이 깨지는가: API key 없이 idempotency, boundary, decoding 안전성을 확인할 수 없음.
+- 없으면 무엇이 깨지는가: API key 없이 idempotency, boundary, decoding 안전성을 확인할 수 없습니다.
 - 입력은 어디서 오는가: `tests/fixtures/rpc_logs.json`과 fake clients.
 - 출력은 어디로 가는가: pytest 결과.
 - 가장 중요한 테스트: `test_delta_writer_is_idempotent_for_same_raw_batch`.

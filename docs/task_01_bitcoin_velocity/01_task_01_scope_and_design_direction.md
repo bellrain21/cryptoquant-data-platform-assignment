@@ -1,14 +1,14 @@
 # 1. 과제 이해 및 설계 방향(Task Understanding and Design Direction)
 
 > **문서 상태(Status)**: 설계 문서 정리 완료
-> **문서 역할(Role)**: 과제의 목적, 범위, 설계 원칙을 고정한다.
-> **제외 범위(Out of Scope)**: 분자·분모의 상세 정의와 수식은 [02_velocity_metric_definition.md](./02_velocity_metric_definition.md)에서 다룬다.
+> **문서 역할(Role)**: 과제의 목적, 범위, 설계 원칙을 고정합니다.
+> **제외 범위(Out of Scope)**: 분자·분모의 상세 정의와 수식은 [02_velocity_metric_definition.md](./02_velocity_metric_definition.md)에서 다룹니다.
 
 ## 1.1 과제 목적 해석(Task Objective)
 
-본 과제의 핵심은 Bitcoin Velocity 값을 한 번 계산하는 것이 아니라, `block`, `tx`, `tx_input`, `tx_output`, `utxo` Delta Lake 테이블을 바탕으로 일 단위 지표를 안정적으로 생산하는 데이터 파이프라인을 설계하는 데 있다.
+본 과제의 핵심은 Bitcoin Velocity 값을 한 번 계산하는 것이 아니라, `block`, `tx`, `tx_input`, `tx_output`, `utxo` Delta Lake 테이블을 바탕으로 일 단위 지표를 안정적으로 생산하는 데이터 파이프라인을 설계하는 데 있습니다.
 
-따라서 산출물은 단순한 비율값이 아니라 아래 메타데이터를 함께 보존하는 지표 데이터 제품이다.
+따라서 산출물은 단순한 비율값이 아니라 아래 메타데이터를 함께 보존하는 지표 데이터 제품입니다.
 
 ```text
 - 어떤 원천 체인 상태에서 계산했는가
@@ -31,7 +31,7 @@
 
 - 관측 시점 기준 Best Chain(최선 체인) 블록과 거래 처리
 - 원천 출력(Output) 및 UTXO 생명주기 기반 이동량·공급량 계산
-- 소비 불가능 출력(Provably Unspendable Output)과 장기 비활성 UTXO 분리
+- 소비할 수 없는 출력(Provably Unspendable Output)과 장기 비활성 UTXO 분리
 - 일 단위 배치, 품질 검증, 멱등성, Backfill, Reorg 복구
 - 지표 정의·정책·체인 체크포인트의 버전 및 추적 정보 보존
 
@@ -42,11 +42,11 @@
 - 외부 주소 라벨만으로 소각 주소를 확정하는 처리
 - CryptoQuant 내부의 비공개 `estimated transaction volume` 산출 규칙 재현
 
-제외 범위는 가치가 없어서 제외하는 것이 아니다. 이번 과제의 기본 계산을 온체인 원천 사실로 재현 가능하게 유지하기 위해 별도 해석 레이어로 분리한다.
+제외 범위는 가치가 없어서 제외하는 것이 아닙니다. 이번 과제의 기본 계산을 온체인 원천 사실로 재현 가능하게 유지하기 위해 별도 해석 레이어로 분리합니다.
 
 ## 1.4 공개 제품 참조와 과제 전용 지표 분리(Product Reference vs Assignment Metric)
 
-CryptoQuant 공개 API는 Bitcoin Velocity를 후행 1년의 추정 거래 이동량을 현재 총 공급량으로 나눈 값으로 설명한다.
+CryptoQuant 공개 API는 Bitcoin Velocity를 후행 1년의 추정 거래 이동량을 현재 총 공급량으로 나눈 값으로 설명합니다.
 
 ```text
 Product Reference
@@ -56,7 +56,7 @@ Trailing 1-Year Estimated Transaction Volume
 Current Total Supply
 ```
 
-그러나 과제는 Circulating Supply 정책을 직접 정의하도록 요구하며, 제품 내부의 추정 이동량 계산 규칙과 전체 원천 스키마를 제공하지 않는다. 따라서 본 과제는 아래 원칙을 채택한다.
+그러나 과제는 Circulating Supply 정책을 직접 정의하도록 요구하며, 제품 내부의 추정 이동량 계산 규칙과 전체 원천 스키마를 제공하지 않습니다. 따라서 본 과제는 아래 원칙을 채택합니다.
 
 ```text
 공개 제품 정의
@@ -66,13 +66,13 @@ Current Total Supply
 = 제공된 원천 테이블과 명시적 정책으로 재현 가능한 계산 규칙
 ```
 
-이 구분은 제품 정의를 회피하는 것이 아니라, 확인되지 않은 내부 알고리즘을 사실처럼 작성하지 않기 위한 설계 규율이다.
+이 구분은 제품 정의를 회피하는 것이 아니라, 확인되지 않은 내부 알고리즘을 사실처럼 작성하지 않기 위한 설계 규율입니다.
 
 ## 1.5 일 단위 배치와 365일 후행 지표(Daily Batch and Trailing Window)
 
-일 단위 배치(Daily Batch)는 **실행·게시 주기**다. Velocity의 분자가 하루치라는 뜻이 아니다.
+일 단위 배치(Daily Batch)는 **실행·게시 주기**다. Velocity의 분자가 하루치라는 뜻이 아닙니다.
 
-본 과제의 기본 지표는 매일 아래 값을 다시 계산해 게시한다.
+본 과제의 기본 지표는 매일 아래 값을 다시 계산해 게시합니다.
 
 ```text
 assignment_velocity_365d_policy_eligible_utxo_v1(d)
@@ -82,7 +82,7 @@ assignment_velocity_365d_policy_eligible_utxo_v1(d)
 기준일 종료 시점의 policy-eligible UTXO supply
 ```
 
-즉 다음 두 개념을 분리한다.
+즉 다음 두 개념을 분리합니다.
 
 ```text
 Publication Cadence(게시 주기)
@@ -104,11 +104,11 @@ Volume Window(이동량 누적 기간)
 
 ### 재현성(Reproducibility)
 
-동일한 체인 상태, 지표 정의 버전, 정책 버전, 코드 버전, 데이터 구간을 입력하면 동일한 결과가 생성돼야 한다.
+동일한 체인 상태, 지표 정의 버전, 정책 버전, 코드 버전, 데이터 구간을 입력하면 동일한 결과가 생성돼야 합니다.
 
 ### 추적성(Traceability)
 
-각 결과는 최소한 아래를 추적할 수 있어야 한다.
+각 결과는 최소한 아래를 추적할 수 있어야 합니다.
 
 ```text
 metric_date
@@ -124,7 +124,7 @@ observed_at
 
 ### 복구 가능성(Recoverability)
 
-실패, 수동 재실행, Backfill, Reorg 발생 시 별도 임시 로직이 아니라 동일한 변환 경로로 영향 구간을 재계산한다.
+실패, 수동 재실행, Backfill, Reorg 발생 시 별도 임시 로직이 아니라 동일한 변환 경로로 영향 구간을 재계산합니다.
 
 ## 1.7 운영 목표(Operational Goal)
 
@@ -138,6 +138,6 @@ observed_at
 
 ## 1.8 다음 문서
 
-다음 문서에서는 Velocity의 분자·분모·보조 지표를 정의하고, CryptoQuant 공개 Velocity와 과제 전용 지표의 차이를 명시한다.
+다음 문서에서는 Velocity의 분자·분모·보조 지표를 정의하고, CryptoQuant 공개 Velocity와 과제 전용 지표의 차이를 명시합니다.
 
 - [02_velocity_metric_definition.md](./02_velocity_metric_definition.md)

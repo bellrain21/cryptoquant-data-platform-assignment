@@ -2,9 +2,9 @@
 
 ## 문서 목적
 
-본 과제는 Bitcoin Velocity를 단순 계산하는 문제가 아니라, 원천 온체인 데이터에서 재현 가능하고 복구 가능한 지표 데이터 제품을 설계하는 문제다.
+본 과제는 Bitcoin Velocity를 단순 계산하는 문제가 아니라, 원천 온체인 데이터에서 재현 가능하고 복구 가능한 지표 데이터 제품을 설계하는 문제입니다.
 
-이 문서는 다음을 분리한다.
+이 문서는 다음을 분리합니다.
 
 1. **제품 참조(Product Reference)**: CryptoQuant 공개 API가 설명하는 Velocity 개념
 2. **과제 전용 지표(Assignment-specific Metric)**: 과제의 원천 테이블과 명시적 정책으로 재현하는 계산 규칙
@@ -12,7 +12,7 @@
 
 ## 핵심 지표 계약(Metric Contract)
 
-CryptoQuant 공개 API는 Bitcoin Velocity를 다음처럼 설명한다.
+CryptoQuant 공개 API는 Bitcoin Velocity를 다음처럼 설명합니다.
 
 ```text
 CryptoQuant Public Velocity(d)
@@ -22,7 +22,7 @@ Trailing 1-Year Estimated Transaction Volume(d)
 Current Total Supply(d)
 ```
 
-본 과제는 제품 내부의 `estimated transaction volume` 계산 세부 규칙을 공개 자료만으로 재현하지 않는다. 대신 원천 테이블만으로 계산 가능한 아래 지표를 과제 전용 기준선으로 정의한다.
+본 과제는 제품 내부의 `estimated transaction volume` 계산 세부 규칙을 공개 자료만으로 재현하지 않습니다. 대신 원천 테이블만으로 계산 가능한 아래 지표를 과제 전용 기준선으로 정의합니다.
 
 ```text
 assignment_velocity_365d_policy_eligible_utxo_v1(d)
@@ -32,7 +32,7 @@ trailing_365d_gross_onchain_output_volume_v1_btc(d)
 policy_eligible_utxo_supply_v1_btc(d)
 ```
 
-따라서 본 과제 결과는 CryptoQuant 공개 Velocity와 개념적으로 연관되지만, 수치적 완전 일치를 주장하지 않는다.
+따라서 본 과제 결과는 CryptoQuant 공개 Velocity와 개념적으로 연관되지만, 수치적 완전 일치를 주장하지 않습니다.
 
 ## 문서 구성
 
@@ -51,7 +51,7 @@ policy_eligible_utxo_supply_v1_btc(d)
 | Gross Circulating Supply | `policy_eligible_utxo_supply_v1_btc` | 과제 정책상 분모에 포함되는 UTXO라는 의미를 명시 |
 | Adjusted Circulating Supply | `dormancy_adjusted_utxo_supply_v1_btc` | 어떤 조정인지 명시 |
 | Dormant Reactivated Supply | `dormant_utxo_spent_volume_btc` | 공급량(Stock)이 아니라 기간 내 이동량(Flow) |
-| Canonical Block | 관측 시점 기준 Best Chain Block | Reorg 전후 상태가 바뀔 수 있으므로 영구 사실처럼 표현하지 않음 |
+| Canonical Block | 관측 시점 기준 Best Chain Block | Reorg 전후 상태가 바뀔 수 있으므로 영구 사실처럼 표현하지 않습니다. |
 | Finality Status | `chain_confidence_status` | Bitcoin은 결정론적 확정성이 아니라 확인 깊이 기반 신뢰도 구조 |
 | calculation_version | 정의·정책·코드·체인 상태 버전 분리 | 재계산 결과가 바뀐 원인을 분해하기 위함 |
 
@@ -75,10 +75,10 @@ policy_eligible_utxo_supply_v1_btc(d)
 
 ## 읽는 순서
 
-1. 지표 정의와 공급량 정책을 확인한다.
-2. 필요한 원천 필드와 계산 방식을 확인한다.
-3. 일 단위 배치와 Delta Lake 갱신 방식을 확인한다.
-4. 품질 오류와 Reorg 이후 복구 범위를 확인한다.
+1. 지표 정의와 공급량 정책을 확인합니다.
+2. 필요한 원천 필드와 계산 방식을 확인합니다.
+3. 일 단위 배치와 Delta Lake 갱신 방식을 확인합니다.
+4. 품질 오류와 Reorg 이후 복구 범위를 확인합니다.
 
 ## 주요 참고 자료
 

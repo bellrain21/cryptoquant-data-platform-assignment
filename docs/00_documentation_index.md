@@ -1,7 +1,7 @@
 # 문서 목차(Document Table of Contents)
 
-> 이 디렉터리는 CryptoQuant 데이터 플랫폼 사전 과제의 상세 설계와 구현 근거를 관리함.
-> 저장소 최상단 `README.md`는 저장소 진입점, 이 문서는 전체 문서 지도, 각 과제 하위 디렉터리의 `00_task_XX_index.md`는 과제별 진입점임.
+> 이 디렉터리는 CryptoQuant 데이터 플랫폼 사전 과제의 상세 설계와 구현 근거를 관리합니다.
+> 저장소 최상단 `README.md`는 저장소 진입점, 이 문서는 전체 문서 지도, 각 과제 하위 디렉터리의 `00_task_XX_index.md`는 과제별 진입점입니다.
 
 ## 문서 탐색 구조(Document Navigation)
 
@@ -49,7 +49,7 @@ docs/
 
 ## 과제 2. Ethereum Log Ingestion(이더리움 로그 수집) 파이프라인 구현
 
-현재 구현 기준 문서는 아래 번호 문서가 우선임.
+현재 구현 기준 문서는 아래 번호 문서가 우선입니다.
 
 | 순서 | 문서 | 범위 | 상태 |
 |---:|---|---|---|
@@ -66,14 +66,14 @@ docs/
 | 11 | [11_documentation_consistency_report.md](./11_documentation_consistency_report.md) | 코드·SQL·Markdown 불일치 수정 결과와 링크/체크리스트 상태 | 문서 정합성 보고 |
 | 12 | [12_legacy_cleanup_report.md](./12_legacy_cleanup_report.md) | 레거시 삭제/유지/보류/FIX 근거, 검증 결과, diff 요약 | 레거시 정리 보고 |
 
-기존 `task_02_ethereum_log_pipeline/` 문서는 Reference / exploratory design — not the current implementation source of truth. Bronze/Silver canonical, token metadata dimension, 별도 netflow 모델 같은 내용은 현재 실행 구현과 다를 수 있음. README와 현재 구현 기준 문서가 제출·실행 기준임.
+기존 `task_02_ethereum_log_pipeline/` 문서는 Reference / exploratory design — not the current implementation source of truth. Bronze/Silver canonical, token metadata dimension, 별도 netflow 모델 같은 내용은 현재 실행 구현과 다를 수 있습니다. README와 현재 구현 기준 문서가 제출·실행 기준입니다.
 
 | 순서 | 문서 | 범위 | 상태 |
 |---:|---|---|---|
-| 0 | [00_task_02_index.md](./task_02_ethereum_log_pipeline/00_task_02_index.md) | 전체 목차, 구현 전 후보 계약 | 레거시 설계 메모 / 현재 실행 기준 아님 |
-| 1 | [01_ethereum_log_pipeline_design.md](./task_02_ethereum_log_pipeline/01_ethereum_log_pipeline_design.md) | RPC 수집 범위, Block Range(블록 범위) 계산, Airflow DAG, Retry(재시도), Backfill, Reorg state | 레거시 설계 메모 / 현재 실행 기준 아님 |
-| 2 | [02_delta_lake_ingestion_design.md](./task_02_ethereum_log_pipeline/02_delta_lake_ingestion_design.md) | observation/canonical 스키마, 증분 적재, 키, 멱등성, 품질 규칙 | 레거시 설계 메모 / 현재 실행 기준 아님 |
-| 3 | [03_dbt_modeling_design.md](./task_02_ethereum_log_pipeline/03_dbt_modeling_design.md) | ERC-20 Transfer, `tether_treasury_flow`, netflow, Incremental Model, dbt Test | 레거시 설계 메모 / 현재 실행 기준 아님 |
+| 0 | [00_task_02_index.md](./task_02_ethereum_log_pipeline/00_task_02_index.md) | 전체 목차, 구현 전 후보 계약 | 레거시 설계 메모이며, 현재 실행 기준은 아닙니다. |
+| 1 | [01_ethereum_log_pipeline_design.md](./task_02_ethereum_log_pipeline/01_ethereum_log_pipeline_design.md) | RPC 수집 범위, Block Range(블록 범위) 계산, Airflow DAG, Retry(재시도), Backfill, Reorg state | 레거시 설계 메모이며, 현재 실행 기준은 아닙니다. |
+| 2 | [02_delta_lake_ingestion_design.md](./task_02_ethereum_log_pipeline/02_delta_lake_ingestion_design.md) | observation/canonical 스키마, 증분 적재, 키, 멱등성, 품질 규칙 | 레거시 설계 메모이며, 현재 실행 기준은 아닙니다. |
+| 3 | [03_dbt_modeling_design.md](./task_02_ethereum_log_pipeline/03_dbt_modeling_design.md) | ERC-20 Transfer, `tether_treasury_flow`, netflow, Incremental Model, dbt Test | 레거시 설계 메모이며, 현재 실행 기준은 아닙니다. |
 | 4 | [04_error_incident_change_log.md](./task_02_ethereum_log_pipeline/04_error_incident_change_log.md) | 구현 중 오류, 원인, 변경 기록 | 검증 이력 |
 | 5 | [05_error_debugging_timeline.md](./task_02_ethereum_log_pipeline/05_error_debugging_timeline.md) | 디버깅 타임라인과 과거 경로 기록 | 검증 이력 |
 
@@ -83,11 +83,11 @@ docs/
 
 | 순서 | 파일 | 범위 | 상태 |
 |---:|---|---|---|
-| 0 | `src/notebooks/00_notebook_validation_index.ipynb` | 노트북 실행 순서와 외부 RPC 미검증 경계 | 안내 문서 |
+| 0 | `src/notebooks/00_notebook_validation_index.ipynb` | 노트북 실행 순서와 외부 RPC 검증 경계 | 안내 문서 |
 | 1 | `src/notebooks/01_rpc_provider_connection_smoke_test.ipynb` | provider 연결 smoke | `ETH_RPC_URL` 없으면 BLOCKED |
-| 2 | `src/notebooks/02_eth_getlogs_transfer_sample_validation.ipynb` | `eth_getLogs` Transfer sample 확인 | 외부 RPC 실호출 미실행 |
+| 2 | `src/notebooks/02_eth_getlogs_transfer_sample_validation.ipynb` | `eth_getLogs` Transfer sample 확인 | 외부 RPC 실호출은 실행하지 않았습니다. |
 | 3 | `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` | fixture ETL, ERC-20 decode, Delta 재실행 멱등성 | 실행 완료 |
-| 4 | `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | canonical Delta/DuckDB와 최신 Python data contract 비교 | 실행 완료, PARTIALLY VERIFIED |
+| 4 | `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | Delta/DuckDB 후보 인벤토리, 최신 v2 pair DB 추출 DataFrame, 시간대별 적재 추이, freshness, hourly gap 확인 | 실행 완료, PARTIALLY VERIFIED |
 
 ## Airflow UI Screenshot 증거
 
@@ -112,9 +112,9 @@ docs/
 
 ## 문서 작성 규칙(Document Convention)
 
-- 원천 사실(Source Fact), 정책 결정(Policy Decision), 구현 가정(Implementation Assumption) 구분.
-- 공개 제품 정의(Product Reference)와 과제 전용 정의(Assignment-specific Definition)를 같은 계산값으로 주장하지 않음.
-- 완료되지 않은 기능과 실행하지 않은 테스트는 완료로 표기하지 않음.
-- 외부 문서에 없는 세부 구현은 사실이 아니라 설계 선택으로 명시.
-- 링크 대상 파일은 이 문서 구조에 실제 존재하는 파일만 사용.
-- 주요 기술·도메인 용어는 첫 등장에만 `English(한글)` 병기 후 일관된 용어 사용.
+- 원천 사실(Source Fact), 정책 결정(Policy Decision), 구현 가정(Implementation Assumption)을 구분합니다.
+- 공개 제품 정의(Product Reference)와 과제 전용 정의(Assignment-specific Definition)를 같은 계산값으로 주장하지 않습니다.
+- 완료되지 않은 기능과 실행하지 않은 테스트는 완료로 표기하지 않습니다.
+- 외부 문서에 없는 세부 구현은 사실이 아니라 설계 선택으로 명시합니다.
+- 링크 대상 파일은 이 문서 구조에 실제 존재하는 파일만 사용합니다.
+- 주요 기술·도메인 용어는 첫 등장에만 `English(한글)` 병기 후 일관된 용어를 사용합니다.
