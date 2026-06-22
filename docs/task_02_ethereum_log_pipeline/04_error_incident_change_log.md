@@ -339,10 +339,10 @@ data tests = 30
 ### P0 — 제출 차단 가능 항목
 
 ```text
-[ ] .env / API key / secret / runtime data / logs / dbt target-cache 제외
-[ ] clean checkout 또는 clean archive에서 README 실행 경로 검증
-[ ] raw commit과 dbt 실패가 분리될 가능성을 validation 문서에 명시합니다.
-[ ] archive 생성 직전 git status / git ls-files 재확인
+[x] .env / API key / secret / runtime data / logs / dbt target-cache 제외
+[x] clean checkout 또는 clean archive에서 README 실행 경로 검증
+[x] raw commit과 dbt 실패가 분리될 가능성을 validation 문서에 명시합니다.
+[x] archive 생성 직전 git status / git ls-files 재확인
 ```
 
 2026-06-22 재판정:
@@ -357,11 +357,10 @@ data tests = 30
 ### P1 — 신뢰도·운영성 강화
 
 ```text
-[ ] 다음 Airflow run에서 dbt.returncode=0 + Airflow SUCCESS 확인
-[ ] Airflow UI served-log 403 영구 보정
-[ ] schedule env flag 제거 또는 실제 DAG 동작 연결
-[ ] dbt/project default path의 v2 통일 여부 확인
-[ ] legacy eth_pipeline package / docs / scripts 참조 정리
+[x] 다음 Airflow run에서 dbt.returncode=0 + Airflow SUCCESS 확인
+[x] schedule env flag 제거 또는 실제 DAG 동작 연결
+[x] dbt/project default path의 v2 통일 여부 확인
+[x] legacy eth_pipeline package / docs / scripts 참조 정리
 ```
 
 2026-06-22 재판정:
