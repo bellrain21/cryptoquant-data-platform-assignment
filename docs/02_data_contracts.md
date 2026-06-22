@@ -23,6 +23,7 @@ to_address_filter=null
 
 `ethereum_logs`는 이 configured `eth_getLogs` query scope가 반환한 raw event log landing table입니다.
 전체 Ethereum event log 또는 전체 ERC-20 market coverage를 의미하지 않습니다.
+
 `tether_treasury_flow`에서만 configured USDT contract와 Treasury address를 동시에 적용해 집계 범위를 좁힙니다.
 
 ## Schema
@@ -69,7 +70,8 @@ chain_id + transaction_hash + log_index
 
 Transaction 하나에서 여러 event log가 발생할 수 있으므로 transaction hash 단독 unique key는 맞지 않습니다.
 `block_hash`는 raw row에 보존하지만 현재 Delta writer의 dedup key에는 포함하지 않습니다.
-따라서 이 key는 retry/backfill 중복 방지에는 사용되지만, reorg replacement를 별도 canonical 상태로 교체하는 key 설계는 아직 구현되지 않았습니다.
+
+따라서, 이 key는 retry/backfill 중복 방지에는 사용되지만, reorg replacement를 별도 canonical 상태로 교체하는 key 설계는 아직 구현되지 않았습니다.
 
 ## Partition key
 
@@ -101,15 +103,19 @@ Transaction 하나에서 여러 event log가 발생할 수 있으므로 transact
 ## dbt incremental rule
 
 `erc20_transfers`와 `tether_treasury_flow`는 `max(block_number)` 또는 recent lookback을 사용하지 않습니다.
+
 Airflow가 넘긴 `window_start`, `window_end` vars를 기준으로 `[window_start, window_end)`만 처리합니다.
+
 재실행 시 `unique_key`와 `delete+insert` 전략으로 동일 grain 중복을 방지합니다.
 
 ## Uint256 amount policy
 
 `data_raw`는 항상 보존합니다. Python normalizer는 32-byte uint256 word를 `int(data_raw, 16)`으로 해석해 `data_uint256_decimal_text`에 손실 없는 decimal 문자열을 저장합니다.
+
 dbt의 `raw_amount_decimal`은 SQL 집계 편의를 위한 `DECIMAL(38,0)` 파생값이므로 38자리를 넘는 일반 ERC-20 값은 `OUTSIDE_DECIMAL38_RANGE`로 남기고 실패 처리하지 않습니다.
 
 `amount_usdt`는 configured USDT contract 행에만 채웁니다. 전체 Transfer scope에 들어온 다른 token row는 token-specific decimals를 알 수 없으므로 `null`로 둡니다.
+
 USDT 행에서 numeric 변환이 실패하면 dbt test가 build를 실패시킵니다.
 
 ## dbt Model Contracts
