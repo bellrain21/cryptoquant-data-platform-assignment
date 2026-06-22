@@ -342,9 +342,20 @@ AI 제안은 그대로 반영하지 않았습니다.
 
 미완료로 남기는 항목:
 
-- [x] 실제 외부 RPC provider에서 1시간 Airflow scheduled run을 검증했습니다.
+- [x] 실제 외부 RPC provider에서 1시간 단위 Airflow scheduled run을 검증했습니다.
   - 근거: `airflow/logs/dag_id=ethereum_hourly_logs`에서 `scheduled__2026-06-20T21:00:00+00:00`부터
     `scheduled__2026-06-22T08:00:00+00:00`까지 successful scheduled 반환값 33건을 확인했습니다.
+  - 보충 근거: 2026-06-22 KST storage metadata 재점검 기준,
+    `data/delta/ethereum_logs_v2`에서 누적 row count `6,848,937건`,
+    duplicate natural key `0건`을 확인했습니다.
+
+    `data/analytics/ethereum_analytics_v2.duckdb`에서는
+    `erc20_transfers=6,079,379건`,
+    `tether_treasury_flow=2건`을 확인했습니다.
+
+    `task_02_01_image.png`부터 `task_02_04_image.png` 기준으로는
+    success `47건`, failed `14건`의 실행 이력과 `run_interval` task 상태를 확인했습니다. 
+    
 - [ ] canonical reorg replacement를 구현하고 fixture로 검증했습니다.
   - 미완료 사유: 현재 구현은 finality buffer와 raw `block_hash` 보존까지입니다.
 
