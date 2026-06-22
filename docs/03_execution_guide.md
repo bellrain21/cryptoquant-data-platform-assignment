@@ -11,9 +11,9 @@ notepad .env
 ```
 
 `ETH_RPC_URL`에 QuickNode, Alchemy, Infura 등 provider URL을 입력합니다. 실제 key는 Git에 넣지 않습니다.
-`.env.example`의 `ETH_RPC_URL`은 비워 둡니다. 예시 placeholder URL을 넣으면 실제
-provider로 오인되어 재시도되는 문제가 생기므로, 코드는 placeholder endpoint를
-설정 오류로 거부합니다.
+`.env.example`의 `ETH_RPC_URL`은 비워 둡니다. 
+
+예시 placeholder URL을 넣으면 실제 provider로 오인되어 재시도되는 문제가 생기므로, 코드는 placeholder endpoint를 설정 오류로 거부합니다.
 
 ## 2. Python 검증
 
@@ -57,7 +57,8 @@ Airflow UI: `http://localhost:8080`
 
 Docker Compose 기본 Airflow raw Delta 경로는 `DELTA_LOGS_PATH=/opt/airflow/data/delta/ethereum_logs`,
 DuckDB 경로는 `DUCKDB_PATH=/opt/airflow/data/analytics/ethereum_analytics.duckdb`입니다.
-다만 2026-06-22 여러 1시간 scheduled 실행 증거는 `.env` override로 생성된
+
+다만, 2026-06-22 여러 1시간 scheduled 실행 증거는 `.env` override로 생성된
 `/opt/airflow/data/delta/ethereum_logs_v2`와
 `/opt/airflow/data/analytics/ethereum_analytics_v2.duckdb` 기준입니다.
 문서에서 실행 증거를 해석할 때는 기본 경로와 실제 검증 경로를 혼동하지 않습니다.
@@ -98,6 +99,7 @@ docker compose up -d --force-recreate airflow-webserver airflow-scheduler
 과거 Chainstack Basic endpoint에서는 1시간 interval의 block metadata lookup이
 HTTP 403으로 실패했습니다. 이후 별도 provider 설정을 사용한 로컬 Docker Airflow
 scheduled run은 `airflow/logs/`와 `data/delta/ethereum_logs_v2`에서 검증했습니다.
+
 provider 종류와 plan에 따라 historical block metadata 조회 가능 범위가 다르므로,
 새 provider로 재현할 때는 먼저 짧은 interval로 확인합니다.
 
