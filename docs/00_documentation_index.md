@@ -70,10 +70,10 @@ docs/
 
 | 순서 | 문서 | 범위 | 상태 |
 |---:|---|---|---|
-| 0 | [00_task_02_index.md](./task_02_ethereum_log_pipeline/00_task_02_index.md) | 전체 목차, 구현 전 후보 계약 | 레거시 설계 메모이며, 현재 실행 기준은 아닙니다. |
-| 1 | [01_ethereum_log_pipeline_design.md](./task_02_ethereum_log_pipeline/01_ethereum_log_pipeline_design.md) | RPC 수집 범위, Block Range(블록 범위) 계산, Airflow DAG, Retry(재시도), Backfill, Reorg state | 레거시 설계 메모이며, 현재 실행 기준은 아닙니다. |
-| 2 | [02_delta_lake_ingestion_design.md](./task_02_ethereum_log_pipeline/02_delta_lake_ingestion_design.md) | observation/canonical 스키마, 증분 적재, 키, 멱등성, 품질 규칙 | 레거시 설계 메모이며, 현재 실행 기준은 아닙니다. |
-| 3 | [03_dbt_modeling_design.md](./task_02_ethereum_log_pipeline/03_dbt_modeling_design.md) | ERC-20 Transfer, `tether_treasury_flow`, netflow, Incremental Model, dbt Test | 레거시 설계 메모이며, 현재 실행 기준은 아닙니다. |
+| 0 | [00_task_02_index.md](./task_02_ethereum_log_pipeline/00_task_02_index.md) | 전체 목차, 구현 전 후보 계약 | 레거시 설계 메모이며, 현재 실행 기준은 아님 |
+| 1 | [01_ethereum_log_pipeline_design.md](./task_02_ethereum_log_pipeline/01_ethereum_log_pipeline_design.md) | RPC 수집 범위, Block Range(블록 범위) 계산, Airflow DAG, Retry(재시도), Backfill, Reorg state | 레거시 설계 메모이며, 현재 실행 기준은 아님 |
+| 2 | [02_delta_lake_ingestion_design.md](./task_02_ethereum_log_pipeline/02_delta_lake_ingestion_design.md) | observation/canonical 스키마, 증분 적재, 키, 멱등성, 품질 규칙 | 레거시 설계 메모이며, 현재 실행 기준은 아님 |
+| 3 | [03_dbt_modeling_design.md](./task_02_ethereum_log_pipeline/03_dbt_modeling_design.md) | ERC-20 Transfer, `tether_treasury_flow`, netflow, Incremental Model, dbt Test | 레거시 설계 메모이며, 현재 실행 기준은 아님 |
 | 4 | [04_error_incident_change_log.md](./task_02_ethereum_log_pipeline/04_error_incident_change_log.md) | 구현 중 오류, 원인, 변경 기록 | 검증 이력 |
 | 5 | [05_error_debugging_timeline.md](./task_02_ethereum_log_pipeline/05_error_debugging_timeline.md) | 디버깅 타임라인과 과거 경로 기록 | 검증 이력 |
 
@@ -85,7 +85,7 @@ docs/
 |---:|---|---|---|
 | 0 | `src/notebooks/00_notebook_validation_index.ipynb` | 노트북 실행 순서와 외부 RPC 검증 경계 | 안내 문서 |
 | 1 | `src/notebooks/01_rpc_provider_connection_smoke_test.ipynb` | provider 연결 smoke | `ETH_RPC_URL` 없으면 BLOCKED |
-| 2 | `src/notebooks/02_eth_getlogs_transfer_sample_validation.ipynb` | `eth_getLogs` Transfer sample 확인 | 외부 RPC 실호출은 실행하지 않았습니다. |
+| 2 | `src/notebooks/02_eth_getlogs_transfer_sample_validation.ipynb` | `eth_getLogs` Transfer sample 확인 | 외부 RPC 실호출은 실행하지 않음 |
 | 3 | `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` | fixture ETL, ERC-20 decode, Delta 재실행 멱등성 | 실행 완료 |
 | 4 | `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | Delta/DuckDB 후보 인벤토리, 최신 v2 pair DB 추출 DataFrame, 시간대별 적재 추이, freshness, hourly gap 확인 | 실행 완료, PARTIALLY VERIFIED |
 

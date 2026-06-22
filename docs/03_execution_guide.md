@@ -111,10 +111,10 @@ Airflow DAG 목록의 `Failed` 숫자는 과거 DAG run 이력입니다. DAG를 
 
 | 파일 | 읽을 수 있는 사실 | 주의 |
 |---|---|---|
-| `data/imgs/task_02_01_image.png` | DAG `ethereum_hourly_logs`, `@hourly`, success 47, failed 14 | row-level data correctness 증거는 아닙니다. |
-| `data/imgs/task_02_02_image.png` | grid 기준 displayed runs 61, success 47, failed 14 | 실패 원인은 task log 확인이 필요합니다. |
+| `data/imgs/task_02_01_image.png` | DAG `ethereum_hourly_logs`, `@hourly`, success 47, failed 14 | row-level data correctness 증거는 아님 |
+| `data/imgs/task_02_02_image.png` | grid 기준 displayed runs 61, success 47, failed 14 | 실패 원인은 task log 확인이 필요 |
 | `data/imgs/task_02_03_image.png` | failed `run_interval` task instance 13건 | 실패를 숨기지 않는 운영 이력 |
-| `data/imgs/task_02_04_image.png` | success DAG run 47건 | task log와 Delta/DuckDB 산출물 대조가 필요합니다. |
+| `data/imgs/task_02_04_image.png` | success DAG run 47건 | task log와 Delta/DuckDB 산출물 대조가 필요 |
 
 Airflow UI에서 success run이 보이더라도, row-level data correctness는 task log와
 Delta/DuckDB 산출물로 별도 확인합니다. 2026-06-22 기준 scheduled 실행 증거는

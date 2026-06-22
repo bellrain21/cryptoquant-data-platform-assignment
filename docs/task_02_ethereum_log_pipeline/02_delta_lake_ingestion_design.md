@@ -139,8 +139,8 @@ THEN DELETE;
 | observation state 정규화 | `removed`와 `observation_state`가 불일치 | hard fail |
 | Silver canonical event key 유일성 | canonical refresh 결과 key 중복 | hard fail |
 | 필수 필드 | block hash, tx hash, log index, address null | hard fail |
-| block hash 정합성 | 같은 canonical height에 current Best Chain hash와 다른 row가 남아 있습니다. | reorg recovery |
-| topic format | topic이 `0x` + 64 hex 형식이 아닙니다. | hard fail |
+| block hash 정합성 | 같은 canonical height에 current Best Chain hash와 다른 row가 남아 있음 | reorg recovery |
+| topic format | topic이 `0x` + 64 hex 형식이 아님 | hard fail |
 | timestamp | block timestamp가 interval과 불일치 | review alert |
 
 ## 2.8 구현 검증 체크리스트

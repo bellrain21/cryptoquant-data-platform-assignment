@@ -58,7 +58,7 @@
 | `value_sats` | 원천 사실 | 공급량 계산 |
 | `created_block_hash`, `created_height`, `created_block_time` | 원천 사실 또는 lifecycle 이력 | 생성 시점·Best Chain 검증 |
 | `spent_txid`, `spent_block_hash`, `spent_height`, `spent_block_time` | lifecycle 이력. 현재 미소비면 NULL | 기준일 당시 미소비 여부 판정 |
-| `is_spent` | snapshot 상태 | 현재 상태 검증 보조입니다. 과거 공급량의 단독 근거로는 사용 금지 |
+| `is_spent` | snapshot 상태 | 현재 상태 검증 보조임 과거 공급량의 단독 근거로는 사용 금지 |
 | `snapshot_at` 또는 `observed_at` | 수집 메타데이터 | snapshot 관측 시점 추적 |
 
 ```text

@@ -29,16 +29,16 @@
 | `dbt ls --project-dir dbt --profiles-dir dbt --select tag:ethereum_hourly --output name --no-partial-parse` | `Found 4 models, 39 data tests, 1 source, 486 macros`; `tether_treasury_flow_quality_summary` 포함 |
 | `dbt ls --project-dir dbt --profiles-dir dbt --select erc20_amount_numeric_status_integrity --resource-type test --output json --no-partial-parse` | singular test가 `model.ethereum_analytics.erc20_transfers` 의존성을 가짐 |
 | Markdown local link check | `markdown local links ok` |
-| secret-like token scan | match가 없습니다. |
+| secret-like token scan | match가 없음 |
 | `git diff --check` | exit 0. 줄끝 변환 경고만 출력 |
 
 이번 검증에서 확인한 항목은 다음과 같습니다.
 
 | 항목 | 상태 | 근거 |
 |---|---|---|
-| dbt SQL explicit projection | VERIFIED | `tests/test_dbt_contracts.py`가 `dbt/models`, `dbt/tests`의 `select *`를 금지합니다. |
+| dbt SQL explicit projection | VERIFIED | `tests/test_dbt_contracts.py`가 `dbt/models`, `dbt/tests`의 `select *`를 금지함 |
 | dbt fixture build | VERIFIED | `PASS=43 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=43` |
-| requirement origin matrix | VERIFIED | `docs/09_requirement_traceability_matrix.md`에 `ASSIGNMENT_DIRECT`, `DERIVED_CORE`, `RELEASE`, `BONUS`, `OPTIONAL` origin을 분리했습니다. |
+| requirement origin matrix | VERIFIED | `docs/09_requirement_traceability_matrix.md`에 `ASSIGNMENT_DIRECT`, `DERIVED_CORE`, `RELEASE`, `BONUS`, `OPTIONAL` origin을 분리함 |
 | Python dbt runner 분리 | VERIFIED | ruff, targeted pytest, compileall 통과 |
 | live RPC 1시간 Airflow run | VERIFIED | `airflow/logs/` 기준 successful scheduled run 반환값 33건, latest parsed `row_count_after=6082932`, `dbt.returncode=0` 확인 |
 
@@ -63,8 +63,8 @@ Reorg: PASS
 
 | 항목 | 상태 | 근거 | 한계 |
 |---|---|---|---|
-| 과제 1 설계 요구사항 포괄성 | VERIFIED | 문서 스캔 결과 8개 축 PASS | 설계 문서와 의사 SQL 정합성 검증입니다. |
-| Bitcoin production pipeline 실행 | NOT VERIFIED | 실행 가능한 Bitcoin ETL 코드를 구현하지 않았습니다. | 과제 1 범위를 설계 산출물로 유지합니다. |
+| 과제 1 설계 요구사항 포괄성 | VERIFIED | 문서 스캔 결과 8개 축 PASS | 설계 문서와 의사 SQL 정합성 검증임 |
+| Bitcoin production pipeline 실행 | NOT VERIFIED | 실행 가능한 Bitcoin ETL 코드를 구현하지 않음 | 과제 1 범위를 설계 산출물로 유지함 |
 
 ## 2026-06-22 Checklist and metadata recheck
 
@@ -95,8 +95,8 @@ Storage metadata 재확인 결과:
 
 | 대상 | 확인 결과 | 해석 |
 |---|---|---|
-| `data/delta/ethereum_logs_v2/_delta_log` | latest notebook recheck 기준 row count `6848937`, duplicate natural key count `0` | local Delta table에 누적 commit history가 존재합니다. |
-| `data/analytics/ethereum_analytics_v2.duckdb` | latest notebook recheck 기준 `erc20_transfers=6079379`, `tether_treasury_flow=2` | dbt downstream 산출물이 로컬 파일로 존재합니다. |
+| `data/delta/ethereum_logs_v2/_delta_log` | latest notebook recheck 기준 row count `6848937`, duplicate natural key count `0` | local Delta table에 누적 commit history가 존재함 |
+| `data/analytics/ethereum_analytics_v2.duckdb` | latest notebook recheck 기준 `erc20_transfers=6079379`, `tether_treasury_flow=2` | dbt downstream 산출물이 로컬 파일로 존재함 |
 
 문서 체크리스트 재확인 결과:
 
@@ -130,9 +130,9 @@ git diff --check -- README.md docs: exit 0, CRLF conversion warning only
 | Command | Result |
 |---|---|
 | `docker compose ... workspace-dev python -c "import duckdb, pyarrow, deltalake, pandas"` | notebook 04 runtime core dependency import 성공 |
-| `nbclient` execution of `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` in `workspace-dev` | output 저장 완료, error가 없습니다. |
+| `nbclient` execution of `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` in `workspace-dev` | output 저장 완료, error가 없음 |
 | custom code-cell execution of `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` in `workspace-dev` | `EXECUTION_OK`, final status `PARTIALLY VERIFIED` |
-| Notebook JSON parse for `src/notebooks/*.ipynb` | 5개 파일 parse 성공, saved error output이 없습니다. |
+| Notebook JSON parse for `src/notebooks/*.ipynb` | 5개 파일 parse 성공, saved error output이 없음 |
 
 03번 노트북의 핵심 출력:
 
@@ -170,10 +170,10 @@ fixture 기반 dbt build는 최신 schema로 별도 검증되어 있으며, 실�
 
 | 항목 | 상태 | 이유 |
 |---|---|---|
-| 01/02 노트북 live RPC 실행 | BLOCKED | 실제 `ETH_RPC_URL`, provider 권한, 비용/rate limit 영향이 필요합니다. |
-| 2026-06-22 12:00 UTC hourly gap 원인 확인 | PARTIALLY VERIFIED | notebook 04가 gap 위치를 표시하지만, 해당 interval의 Airflow 재실행 또는 backfill은 이번 검증에서 수행하지 않았습니다. |
-| DuckDB staging view 절대경로 이식성 | PARTIALLY VERIFIED | downstream materialized tables는 조회되지만 `main.ethereum_logs` view는 `/opt/airflow/...` 경로에 묶여 있어 `workspace-dev`에서 깨집니다. |
-| Airflow scheduler/UI 기반 notebook 재현 | BLOCKED | notebook은 local validation aid이며 Airflow runtime 증거가 아닙니다. |
+| 01/02 노트북 live RPC 실행 | BLOCKED | 실제 `ETH_RPC_URL`, provider 권한, 비용/rate limit 영향이 필요 |
+| 2026-06-22 12:00 UTC hourly gap 원인 확인 | PARTIALLY VERIFIED | notebook 04가 gap 위치를 표시하지만, 해당 interval의 Airflow 재실행 또는 backfill은 이번 검증에서 수행하지 않음 |
+| DuckDB staging view 절대경로 이식성 | PARTIALLY VERIFIED | downstream materialized tables는 조회되지만 `main.ethereum_logs` view는 `/opt/airflow/...` 경로에 묶여 있어 `workspace-dev`에서 깨짐 |
+| Airflow scheduler/UI 기반 notebook 재현 | BLOCKED | notebook은 local validation aid이며 Airflow runtime 증거가 아님 |
 
 ## 2026-06-22 Airflow UI screenshot evidence
 
@@ -185,10 +185,10 @@ fixture 기반 dbt build는 최신 schema로 별도 검증되어 있으며, 실�
 
 | 이미지 | 화면 | 관측 내용 | 증거로 볼 수 있는 범위 | 상태 | 한계 |
 |---|---|---|---|---|---|
-| [`data/imgs/task_02_01_image.png`](../data/imgs/task_02_01_image.png) | Airflow DAGs home | DAG `ethereum_hourly_logs` 1개 표시, `@hourly` schedule, tags `dbt`, `delta`, `ethereum`, `ethereum_hourly`, success 47, failed 14, last run `2026-06-22 16:00`, next run `2026-06-22 17:00`, Airflow version `2.10.5` | DAG가 Airflow UI에 등록되고 hourly schedule과 run history가 표시됩니다. | PARTIALLY VERIFIED | UI snapshot은 실제 task log와 row-level output을 직접 보여주지 않습니다. |
-| [`data/imgs/task_02_02_image.png`](../data/imgs/task_02_02_image.png) | Airflow DAG grid | `ethereum_hourly_logs` grid에서 displayed runs 61, total success 47, total failed 14, first run start `2026-06-20 23:41:04 KST`, last run start `2026-06-22 17:00:00 KST`, max run duration `00:31:06` | scheduled/manual run 이력과 성공/실패 혼재를 확인했습니다. | PARTIALLY VERIFIED | 실패 원인은 이 화면만으로 확인할 수 없습니다. 성공 run이 최신 data contract까지 충족했는지도 별도 검증이 필요합니다. |
-| [`data/imgs/task_02_03_image.png`](../data/imgs/task_02_03_image.png) | Airflow failed task instance list | `run_interval` task의 failed state record count 13, manual/scheduled run ID와 logical date가 표시됨 | 실패 이력을 숨기지 않고 재실행·디버깅 대상이 있었음을 확인했습니다. | PARTIALLY VERIFIED | 각 실패의 exception, provider error, retry 결과는 task log 또는 CLI 검증이 필요합니다. |
-| [`data/imgs/task_02_04_image.png`](../data/imgs/task_02_04_image.png) | Airflow success DAG run list | success DAG run record count 47, `ethereum_hourly_logs` scheduled run들이 `2026-06-22` 여러 logical date에 성공으로 표시됨 | Airflow UI 기준 성공 run history가 존재합니다. | PARTIALLY VERIFIED | 성공 run이 최신 repository state의 코드로 실행됐는지, raw/dbt 산출물이 최신 schema인지 이 화면만으로 확정할 수 없습니다. |
+| [`data/imgs/task_02_01_image.png`](../data/imgs/task_02_01_image.png) | Airflow DAGs home | DAG `ethereum_hourly_logs` 1개 표시, `@hourly` schedule, tags `dbt`, `delta`, `ethereum`, `ethereum_hourly`, success 47, failed 14, last run `2026-06-22 16:00`, next run `2026-06-22 17:00`, Airflow version `2.10.5` | DAG가 Airflow UI에 등록되고 hourly schedule과 run history가 표시됨 | PARTIALLY VERIFIED | UI snapshot은 실제 task log와 row-level output을 직접 보여주지 않음 |
+| [`data/imgs/task_02_02_image.png`](../data/imgs/task_02_02_image.png) | Airflow DAG grid | `ethereum_hourly_logs` grid에서 displayed runs 61, total success 47, total failed 14, first run start `2026-06-20 23:41:04 KST`, last run start `2026-06-22 17:00:00 KST`, max run duration `00:31:06` | scheduled/manual run 이력과 성공/실패 혼재를 확인함 | PARTIALLY VERIFIED | 실패 원인은 이 화면만으로 확인불가 성공 run이 최신 data contract까지 충족했는지도 별도 검증이 필요 |
+| [`data/imgs/task_02_03_image.png`](../data/imgs/task_02_03_image.png) | Airflow failed task instance list | `run_interval` task의 failed state record count 13, manual/scheduled run ID와 logical date가 표시됨 | 실패 이력을 숨기지 않고 재실행·디버깅 대상이 있었음을 확인함 | PARTIALLY VERIFIED | 각 실패의 exception, provider error, retry 결과는 task log 또는 CLI 검증이 필요 |
+| [`data/imgs/task_02_04_image.png`](../data/imgs/task_02_04_image.png) | Airflow success DAG run list | success DAG run record count 47, `ethereum_hourly_logs` scheduled run들이 `2026-06-22` 여러 logical date에 성공으로 표시됨 | Airflow UI 기준 성공 run history가 존재함 | PARTIALLY VERIFIED | 성공 run이 최신 repository state의 코드로 실행됐는지, raw/dbt 산출물이 최신 schema인지 이 화면만으로 확정불가 |
 
 ### Screenshot preview
 
@@ -207,8 +207,8 @@ fixture 기반 dbt build는 최신 schema로 별도 검증되어 있으며, 실�
 | Airflow UI DAG registration | PARTIALLY VERIFIED | `task_02_01_image.png`에서 DAG `ethereum_hourly_logs`, `@hourly`, tags, next run이 보임 |
 | Airflow scheduled/manual run history | PARTIALLY VERIFIED | `task_02_02_image.png`, `task_02_04_image.png`에서 success 47건과 scheduled run 목록이 보임 |
 | Failure history transparency | PARTIALLY VERIFIED | `task_02_03_image.png`에서 failed `run_interval` task instance 13건이 보임 |
-| Screenshot-only data contract correctness | NOT VERIFIED | screenshot은 UI metadata 증거이며 data contract 검증은 notebook/dbt/test 결과를 함께 확인해야 합니다. `04_accumulated_pipeline_data_freshness_validation.ipynb`는 현재 raw Delta schema mismatch를 `PARTIALLY VERIFIED`로 판정합니다. |
-| Local Docker external RPC scheduled collection | VERIFIED | screenshot은 단독 증거가 아니지만, Airflow task log와 Delta/DuckDB 산출물 대조로 로컬 Docker 기준 여러 1시간 scheduled 수집 이력을 확인했습니다. |
+| Screenshot-only data contract correctness | NOT VERIFIED | screenshot은 UI metadata 증거이며 data contract 검증은 notebook/dbt/test 결과를 함께 확인 필요 `04_accumulated_pipeline_data_freshness_validation.ipynb`는 현재 raw Delta schema mismatch를 `PARTIALLY VERIFIED`로 판정함 |
+| Local Docker external RPC scheduled collection | VERIFIED | screenshot은 단독 증거가 아니지만, Airflow task log와 Delta/DuckDB 산출물 대조로 로컬 Docker 기준 여러 1시간 scheduled 수집 이력을 확인함 |
 
 ## 2026-06-22 Airflow task log and storage evidence
 
@@ -302,9 +302,9 @@ notebook 04는 이 기본 경로를 stale candidate로 표시하고, 최신 v2 p
 | 항목 | 상태 | 근거 | 한계 |
 |---|---|---|---|
 | 외부 RPC Provider 기반 1시간 scheduled 수집 | VERIFIED | Airflow successful scheduled 반환값 33건, 최신 run `raw_log_count=169451`, `dbt.returncode=0` | 로컬 Docker 실행 이력 기준 |
-| Delta Lake 적재 누적성 | VERIFIED | `ethereum_logs_v2` direct row count `6848937`, duplicate key `0` | 기본 `ethereum_logs` 경로는 구 schema. 2026-06-22 12:00 UTC hourly gap 원인 확인은 남아 있습니다. |
-| dbt downstream 산출 | VERIFIED | `ethereum_analytics_v2.duckdb`의 `erc20_transfers=6079379`, `tether_treasury_flow=2`, `quality_summary=1` | DuckDB view `ethereum_logs`는 `/opt/airflow/...` 절대 경로에 묶여 있어 컨테이너별 mount path 확인이 필요합니다 |
-| Production-grade 지속 운영 안정성 | NOT VERIFIED | 로컬 Docker의 성공·실패 이력과 재시도 후 성공 run만 확인했습니다. | provider SLA, alerting, secret rotation, full-history backfill은 검증하지 않았습니다. |
+| Delta Lake 적재 누적성 | VERIFIED | `ethereum_logs_v2` direct row count `6848937`, duplicate key `0` | 기본 `ethereum_logs` 경로는 구 schema. 2026-06-22 12:00 UTC hourly gap 원인 확인은 남아 있음 |
+| dbt downstream 산출 | VERIFIED | `ethereum_analytics_v2.duckdb`의 `erc20_transfers=6079379`, `tether_treasury_flow=2`, `quality_summary=1` | DuckDB view `ethereum_logs`는 `/opt/airflow/...` 절대 경로에 묶여 있어 컨테이너별 mount path 확인이 필요 |
+| Production-grade 지속 운영 안정성 | NOT VERIFIED | 로컬 Docker의 성공·실패 이력과 재시도 후 성공 run만 확인함 | provider SLA, alerting, secret rotation, full-history backfill은 검증하지 않음 |
 
 ## Bonus: DAG modification-free dbt dependency expansion
 
@@ -431,10 +431,10 @@ docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontain
 |---|---|---|
 | 구현 | VERIFIED | 신규 quality summary dbt model과 schema tests 추가 |
 | dbt graph 자동 반영 | VERIFIED | `dbt ls --select tag:ethereum_hourly`에 신규 모델 포함, manifest `depends_on`이 `tether_treasury_flow`를 가리킴 |
-| Airflow 무수정 조건 | VERIFIED | active DAG SHA256 시작/종료가 동일하며, 이번 세션에서 Airflow 파일 patch는 없습니다. |
-| Airflow end-to-end 실행 | VERIFIED | `airflow/logs/` task 반환값, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb`를 대조해 외부 RPC 수집, Delta 적재, dbt build 성공을 확인했습니다. |
-| Airflow UI run history | PARTIALLY VERIFIED | `data/imgs/` screenshot에서 DAG 등록, `@hourly`, success/failed history를 확인했습니다. UI screenshot 단독으로는 row-level correctness 증거가 아닙니다. |
-| 가산점 제출 근거 완결성 | VERIFIED | Airflow runtime trigger log 없이도 DAG selector 구조와 dbt graph/build/result evidence로 DAG 수정 없는 dbt dependency expansion을 검증했습니다. |
+| Airflow 무수정 조건 | VERIFIED | active DAG SHA256 시작/종료가 동일하며, 이번 세션에서 Airflow 파일 patch는 없음 |
+| Airflow end-to-end 실행 | VERIFIED | `airflow/logs/` task 반환값, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb`를 대조해 외부 RPC 수집, Delta 적재, dbt build 성공을 확인함 |
+| Airflow UI run history | PARTIALLY VERIFIED | `data/imgs/` screenshot에서 DAG 등록, `@hourly`, success/failed history를 확인함 UI screenshot 단독으로는 row-level correctness 증거가 아님 |
+| 가산점 제출 근거 완결성 | VERIFIED | Airflow runtime trigger log 없이도 DAG selector 구조와 dbt graph/build/result evidence로 DAG 수정 없는 dbt dependency expansion을 검증함 |
 
 Airflow end-to-end 증거 범위: task log에서 외부 RPC block range, raw log count,
 Delta inserted row count, dbt return code를 확인했고, 저장소의 Delta/DuckDB 산출물과
@@ -682,7 +682,7 @@ tether_treasury_flow_row_count=1
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps workspace-dev python scripts/create_dbt_validation_fixture.py --root /workspace/data/tmp/dbt_validation/current` | `{'inserted': 2, 'rows': 2}` |
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps -e DELTA_LOGS_PATH=/workspace/data/tmp/dbt_validation/current/ethereum_logs -e DUCKDB_PATH=/workspace/data/tmp/dbt_validation/current/ethereum_analytics.duckdb -e DUCKDB_EXTENSION_DIR=/workspace/data/duckdb_extensions workspace-dev dbt build --project-dir dbt --profiles-dir dbt --select tag:ethereum_hourly --vars '{"window_start": "2024-01-01T00:00:00Z", "window_end": "2024-01-01T01:00:00Z"}'` | `PASS=25 WARN=0 ERROR=0 SKIP=0 NO-OP=0 TOTAL=25` |
 | `git diff --check` | exit 0. 줄끝 변환 경고만 출력 |
-| secret-like value scan | 실제 provider URL/key 원문은 확인되지 않았습니다. 추가 키워드 검색에서는 `.env.example` placeholder와 문서 설명용 단어만 관측됩니다 |
+| secret-like value scan | 실제 provider URL/key 원문은 확인되지 않음 추가 키워드 검색에서는 `.env.example` placeholder와 문서 설명용 단어만 관측됨 |
 
 ### dbt debug
 
@@ -758,11 +758,11 @@ scripts/run_rpc_smoke_validation.py
 | `python -m pytest -q` | 호스트 Python 3.13에서 `No module named pytest`로 BLOCKED |
 | `python -m compileall src tests airflow/dags scripts` | 성공 |
 | `$env:PYTHONPATH='src'; python -c "...PipelineConfig...EthereumIngestionSettings..."` | 성공 |
-| `docker compose config` | exit 0. Docker client config 접근 경고가 있습니다. |
+| `docker compose config` | exit 0. Docker client config 접근 경고가 있음 |
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml images workspace-dev` | 기존 image 존재 확인 |
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps workspace-dev python -m pytest -q` | `18 passed` |
 | `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps workspace-dev ruff check .` | `All checks passed!` |
-| `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps workspace-dev dbt parse --project-dir dbt --profiles-dir dbt --no-partial-parse` | 최초 실행은 `models.ethereum_analytics.tests` unused configuration path warning이 있습니다. `dbt/dbt_project.yml` 수정 후 재실행 결과 exit 0, 경고가 없습니다. |
+| `docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontainer.yaml run --rm --no-deps workspace-dev dbt parse --project-dir dbt --profiles-dir dbt --no-partial-parse` | 최초 실행은 `models.ethereum_analytics.tests` unused configuration path warning이 있음 `dbt/dbt_project.yml` 수정 후 재실행 결과 exit 0, 경고가 없음 |
 
 여전히 검증하지 않았습니다:
 

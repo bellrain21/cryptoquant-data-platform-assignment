@@ -276,7 +276,7 @@ tether_treasury_netflow
 | 대상 | 테스트 |
 |---|---|
 | `ethereum_logs` | not_null, raw natural key unique, accepted hex/status contract |
-| `dim_token_metadata` | `(chain_id, token_contract_address)`별 valid period overlap이 없고, USDT Ethereum selector 정확히 1행과 decimals on-chain 검증을 확인합니다. |
+| `dim_token_metadata` | `(chain_id, token_contract_address)`별 valid period overlap이 없고, USDT Ethereum selector 정확히 1행과 decimals on-chain 검증을 확인함 |
 | `erc20_transfers` | unique key, not_null from/to/amount, valid topic0, metadata join completeness, metadata join cardinality = 1 |
 | `tether_treasury_flow` | not_null date/direction, accepted direction values, non-negative directional amount, USDT contract selector 일치 |
 | `tether_treasury_netflow` | unique grain, inflow - outflow = netflow, non-negative in/out amount |

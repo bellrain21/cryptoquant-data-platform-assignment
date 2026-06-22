@@ -41,7 +41,7 @@ latest direct inspection 기준 `ethereum_logs_v2`는 최신 계약 컬럼, row 
 | block_timestamp_utc | TIMESTAMP | no | block 조회 결과, UTC |
 | block_date_utc | DATE | no | UTC date partition |
 | transaction_hash | STRING | no | lowercase hex |
-| transaction_index | BIGINT | yes | provider payload에 없을 수 있습니다. |
+| transaction_index | BIGINT | yes | provider payload에 없을 수 있음 |
 | log_index | BIGINT | no | RPC가 제공한 log position/index. 관련 block 또는 transaction execution context 안에서의 식별 값으로만 사용 |
 | contract_address | STRING | no | event를 낸 contract address |
 | topic0 | STRING | yes | event signature |
@@ -111,10 +111,10 @@ USDT 행에서 numeric 변환이 실패하면 dbt test가 build를 실패시킵�
 
 | 모델명 | Grain | Unique Key | Source | Incremental 기준 | 목적 | 불변식 |
 |---|---|---|---|---|---|---|
-| `ethereum_logs` | Ethereum raw log 1건 | `chain_id + transaction_hash + log_index` | Delta `ethereum_logs` | view | raw Delta table을 DuckDB `delta_scan()`으로 노출합니다. | raw 원본과 uint256 decode 상태를 변형하지 않고 노출해야 합니다. |
-| `erc20_transfers` | ERC-20 ABI shape를 만족한 Transfer log 1건 | `chain_id + transaction_hash + log_index` | `ref('ethereum_logs')` | `block_timestamp_utc`가 Airflow `[window_start, window_end)`에 속한 row | topic/data를 분석용 transfer row로 정규화합니다. | `topic0`, `topic1`, `topic2`, `topic3`, `data_uint256_decode_status` 조건이 ERC-20 ABI shape와 일치해야 합니다. |
-| `tether_treasury_flow` | `chain_id + contract_address + treasury_address + hour_start_utc + direction` | 동일 | `ref('erc20_transfers')` | Airflow `[window_start, window_end)` | configured USDT contract와 Tether Treasury 주소 기준 시간별 inflow/outflow를 집계합니다. | Treasury가 `to_address`이면 `INFLOW`, `from_address`이면 `OUTFLOW`입니다. |
-| `tether_treasury_flow_quality_summary` | Airflow/dbt window 1행 | `window_start_utc + window_end_utc` | `ref('tether_treasury_flow')` | view | 신규 dbt 모델이 DAG 수정 없이 selector/ref graph로 편입되는지 검증 가능한 요약을 제공합니다. | DAG가 모델명을 하드코딩하지 않아야 합니다. |
+| `ethereum_logs` | Ethereum raw log 1건 | `chain_id + transaction_hash + log_index` | Delta `ethereum_logs` | view | raw Delta table을 DuckDB `delta_scan()`으로 노출함 | raw 원본과 uint256 decode 상태를 변형하지 않고 노출해야 함 |
+| `erc20_transfers` | ERC-20 ABI shape를 만족한 Transfer log 1건 | `chain_id + transaction_hash + log_index` | `ref('ethereum_logs')` | `block_timestamp_utc`가 Airflow `[window_start, window_end)`에 속한 row | topic/data를 분석용 transfer row로 정규화함 | `topic0`, `topic1`, `topic2`, `topic3`, `data_uint256_decode_status` 조건이 ERC-20 ABI shape와 일치해야 함 |
+| `tether_treasury_flow` | `chain_id + contract_address + treasury_address + hour_start_utc + direction` | 동일 | `ref('erc20_transfers')` | Airflow `[window_start, window_end)` | configured USDT contract와 Tether Treasury 주소 기준 시간별 inflow/outflow를 집계함 | Treasury가 `to_address`이면 `INFLOW`, `from_address`이면 `OUTFLOW`임 |
+| `tether_treasury_flow_quality_summary` | Airflow/dbt window 1행 | `window_start_utc + window_end_utc` | `ref('tether_treasury_flow')` | view | 신규 dbt 모델이 DAG 수정 없이 selector/ref graph로 편입되는지 검증 가능한 요약을 제공함 | DAG가 모델명을 하드코딩하지 않아야 함 |
 
 ## ERC-20 Transfer Column Contract
 

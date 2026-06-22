@@ -16,10 +16,10 @@
 | 증거 | 현재 판정 | 해석 |
 |---|---|---|
 | fixture Delta + dbt build | VERIFIED | 최신 schema 기준 dbt graph와 tests는 `docs/05_validation_evidence.md`의 `PASS=43` 결과를 기준으로 판단 |
-| Airflow UI screenshot `data/imgs/` | PARTIALLY VERIFIED | DAG 등록, `@hourly`, success/failed run history를 확인했습니다. screenshot 단독으로 row-level correctness를 증명하지 않습니다. |
+| Airflow UI screenshot `data/imgs/` | PARTIALLY VERIFIED | DAG 등록, `@hourly`, success/failed run history를 확인함 screenshot 단독으로 row-level correctness를 증명하지 않음 |
 | Airflow task log + Delta/DuckDB metadata | VERIFIED | `airflow/logs/`, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` 대조로 외부 RPC scheduled 수집과 downstream 산출을 확인 |
 | accumulated local Delta notebook | PARTIALLY VERIFIED | `src/notebooks/04_*`가 최신 v2 pair의 schema와 중복 key를 확인하고, 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제를 감지 |
-| historical incident/timeline docs | REFERENCE | 04/05 문서는 과거 장애·복구 기록이며 현재 제출 source of truth가 아닙니다. |
+| historical incident/timeline docs | REFERENCE | 04/05 문서는 과거 장애·복구 기록이며 현재 제출 source of truth가 아님 |
 
 ## 과제 요구사항 매핑
 

@@ -32,24 +32,24 @@ AI 출력은 구현 사실이나 검증 결과로 간주하지 않았습니다.
 
 | 결정 항목 | 최종 판단 |
 |---|---|
-| 데이터 모델의 grain | `ethereum_logs`는 Ethereum log 1건, `erc20_transfers`는 Transfer log 1건, `tether_treasury_flow`는 `hour_start_utc + direction` 기준으로 정의했습니다. |
-| unique key와 idempotency 기준 | raw 로그는 `chain_id + transaction_hash + log_index`를 natural key로 사용합니다. |
-| retry 및 backfill 정책 | Airflow `data_interval` 기준으로 재실행 가능하게 하고, RPC transient failure는 bounded retry 대상으로 분리했습니다. |
-| Delta Lake 저장 전략 | raw 로그는 Delta table에 insert-if-not-exists 방식으로 적재하고, canonical reorg replacement는 구현 범위에서 제외했습니다. |
-| dbt 모델 구조 | `ethereum_logs -> erc20_transfers -> tether_treasury_flow -> tether_treasury_flow_quality_summary` graph를 유지하고 `tag:ethereum_hourly` selector로 실행합니다. |
-| Circulating Supply 정책 | Bitcoin Velocity 설계에서 policy-eligible UTXO supply와 dormancy-adjusted supply를 구분했습니다. |
-| Reorg 재처리 범위 | Task 1은 설계 문서에서 재계산 window를 정의하고, Task 2는 finality buffer와 raw `block_hash` 보존까지 구현했습니다. |
-| 최종 문서와 코드 반영 여부 | 실행 증거가 있는 항목만 `VERIFIED`로 표시하고, 외부 환경 의존 항목은 제한사항으로 남겼습니다. |
+| 데이터 모델의 grain | `ethereum_logs`는 Ethereum log 1건, `erc20_transfers`는 Transfer log 1건, `tether_treasury_flow`는 `hour_start_utc + direction` 기준으로 정의함 |
+| unique key와 idempotency 기준 | raw 로그는 `chain_id + transaction_hash + log_index`를 natural key로 사용함 |
+| retry 및 backfill 정책 | Airflow `data_interval` 기준으로 재실행 가능하게 하고, RPC transient failure는 bounded retry 대상으로 분리함 |
+| Delta Lake 저장 전략 | raw 로그는 Delta table에 insert-if-not-exists 방식으로 적재하고, canonical reorg replacement는 구현 범위에서 제외함 |
+| dbt 모델 구조 | `ethereum_logs -> erc20_transfers -> tether_treasury_flow -> tether_treasury_flow_quality_summary` graph를 유지하고 `tag:ethereum_hourly` selector로 실행함 |
+| Circulating Supply 정책 | Bitcoin Velocity 설계에서 policy-eligible UTXO supply와 dormancy-adjusted supply를 구분함 |
+| Reorg 재처리 범위 | Task 1은 설계 문서에서 재계산 window를 정의하고, Task 2는 finality buffer와 raw `block_hash` 보존까지 구현함 |
+| 최종 문서와 코드 반영 여부 | 실행 증거가 있는 항목만 `VERIFIED`로 표시하고, 외부 환경 의존 항목은 제한사항으로 남김 |
 
 ## AI가 보조한 사항
 
 | 보조 범위 | 반영 방식 |
 |---|---|
-| 리팩토링 후보 식별 | DAG, block range, RPC, Delta writer, dbt runner 책임 분리 후보를 점검하는 데 사용했습니다. |
-| 테스트 케이스 후보 생성 | block range, retry, idempotency, dbt contract, ERC-20 decode 검증 범위를 점검하는 데 사용했습니다. |
-| 예외 처리 및 edge case 점검 | provider limit, malformed log, duplicate replay, `uint256` overflow 가능성을 검토하는 데 사용했습니다. |
-| SQL 표현 개선 | ERC-20 topic/data decode, address lowercase normalization, incremental 조건, `SELECT *` 제거 후보를 검토하는 데 사용했습니다. |
-| 문서 구조와 체크리스트 정합성 점검 | README, 요구사항 추적표, 리팩토링 보고서, 문서 정합성 보고서의 상태 라벨과 링크를 대조하는 데 사용했습니다. |
+| 리팩토링 후보 식별 | DAG, block range, RPC, Delta writer, dbt runner 책임 분리 후보를 점검하는 데 사용함 |
+| 테스트 케이스 후보 생성 | block range, retry, idempotency, dbt contract, ERC-20 decode 검증 범위를 점검하는 데 사용함 |
+| 예외 처리 및 edge case 점검 | provider limit, malformed log, duplicate replay, `uint256` overflow 가능성을 검토하는 데 사용함 |
+| SQL 표현 개선 | ERC-20 topic/data decode, address lowercase normalization, incremental 조건, `SELECT *` 제거 후보를 검토하는 데 사용함 |
+| 문서 구조와 체크리스트 정합성 점검 | README, 요구사항 추적표, 리팩토링 보고서, 문서 정합성 보고서의 상태 라벨과 링크를 대조하는 데 사용함 |
 
 ## 검증 방식
 
@@ -70,7 +70,7 @@ AI 제안은 그대로 반영하지 않았습니다.
 | Airflow 외부 RPC scheduled 수집 | `airflow/logs/`, `data/delta/ethereum_logs_v2`, `data/analytics/ethereum_analytics_v2.duckdb` 확인 | VERIFIED |
 | Notebook 기반 코드·데이터 흐름 | `src/notebooks/03_*`, `src/notebooks/04_*` 실행 output | PARTIALLY VERIFIED |
 | Markdown 링크와 파일 경로 | Markdown local link 검사, `rg` 기반 경로 대조 | VERIFIED |
-| Production-grade provider 안정성 | 지속 무중단 운영, provider SLA, rate limit 여유, alerting은 별도 운영 검증 필요합니다 | NOT VERIFIED |
+| Production-grade provider 안정성 | 지속 무중단 운영, provider SLA, rate limit 여유, alerting은 별도 운영 검증 필요 | NOT VERIFIED |
 
 ## 대표 프롬프트 원문형 요약
 
@@ -118,12 +118,12 @@ AI 제안은 초안 후보로만 취급했고, 반영 여부는 과제 원문, �
 
 | 검토 범위 | 검토 질문 요약 | 보조 산출물 사용 방식 | 최종 검증 및 처리 |
 |---|---|---|---|
-| 과제 요구사항 매핑 | 요구사항과 Markdown 산출물이 맞는지 평가 | 요구사항 대비 문서 누락과 명칭 불일치 후보 추출 | Task 1·2 요구사항과 요구사항 추적표를 대조했습니다. |
-| Task 1 정책 설계 검토 | Bitcoin Velocity의 volume, circulating supply, Reorg 영향을 반례 중심으로 검토 | dormant UTXO, burn, coinbase maturity, current snapshot 사용 위험 후보 비교 | 분실 코인 단정은 폐기하고 policy-eligible supply와 dormancy-adjusted supply를 분리했습니다. |
-| 계산 SQL 검토 | 365일 window의 결측과 재처리 조건을 SQL 또는 의사코드로 점검 | NULL 제거 후 row window 적용 시 연속 날짜를 오인할 위험 식별 | date spine 유지와 calendar/source completeness 검증 기준을 문서화했습니다. |
-| Task 2 모델 계약 검토 | `eth_getLogs`, Delta Lake, dbt incremental, reorg 삭제 범위의 멱등성 검토 | Bronze/Silver 분리, canonical reconcile, bounded rebuild 후보 비교 | 현재 구현은 raw Delta insert-if-not-exists와 natural key idempotency 중심으로 제한했습니다. |
-| USDT Treasury 범위 검토 | ERC-20 Transfer decoding과 Tether Treasury USDT 집계의 대상 식별 조건 점검 | topic0 단독 판정의 오탐 가능성과 token metadata 조건 후보를 확인했습니다 | USDT contract address와 Treasury address 설정값으로 범위를 제한하고, token metadata dimension은 구현되지 않은 항목으로 분리했습니다. |
-| 문서 표현 교정 | 완료되지 않은 구현을 완료처럼 보이지 않게 상태와 체크리스트를 교정 | 상태 표기와 체크리스트 불일치 후보 추출 | 설계 문서 완료와 구현·실행 검증 대기 상태를 분리했습니다. |
+| 과제 요구사항 매핑 | 요구사항과 Markdown 산출물이 맞는지 평가 | 요구사항 대비 문서 누락과 명칭 불일치 후보 추출 | Task 1·2 요구사항과 요구사항 추적표를 대조함 |
+| Task 1 정책 설계 검토 | Bitcoin Velocity의 volume, circulating supply, Reorg 영향을 반례 중심으로 검토 | dormant UTXO, burn, coinbase maturity, current snapshot 사용 위험 후보 비교 | 분실 코인 단정은 폐기하고 policy-eligible supply와 dormancy-adjusted supply를 분리함 |
+| 계산 SQL 검토 | 365일 window의 결측과 재처리 조건을 SQL 또는 의사코드로 점검 | NULL 제거 후 row window 적용 시 연속 날짜를 오인할 위험 식별 | date spine 유지와 calendar/source completeness 검증 기준을 문서화함 |
+| Task 2 모델 계약 검토 | `eth_getLogs`, Delta Lake, dbt incremental, reorg 삭제 범위의 멱등성 검토 | Bronze/Silver 분리, canonical reconcile, bounded rebuild 후보 비교 | 현재 구현은 raw Delta insert-if-not-exists와 natural key idempotency 중심으로 제한함 |
+| USDT Treasury 범위 검토 | ERC-20 Transfer decoding과 Tether Treasury USDT 집계의 대상 식별 조건 점검 | topic0 단독 판정의 오탐 가능성과 token metadata 조건 후보를 확인함 | USDT contract address와 Treasury address 설정값으로 범위를 제한하고, token metadata dimension은 구현되지 않은 항목으로 분리함 |
+| 문서 표현 교정 | 완료되지 않은 구현을 완료처럼 보이지 않게 상태와 체크리스트를 교정 | 상태 표기와 체크리스트 불일치 후보 추출 | 설계 문서 완료와 구현·실행 검증 대기 상태를 분리함 |
 
 ## 검증 기준 상세
 
@@ -160,13 +160,13 @@ AI 제안은 초안 후보로만 취급했고, 반영 여부는 과제 원문, �
 
 | 항목 | 판단 | 이유 |
 |---|---|---|
-| CryptoQuant 제품 Velocity를 그대로 재현 | 폐기 | 내부 `estimated transaction volume` 세부 규칙이 공개되지 않았습니다. |
-| 365일 후행 window | 채택 | 공개 Velocity 설명과 개념적으로 정합합니다. |
-| Dormant UTXO를 lost coin으로 간주 | 폐기 | 장기 미사용은 영구 분실 증명이 아닙니다. |
-| Blind append | 폐기 | retry와 backfill에서 중복 가능성이 있습니다. |
-| Bitcoin current Gold와 reorg audit | 분리 | 현재 소비 결과와 이전 chain revision 이력의 역할이 다릅니다. |
-| Ethereum observation과 canonical view | 현재 구현에서 미채택 | 과제 범위와 로컬 실행 가능성을 우선해 raw Delta natural key idempotency로 제한했습니다. |
-| ERC-20 `topic0` 단독 판정 | 폐기 | Transfer signature만으로 token standard를 단정할 수 없습니다. |
+| CryptoQuant 제품 Velocity를 그대로 재현 | 폐기 | 내부 `estimated transaction volume` 세부 규칙이 공개되지 않음 |
+| 365일 후행 window | 채택 | 공개 Velocity 설명과 개념적으로 정합함 |
+| Dormant UTXO를 lost coin으로 간주 | 폐기 | 장기 미사용은 영구 분실 증명이 아님 |
+| Blind append | 폐기 | retry와 backfill에서 중복 가능성이 있음 |
+| Bitcoin current Gold와 reorg audit | 분리 | 현재 소비 결과와 이전 chain revision 이력의 역할이 다릅니다 |
+| Ethereum observation과 canonical view | 현재 구현에서 미채택 | 과제 범위와 로컬 실행 가능성을 우선해 raw Delta natural key idempotency로 제한함 |
+| ERC-20 `topic0` 단독 판정 | 폐기 | Transfer signature만으로 token standard를 단정불가 |
 
 ## 한계와 후속 검증
 

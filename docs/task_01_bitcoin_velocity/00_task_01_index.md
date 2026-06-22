@@ -51,7 +51,7 @@ policy_eligible_utxo_supply_v1_btc(d)
 | Gross Circulating Supply | `policy_eligible_utxo_supply_v1_btc` | 과제 정책상 분모에 포함되는 UTXO라는 의미를 명시 |
 | Adjusted Circulating Supply | `dormancy_adjusted_utxo_supply_v1_btc` | 어떤 조정인지 명시 |
 | Dormant Reactivated Supply | `dormant_utxo_spent_volume_btc` | 공급량(Stock)이 아니라 기간 내 이동량(Flow) |
-| Canonical Block | 관측 시점 기준 Best Chain Block | Reorg 전후 상태가 바뀔 수 있으므로 영구 사실처럼 표현하지 않습니다. |
+| Canonical Block | 관측 시점 기준 Best Chain Block | Reorg 전후 상태가 바뀔 수 있으므로 영구 사실처럼 표현하지 않음 |
 | Finality Status | `chain_confidence_status` | Bitcoin은 결정론적 확정성이 아니라 확인 깊이 기반 신뢰도 구조 |
 | calculation_version | 정의·정책·코드·체인 상태 버전 분리 | 재계산 결과가 바뀐 원인을 분해하기 위함 |
 

@@ -21,7 +21,7 @@ git diff 기준 삭제 파일은 21개입니다.
 | 파일 | 삭제 근거 |
 |---|---|
 | `airflow/dags/ethereum_logs_pipeline.py` | deprecated DAG shim. active DAG는 `airflow/dags/ethereum_hourly_logs.py` 하나이며 DagBag import에서 `dag_ids=['ethereum_hourly_logs']` 확인 |
-| `dbt/models/staging/stg_ethereum_logs.sql` | deprecated compatibility staging view. 현재 canonical staging은 `dbt/models/staging/ethereum_logs.sql`이며 downstream `ref()`가 없습니다. |
+| `dbt/models/staging/stg_ethereum_logs.sql` | deprecated compatibility staging view. 현재 canonical staging은 `dbt/models/staging/ethereum_logs.sql`이며 downstream `ref()`가 없음 |
 | `dbt/models/tests/erc20_transfer_integrity.sql` | dbt singular test 위치가 `dbt/tests/erc20_transfer_integrity.sql`로 이동됨 |
 | `dbt/models/tests/treasury_flow_integrity.sql` | dbt singular test 위치가 `dbt/tests/treasury_flow_integrity.sql`로 이동됨 |
 | `dbt/models/tests/unique_log_identity.sql` | dbt singular test 위치가 `dbt/tests/unique_log_identity.sql`로 이동됨 |
@@ -30,7 +30,7 @@ git diff 기준 삭제 파일은 21개입니다.
 | `src/cryptoquant_assignment/ethereum/__init__.py` | old package namespace. 현재 import/test 경로에서 사용되지 않음 |
 | `src/cryptoquant_assignment/py.typed` | old package marker. 현재 package marker는 `src/cryptoquant_pipeline/py.typed`가 아니라 typed source/test 기준으로 관리 |
 | `src/cryptoquant_assignment/settings.py` | old settings scaffold. 현재 config는 `src/cryptoquant_pipeline/config.py`, `provider.py` |
-| `src/eth_pipeline/__init__.py` | old package namespace. 현재 실행 경로에 없습니다. |
+| `src/eth_pipeline/__init__.py` | old package namespace. 현재 실행 경로에 없음 |
 | `src/eth_pipeline/block_range.py` | old block range implementation. 현재 `src/cryptoquant_pipeline/block_range.py`와 tests 사용 |
 | `src/eth_pipeline/config.py` | old config implementation. 현재 `src/cryptoquant_pipeline/config.py`, `provider.py` 사용 |
 | `src/eth_pipeline/delta_writer.py` | old Delta writer. 현재 `src/cryptoquant_pipeline/delta_writer.py` 사용 |
@@ -70,11 +70,11 @@ git diff 기준 삭제 파일은 21개입니다.
 
 | 항목 | 분류 | 이유 |
 |---|---|---|
-| `src/notebooks/` | REVIEW | 번호 prefix 기준 검증 보조 노트북으로 정리했습니다. 현재 실행 source of truth는 아니지만 Python source와 로컬 데이터 최신성 점검 근거로 유지 |
-| `docs/task_02_ethereum_log_pipeline/04_error_incident_change_log.md` | REVIEW | 오류 해결 기록과 legacy candidate 기록. 현재 구현 기준 문서는 아니지만 검증 이력 가치 있습니다. |
+| `src/notebooks/` | REVIEW | 번호 prefix 기준 검증 보조 노트북으로 정리함 현재 실행 source of truth는 아니지만 Python source와 로컬 데이터 최신성 점검 근거로 유지 |
+| `docs/task_02_ethereum_log_pipeline/04_error_incident_change_log.md` | REVIEW | 오류 해결 기록과 legacy candidate 기록. 현재 구현 기준 문서는 아니지만 검증 이력 가치 있음 |
 | `docs/task_02_ethereum_log_pipeline/05_error_debugging_timeline.md` | REVIEW | debugging timeline. `ethereum_logs_v2`, old dbt path 같은 stale term이 있으나 historical context로 보존 |
 | `.env` | 제출 제외 | 실제 local config 가능성이 있어 내용 미출력/미추적 유지 |
-| `.venv/`, `dbt/target/`, `data/delta/`, `data/analytics/`, `data/tmp/`, `airflow/logs/` | 제출 제외 | generated/local artifact입니다. 삭제하지 않고 ignore 대상과 보고서 제외 항목으로 분리합니다. |
+| `.venv/`, `dbt/target/`, `data/delta/`, `data/analytics/`, `data/tmp/`, `airflow/logs/` | 제출 제외 | generated/local artifact임 삭제하지 않고 ignore 대상과 보고서 제외 항목으로 분리함 |
 | `docs/task_02_ethereum_log_pipeline/*.md` | REVIEW | exploratory design. README/DOCS에서 current source of truth가 아니라고 라벨링 |
 
 ## 6. FIX 처리한 문서, 코드, 경로, 설정 목록
@@ -107,19 +107,19 @@ git diff 기준 삭제 파일은 21개입니다.
 | Airflow DagBag import with `/opt/airflow/python/bin/python` | `import_error_count=0`, `dag_ids=['ethereum_hourly_logs']`, `schedule='@hourly'`, `max_active_runs=1`, `task_ids=['run_interval']` |
 | stale reference scan with `rg` excluding generated/notebook paths | stale terms only in REVIEW error timeline or explicit deletion context |
 | secret-like placeholder scan excluding `.env` contents | `.env.example` placeholders and documented local demo credentials only |
-| `nbclient` execution of `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` | 실행 output 저장 완료, error가 없습니다. |
+| `nbclient` execution of `src/notebooks/03_fixture_etl_replay_idempotency_validation.ipynb` | 실행 output 저장 완료, error가 없음 |
 | custom code-cell execution of `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb` | `latest_v2_local`, raw `6848937`, duplicate key `0`, schema current. 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제로 `PARTIALLY VERIFIED` |
-| `data/imgs/` screenshot manual review | Airflow UI DAG 등록, `@hourly`, success 47, failed 14, failed task instance 13건을 확인했습니다. 최신 data contract 증거는 아닙니다. |
+| `data/imgs/` screenshot manual review | Airflow UI DAG 등록, `@hourly`, success 47, failed 14, failed task instance 13건을 확인함 최신 data contract 증거는 아님 |
 
 ## 8. 검증 실패 또는 실행할 수 없는 항목과 이유
 
 | 항목 | 상태 | 원인 | 영향 | 우회 검증 |
 |---|---|---|---|---|
-| Airflow scheduler/UI run history | VERIFIED | `data/imgs/` screenshot에서 success/failed run history를 확인하고 task log로 보강했습니다. | UI screenshot 단독 row-level correctness는 아닙니다. | Airflow task log, Delta/DuckDB 산출물 대조 |
-| 최신 schema 기준 Airflow end-to-end 재실행 | PARTIALLY VERIFIED | `airflow/logs/` successful scheduled 반환값 33건과 latest direct inspection row count `6848937`을 확인했습니다. 2026-06-22 12:00 UTC hourly gap은 남아 있습니다. | production SLA, full-history backfill, 누락 interval 원인은 검증하지 않았습니다. | task log, Delta direct inspection, DuckDB relation count, notebook 04 |
-| real 1-hour historical RPC scheduled collection | PARTIALLY VERIFIED | 1시간 scheduled 수집은 확인. full-history backfill과 provider qualification manifest는 구현되지 않았습니다. | provider plan별 historical lookup 권한 차이 가능 | block range, retry, chunking, idempotency tests로 보강 |
-| reorg canonical replacement | NOT VERIFIED | 현재 구현 범위가 finality buffer와 raw `block_hash` 보존까지입니다 | long reorg stale canonical row replacement는 구현되지 않았습니다. | 문서에서 design-only/future hardening으로 분리 |
-| generated/local artifact cleanup | PARTIALLY VERIFIED | `.env`, `.venv`, `data/delta/`, `data/analytics/`, `data/tmp/`, `dbt/target/`는 삭제하지 않고 제출 제외로 분리 | 로컬 디스크에는 남을 수 있습니다. | `.gitignore`, report, README에서 제출 제외 명시 |
+| Airflow scheduler/UI run history | VERIFIED | `data/imgs/` screenshot에서 success/failed run history를 확인하고 task log로 보강함 | UI screenshot 단독 row-level correctness는 아님 | Airflow task log, Delta/DuckDB 산출물 대조 |
+| 최신 schema 기준 Airflow end-to-end 재실행 | PARTIALLY VERIFIED | `airflow/logs/` successful scheduled 반환값 33건과 latest direct inspection row count `6848937`을 확인함 2026-06-22 12:00 UTC hourly gap은 남아 있음 | production SLA, full-history backfill, 누락 interval 원인은 검증하지 않음 | task log, Delta direct inspection, DuckDB relation count, notebook 04 |
+| real 1-hour historical RPC scheduled collection | PARTIALLY VERIFIED | 1시간 scheduled 수집은 확인. full-history backfill과 provider qualification manifest는 구현되지 않음 | provider plan별 historical lookup 권한 차이 가능 | block range, retry, chunking, idempotency tests로 보강 |
+| reorg canonical replacement | NOT VERIFIED | 현재 구현 범위가 finality buffer와 raw `block_hash` 보존까지임 | long reorg stale canonical row replacement는 구현되지 않음 | 문서에서 design-only/future hardening으로 분리 |
+| generated/local artifact cleanup | PARTIALLY VERIFIED | `.env`, `.venv`, `data/delta/`, `data/analytics/`, `data/tmp/`, `dbt/target/`는 삭제하지 않고 제출 제외로 분리 | 로컬 디스크에는 남을 수 있음 | `.gitignore`, report, README에서 제출 제외 명시 |
 
 ## 9. 발견했지만 삭제하지 않은 위험 요소
 

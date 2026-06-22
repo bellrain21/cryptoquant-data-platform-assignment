@@ -6,7 +6,7 @@ CryptoQuant Data Platform Engineer(데이터 플랫폼 엔지니어) 사전과�
 
 | 과제 | 범위 | 현재 성격 |
 |---|---|---|
-| Task 1(과제 1) | Bitcoin Network Velocity pipeline design(비트코인 네트워크 회전율 파이프라인 설계) | 데이터 제품 설계 문서이며, 실행 파이프라인 구현물은 아닙니다. |
+| Task 1(과제 1) | Bitcoin Network Velocity pipeline design(비트코인 네트워크 회전율 파이프라인 설계) | 데이터 제품 설계 문서이며, 실행 파이프라인 구현물은 아님 |
 | Task 2(과제 2) | Ethereum log ingestion implementation(이더리움 로그 수집 구현) | JSON-RPC(제이슨 원격 프로시저 호출), Airflow DAG(작업 흐름 정의), Delta Lake(델타 레이크), DuckDB(덕디비), dbt(데이터 빌드 도구), pytest fixture(파이테스트 고정 테스트 데이터) 기반 구현 |
 
 ## 구현 상태
@@ -14,15 +14,15 @@ CryptoQuant Data Platform Engineer(데이터 플랫폼 엔지니어) 사전과�
 | 영역 | 상태 | 근거 또는 제한 |
 |---|---|---|
 | Task 1 metric(과제 1 지표) | 설계 문서화 | [Task 1 README(과제 1 안내)](./docs/task_01_bitcoin_velocity/00_task_01_index.md), [metric definition(지표 정의)](./docs/task_01_bitcoin_velocity/02_velocity_metric_definition.md) |
-| Task 2 Python modules(과제 2 Python 모듈) | 구현되었습니다. | `src/cryptoquant_pipeline/`. 삭제된 `src/eth_pipeline/`와 `src/cryptoquant_assignment/`는 레거시 구현 |
-| Task 2 tests/fixtures(과제 2 테스트와 고정 테스트 데이터) | Fixture(고정 테스트 데이터) 검증되었습니다. | `tests/test_*`, `scripts/create_dbt_validation_fixture.py` |
-| Delta/dbt local path(Delta Lake와 dbt 로컬 경로) | 구현되었습니다. | `dbt/`, `src/cryptoquant_pipeline/delta_writer.py` |
-| Airflow DAG(작업 흐름 정의) | 구현되었습니다. | `airflow/dags/ethereum_hourly_logs.py` |
-| Refactoring/document consistency(리팩토링 및 문서 정합성) | 갱신되었습니다. | [refactoring report](./docs/10_refactoring_report.md), [documentation consistency report](./docs/11_documentation_consistency_report.md) |
-| Real Ethereum RPC(실제 Ethereum 원격 프로시저 호출) | 검증되었습니다. | `airflow/logs/` 기준 successful scheduled run 반환값 33건과 v2 산출물 direct inspection을 확인. 최신 direct count는 `data/delta/ethereum_logs_v2` 6,848,937건, `erc20_transfers` 6,079,379건. production SLA와 full-history backfill은 별도 검증 대상 |
-| Airflow UI 실행 이력 | 검증되었습니다. | `data/imgs/`의 Airflow screenshot에서 `ethereum_hourly_logs` 등록, `@hourly`, success 47, failed 14 이력을 확인. UI metadata는 task log와 Delta/DuckDB 산출물과 함께 해석 |
-| Airflow/Docker graph 검증 | 로컬 graph를 검증했습니다. | pytest, ruff, Airflow DagBag import, fixture 기반 dbt build 결과는 [validation evidence(검증 증거)](./docs/05_validation_evidence.md)에 기록 |
-| Accumulated local data freshness(누적 로컬 데이터 최신성) | 부분 검증되었습니다. | notebook 04가 최신 v2 pair를 자동 선택해 raw 6,848,937건, 중복 0, 최신 schema를 확인. 다만 2026-06-22 12:00 UTC hourly gap 1개와 DuckDB staging view 절대경로 문제 때문에 `PARTIALLY VERIFIED` |
+| Task 2 Python modules(과제 2 Python 모듈) | 구현 | `src/cryptoquant_pipeline/`. 삭제된 `src/eth_pipeline/`와 `src/cryptoquant_assignment/`는 레거시 구현 |
+| Task 2 tests/fixtures(과제 2 테스트와 고정 테스트 데이터) | Fixture(고정 테스트 데이터) 검증 | `tests/test_*`, `scripts/create_dbt_validation_fixture.py` |
+| Delta/dbt local path(Delta Lake와 dbt 로컬 경로) | 구현 | `dbt/`, `src/cryptoquant_pipeline/delta_writer.py` |
+| Airflow DAG(작업 흐름 정의) | 구현 | `airflow/dags/ethereum_hourly_logs.py` |
+| Refactoring/document consistency(리팩토링 및 문서 정합성) | 갱신 | [refactoring report](./docs/10_refactoring_report.md), [documentation consistency report](./docs/11_documentation_consistency_report.md) |
+| Real Ethereum RPC(실제 Ethereum 원격 프로시저 호출) | 검증 | `airflow/logs/` 기준 successful scheduled run 반환값 33건과 v2 산출물 direct inspection을 확인. 최신 direct count는 `data/delta/ethereum_logs_v2` 6,848,937건, `erc20_transfers` 6,079,379건. production SLA와 full-history backfill은 별도 검증 대상 |
+| Airflow UI 실행 이력 | 검증 | `data/imgs/`의 Airflow screenshot에서 `ethereum_hourly_logs` 등록, `@hourly`, success 47, failed 14 이력을 확인. UI metadata는 task log와 Delta/DuckDB 산출물과 함께 해석 |
+| Airflow/Docker graph 검증 | 로컬 graph를 검증함 | pytest, ruff, Airflow DagBag import, fixture 기반 dbt build 결과는 [validation evidence(검증 증거)](./docs/05_validation_evidence.md)에 기록 |
+| Accumulated local data freshness(누적 로컬 데이터 최신성) | 부분 검증 | notebook 04가 최신 v2 pair를 자동 선택해 raw 6,848,937건, 중복 0, 최신 schema를 확인. 다만 2026-06-22 12:00 UTC hourly gap 1개와 DuckDB staging view 절대경로 문제 때문에 `PARTIALLY VERIFIED` |
 | Reorg canonical replacement(체인 재편성 이후 정본 교체) | Design-only(설계 전용) / future hardening(향후 보강) | 현재 구현은 finality buffer(확정성 완충 구간)와 idempotent append(멱등 추가 적재) 중심 |
 
 ## 완료 계층
@@ -30,8 +30,8 @@ CryptoQuant Data Platform Engineer(데이터 플랫폼 엔지니어) 사전과�
 | 계층 | 현재 판정 | 근거 | 한계 |
 |---|---|---|---|
 | CORE FUNCTIONAL READY | VERIFIED | 과제 2 직접 요구사항은 Airflow DAG, `eth_getLogs`, logical interval, block range, retry, idempotency, Delta, dbt 필수 모델, Treasury flow 기준으로 코드와 테스트에 연결됨 | canonical reorg replacement는 직접 구현 범위가 아니라 future hardening으로 분리 |
-| SUBMISSION RELEASE READY | PARTIALLY VERIFIED | README, 실행 가이드, validation evidence, AI 활용 요약, secret hygiene, Docker 기반 실행 증거 존재 | 최종 main 커밋과 remote 반영 여부는 Git metadata 확인이 필요합니다. Collaborator 초대는 사용자 확인 기준으로 반영했습니다. |
-| BONUS READY | VERIFIED | `tag:ethereum_hourly` selector와 dbt `ref()` graph로 `tether_treasury_flow_quality_summary`가 DAG 수정 없이 `dbt build` 범위에 포함됩니다. | Airflow dynamic task mapping은 구현하지 않았습니다. |
+| SUBMISSION RELEASE READY | PARTIALLY VERIFIED | README, 실행 가이드, validation evidence, AI 활용 요약, secret hygiene, Docker 기반 실행 증거 존재 | 최종 main 커밋과 remote 반영 여부는 Git metadata 확인이 필요 Collaborator 초대는 사용자 확인 기준으로 반영함 |
+| BONUS READY | VERIFIED | `tag:ethereum_hourly` selector와 dbt `ref()` graph로 `tether_treasury_flow_quality_summary`가 DAG 수정 없이 `dbt build` 범위에 포함됨 | Airflow dynamic task mapping은 구현하지 않음 |
 | LEGACY CLEANUP | PARTIALLY VERIFIED | canonical 경로는 `src/cryptoquant_pipeline/`, `airflow/dags/ethereum_hourly_logs.py`, `dbt/models/`로 정리됨 | historical/exploratory 문서는 제출 판단에서 제외 |
 
 ## 저장소 안내
@@ -43,7 +43,7 @@ CryptoQuant Data Platform Engineer(데이터 플랫폼 엔지니어) 사전과�
 | Task 2 Source of Truth(과제 2 현재 기준 구현과 문서) | `src/cryptoquant_pipeline/`, `airflow/dags/ethereum_hourly_logs.py`, `dbt/models/`, [docs/02_data_contracts.md](./docs/02_data_contracts.md), [docs/03_execution_guide.md](./docs/03_execution_guide.md), [docs/04_failure_retry_backfill_strategy.md](./docs/04_failure_retry_backfill_strategy.md) | 현재 구현과 실행 방식 |
 | Validation Evidence(검증 증거) | [docs/05_validation_evidence.md](./docs/05_validation_evidence.md), [docs/07_submission_readiness_report.md](./docs/07_submission_readiness_report.md), [docs/09_requirement_traceability_matrix.md](./docs/09_requirement_traceability_matrix.md), `tests/`, `src/notebooks/`, `data/imgs/` | 실행한 검증, 노트북 검증 보조 증거, Airflow UI screenshot evidence, 검증되지 않은 범위 |
 | AI Usage Transparency(AI 활용 투명성) | [docs/08_ai_usage_transparency_and_validation.md](./docs/08_ai_usage_transparency_and_validation.md) | PDF 결과 보고서 제출 요구에 맞춘 AI 사용 목적, 대표 프롬프트 원문형 요약, 인간 검증 방식 |
-| Generated / Excluded Material(생성 산출물 및 제출 제외 자료) | `.venv/`, `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, `airflow/logs/`, `data/delta/`, `data/analytics/`, `data/duckdb_extensions/`, `dbt/target/`, `dbt/logs/` | 로컬 실행 산출물이며, 제출 기준 자료는 아닙니다. |
+| Generated / Excluded Material(생성 산출물 및 제출 제외 자료) | `.venv/`, `__pycache__/`, `.pytest_cache/`, `.ruff_cache/`, `airflow/logs/`, `data/delta/`, `data/analytics/`, `data/duckdb_extensions/`, `dbt/target/`, `dbt/logs/` | 로컬 실행 산출물이며, 제출 기준 자료는 아님 |
 
 ## 과제 1 범위 경계
 
@@ -117,7 +117,7 @@ Raw Delta schema 요약:
 |---|---|
 | `chain_id`, `transaction_hash`, `log_index` | retry/backfill natural key |
 | `block_number`, `block_hash`, `removed` | finalized raw event 추적과 reorg 분석 근거 |
-| `contract_address`, `topic0..topic3`, `data_raw` | raw log 원문 재처리 가능성을 보존합니다 |
+| `contract_address`, `topic0..topic3`, `data_raw` | raw log 원문 재처리 가능성을 보존함 |
 | `block_timestamp_utc`, `block_date_utc` | UTC 시간 분석과 `block_date_utc` partition |
 | `interval_start_utc`, `interval_end_utc`, `ingested_at_utc` | Airflow window 재현성과 감사 추적 |
 
@@ -159,19 +159,19 @@ DAG run conf의 `window_start`, `window_end`를 지정하면 같은 callable로 
 
 | 환경변수 | 목적 | 기본값 또는 정책 |
 |---|---|---|
-| `ETH_RPC_URL` | Ethereum JSON-RPC provider URL | `.env`에만 설정합니다. `.env.example`은 비워 둡니다. |
-| `ETH_RPC_AUTH_MODE` | provider 인증 방식 | `none`, `basic`, `bearer` 중 하나입니다. |
-| `ETH_CHAIN_ID` | 기대 chain id | 기본 `1`이며 provider `eth_chainId`와 다르면 실패합니다. |
-| `ETH_LOG_MAX_BLOCK_RANGE` | `eth_getLogs` block chunk 상한 | Alchemy Free 호환을 위해 `10`으로 고정합니다. |
-| `ETH_RPC_TIMEOUT_SECONDS` | HTTP timeout | 기본 `20.0`초입니다. |
-| `ETH_RPC_MAX_RETRIES` | RPC 내부 재시도 횟수 | 기본 `3`입니다. |
-| `ETH_RPC_REQUESTS_PER_SECOND` | 요청 속도 제한 | 기본 `4.0`이며 4 초과는 거부합니다. |
-| `DELTA_LOGS_PATH` | raw Delta `ethereum_logs` 저장 위치 | Docker 기본 `/opt/airflow/data/delta/ethereum_logs`입니다. |
-| `DUCKDB_PATH` | dbt/DuckDB analytics DB 위치 | Docker 기본 `/opt/airflow/data/analytics/ethereum_analytics.duckdb`입니다. |
-| `DBT_PROJECT_DIR`, `DBT_PROFILES_DIR` | dbt project/profile 위치 | Docker 기본 `/opt/airflow/dbt`입니다. |
-| `DBT_USDT_CONTRACT_ADDRESS` | USDT contract filter | 기본 `0xdac17f958d2ee523a2206206994597c13d831ec7`입니다. |
-| `DBT_TETHER_TREASURY_ADDRESS` | Treasury flow 대상 주소 | 기본 `0x5754284f345afc66a98fbb0a0afe71e0f007b949`입니다. |
-| `DBT_USDT_DECIMALS` | USDT 표시 단위 변환 | 기본 `6`입니다. |
+| `ETH_RPC_URL` | Ethereum JSON-RPC provider URL | `.env`에만 설정함 `.env.example`은 비워 둠 |
+| `ETH_RPC_AUTH_MODE` | provider 인증 방식 | `none`, `basic`, `bearer` 중 하나임 |
+| `ETH_CHAIN_ID` | 기대 chain id | 기본 `1`이며 provider `eth_chainId`와 다르면 실패함 |
+| `ETH_LOG_MAX_BLOCK_RANGE` | `eth_getLogs` block chunk 상한 | Alchemy Free 호환을 위해 `10`으로 고정함 |
+| `ETH_RPC_TIMEOUT_SECONDS` | HTTP timeout | 기본 `20.0`초임 |
+| `ETH_RPC_MAX_RETRIES` | RPC 내부 재시도 횟수 | 기본 `3`임 |
+| `ETH_RPC_REQUESTS_PER_SECOND` | 요청 속도 제한 | 기본 `4.0`이며 4 초과는 거부함 |
+| `DELTA_LOGS_PATH` | raw Delta `ethereum_logs` 저장 위치 | Docker 기본 `/opt/airflow/data/delta/ethereum_logs`임 |
+| `DUCKDB_PATH` | dbt/DuckDB analytics DB 위치 | Docker 기본 `/opt/airflow/data/analytics/ethereum_analytics.duckdb`임 |
+| `DBT_PROJECT_DIR`, `DBT_PROFILES_DIR` | dbt project/profile 위치 | Docker 기본 `/opt/airflow/dbt`임 |
+| `DBT_USDT_CONTRACT_ADDRESS` | USDT contract filter | 기본 `0xdac17f958d2ee523a2206206994597c13d831ec7`임 |
+| `DBT_TETHER_TREASURY_ADDRESS` | Treasury flow 대상 주소 | 기본 `0x5754284f345afc66a98fbb0a0afe71e0f007b949`임 |
+| `DBT_USDT_DECIMALS` | USDT 표시 단위 변환 | 기본 `6`임 |
 
 주요 실행 명령:
 

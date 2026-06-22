@@ -22,7 +22,7 @@
 | dbt graph / singular tests | **RECOVERED · VERIFIED** | 최신 fixture dbt build는 `PASS=43`으로 갱신 |
 | Finality observability log | **VERIFIED** | historical runtime log 근거. 현재 source of truth는 validation evidence |
 | Airflow UI served-log 403 | **OPEN** | CLI/local log 우회 가능, UI 영구 보정 미완료 |
-| 제출 archive 위생 | **OPEN · P0** | secret·runtime artifact·target/cache 제외 재점검 필요합니다 |
+| 제출 archive 위생 | **OPEN · P0** | secret·runtime artifact·target/cache 제외 재점검 필요 |
 
 ---
 
@@ -205,8 +205,8 @@ finalized_block_timestamp_utc < interval_end_utc
 
 | attempt | KST 시작 | 결과 | 수집·Delta·dbt |
 |---|---:|---|---|
-| 1 | 11:00:01 | finality 미도달 | 실행하지 않았습니다 |
-| 2 | 11:09:58 | finality 미도달 | 실행하지 않았습니다 |
+| 1 | 11:00:01 | finality 미도달 | 실행하지 않음 |
+| 2 | 11:09:58 | finality 미도달 | 실행하지 않음 |
 | 3 | 11:29:19 | finality 통과 | 실행 및 성공 |
 
 ### attempt 3 결과
@@ -244,7 +244,7 @@ max(block_timestamp_utc)=2026-06-21 01:59:59 UTC
 | replay | 동일 `[2026-06-20 20:00, 21:00)` | insert 0 / duplicate skip 228,965 / dbt rc 0 / SUCCESS |
 | scheduled | `[2026-06-20 23:00, 2026-06-21 00:00)` | raw 134,475 / invalid 0 / inserted 134,475 / dbt rc 0 / SUCCESS |
 | finality retry case | `[2026-06-21 01:00, 02:00)` | retry 2회 후 raw 105,719 / dbt rc 0 / SUCCESS |
-| dbt-only catch-up | `[2026-06-21 18:00, 19:00)` | dbt `PASS=34 / ERROR=0`; raw result metric은 이 실행 로그에 없습니다. |
+| dbt-only catch-up | `[2026-06-21 18:00, 19:00)` | dbt `PASS=34 / ERROR=0`; raw result metric은 이 실행 로그에 없음 |
 
 ---
 
@@ -298,12 +298,12 @@ docker compose exec airflow-scheduler python -c "from deltalake import DeltaTabl
 
 | 항목 | 상태 | 근거 또는 미완료 사유 |
 |---|---|---|
-| dbt-only catch-up 대상 interval metric 보강 | PARTIALLY VERIFIED | 최신 Airflow successful scheduled run과 Delta/DuckDB row count는 확인했습니다. 특정 `[18:00,19:00)` UTC catch-up interval만 별도 조회하지는 않았습니다. |
-| 다음 Airflow scheduled/manual run 성공 확인 | VERIFIED | `airflow/logs/`에서 최신 successful scheduled run `row_count_after=6082932`, `dbt.returncode=0`을 확인했습니다. |
-| Airflow UI served-log 403 영구 보정 | NOT VERIFIED | UI log serving 설정 보정은 현재 제출 core 기능이 아니며 수행하지 않았습니다. |
-| `ETH_AIRFLOW_ENABLE_HOURLY_SCHEDULE` 정리 | PARTIALLY VERIFIED | active DAG는 `schedule='@hourly'`입니다. historical env flag cleanup은 legacy cleanup 범위로 남깁니다. |
-| dbt/project default path의 v2 통일 | PARTIALLY VERIFIED | v2 실행 증거와 fixture dbt 검증은 확인했습니다. notebook 04는 최신 v2 pair를 선택하지만 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제를 `PARTIALLY VERIFIED`로 판정합니다. |
-| 제출 archive secret/runtime artifact 제외 | PARTIALLY VERIFIED | `.gitignore`, `.env.example`, secret-like scan은 확인했습니다. 실제 archive 생성 직전 `git ls-files` 재확인은 남아 있습니다. |
+| dbt-only catch-up 대상 interval metric 보강 | PARTIALLY VERIFIED | 최신 Airflow successful scheduled run과 Delta/DuckDB row count는 확인함 특정 `[18:00,19:00)` UTC catch-up interval만 별도 조회하지는 않았음 |
+| 다음 Airflow scheduled/manual run 성공 확인 | VERIFIED | `airflow/logs/`에서 최신 successful scheduled run `row_count_after=6082932`, `dbt.returncode=0`을 확인함 |
+| Airflow UI served-log 403 영구 보정 | NOT VERIFIED | UI log serving 설정 보정은 현재 제출 core 기능이 아니며 수행하지 않음 |
+| `ETH_AIRFLOW_ENABLE_HOURLY_SCHEDULE` 정리 | PARTIALLY VERIFIED | active DAG는 `schedule='@hourly'`임 historical env flag cleanup은 legacy cleanup 범위로 남김 |
+| dbt/project default path의 v2 통일 | PARTIALLY VERIFIED | v2 실행 증거와 fixture dbt 검증은 확인함 notebook 04는 최신 v2 pair를 선택하지만 2026-06-22 12:00 UTC hourly gap과 DuckDB staging view 절대경로 문제를 `PARTIALLY VERIFIED`로 판정함 |
+| 제출 archive secret/runtime artifact 제외 | PARTIALLY VERIFIED | `.gitignore`, `.env.example`, secret-like scan은 확인함 실제 archive 생성 직전 `git ls-files` 재확인은 남아 있음 |
 
 ---
 
