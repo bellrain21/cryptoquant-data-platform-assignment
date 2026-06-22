@@ -1,0 +1,19 @@
+# Airflow task runtime dependencies for Ubuntu 24.04 / Python 3.12 Docker execution.
+# 이 파일은 /opt/airflow/python 경로에 설치되는 DAG task 실행용 최소 의존성임.
+# dbt는 protobuf 충돌 방지를 위해 requirements.txt 쪽 /opt/project/python에만 설치함.
+
+# Airflow task가 Ethereum JSON-RPC endpoint를 호출할 때 사용하는 HTTP client.
+# Airflow 2.10.5 constraints와 호환되는 0.27.0으로 고정함.
+httpx==0.27.0
+
+# Airflow task process에서 .env 기반 설정을 보조적으로 읽을 때 사용함.
+python-dotenv==1.2.2
+
+# Delta raw row schema와 columnar write 경계에 사용함.
+pyarrow==21.0.0
+
+# Airflow task 내부에서 Delta Lake raw table을 멱등 적재할 때 사용함.
+deltalake==0.25.5
+
+# Airflow task의 analytics 검증 쿼리와 DuckDB 파일 접근에 사용함.
+duckdb==1.5.4

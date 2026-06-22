@@ -1,0 +1,33 @@
+services:
+  workspace-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      PYTHONPATH: /workspace/src
+      PYTEST_ADDOPTS: "-q -p no:cacheprovider"
+      ETH_RPC_URL: ${ETH_RPC_URL:-}
+      ETH_RPC_AUTH_MODE: ${ETH_RPC_AUTH_MODE:-none}
+      ETH_RPC_USERNAME: ${ETH_RPC_USERNAME:-}
+      ETH_RPC_PASSWORD: ${ETH_RPC_PASSWORD:-}
+      ETH_RPC_BEARER_TOKEN: ${ETH_RPC_BEARER_TOKEN:-}
+      ETH_CHAIN_ID: ${ETH_CHAIN_ID:-1}
+      ETH_LOG_MAX_BLOCK_RANGE: ${ETH_LOG_MAX_BLOCK_RANGE:-10}
+      ETH_RPC_TIMEOUT_SECONDS: ${ETH_RPC_TIMEOUT_SECONDS:-20}
+      ETH_RPC_MAX_RETRIES: ${ETH_RPC_MAX_RETRIES:-3}
+      ETH_RPC_REQUESTS_PER_SECOND: ${ETH_RPC_REQUESTS_PER_SECOND:-4}
+      ETH_RPC_CONCURRENCY: ${ETH_RPC_CONCURRENCY:-1}
+      DELTA_LOGS_PATH: ${DELTA_LOGS_PATH:-/workspace/data/delta/ethereum_logs}
+      DUCKDB_PATH: ${DUCKDB_PATH:-/workspace/data/analytics/ethereum_analytics.duckdb}
+      DUCKDB_EXTENSION_DIR: ${DUCKDB_EXTENSION_DIR:-/workspace/data/duckdb_extensions}
+      DBT_PROJECT_DIR: ${DBT_PROJECT_DIR:-/workspace/dbt}
+      DBT_PROFILES_DIR: ${DBT_PROFILES_DIR:-/workspace/dbt}
+      DBT_BIN: ${DBT_BIN:-/opt/project/python/bin/dbt}
+      DBT_USDT_CONTRACT_ADDRESS: ${DBT_USDT_CONTRACT_ADDRESS:-0xdac17f958d2ee523a2206206994597c13d831ec7}
+      DBT_TETHER_TREASURY_ADDRESS: ${DBT_TETHER_TREASURY_ADDRESS:-0x5754284f345afc66a98fbb0a0afe71e0f007b949}
+      DBT_USDT_DECIMALS: ${DBT_USDT_DECIMALS:-6}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: /bin/bash -lc "while sleep 1000; do :; done"

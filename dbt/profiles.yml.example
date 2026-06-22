@@ -1,0 +1,14 @@
+ethereum_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('DUCKDB_PATH', '/opt/airflow/data/analytics/ethereum_analytics.duckdb') }}"
+      threads: 4
+      config_options:
+        extension_directory: "{{ env_var('DUCKDB_EXTENSION_DIR', '/opt/airflow/data/duckdb_extensions') }}"
+      extensions:
+        - delta
+      settings:
+        autoinstall_known_extensions: true
+        autoload_known_extensions: true

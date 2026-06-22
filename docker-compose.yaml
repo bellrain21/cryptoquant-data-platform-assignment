@@ -1,0 +1,119 @@
+x-airflow-common: &airflow-common
+  build:
+    context: .
+    dockerfile: Dockerfile
+  environment: &airflow-common-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CORE__FERNET_KEY: ""
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__API__AUTH_BACKENDS: airflow.api.auth.backend.basic_auth,airflow.api.auth.backend.session
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
+    PYTHONPATH: /opt/airflow/src
+    ETH_RPC_URL: ${ETH_RPC_URL:-}
+    ETH_RPC_AUTH_MODE: ${ETH_RPC_AUTH_MODE:-none}
+    ETH_RPC_USERNAME: ${ETH_RPC_USERNAME:-}
+    ETH_RPC_PASSWORD: ${ETH_RPC_PASSWORD:-}
+    ETH_RPC_BEARER_TOKEN: ${ETH_RPC_BEARER_TOKEN:-}
+    ETH_CHAIN_ID: ${ETH_CHAIN_ID:-1}
+    ETH_LOG_MAX_BLOCK_RANGE: ${ETH_LOG_MAX_BLOCK_RANGE:-10}
+    ETH_RPC_TIMEOUT_SECONDS: ${ETH_RPC_TIMEOUT_SECONDS:-20}
+    ETH_RPC_MAX_RETRIES: ${ETH_RPC_MAX_RETRIES:-3}
+    ETH_RPC_REQUESTS_PER_SECOND: ${ETH_RPC_REQUESTS_PER_SECOND:-4}
+    ETH_RPC_CONCURRENCY: ${ETH_RPC_CONCURRENCY:-1}
+    ETH_AIRFLOW_ENABLE_HOURLY_SCHEDULE: ${ETH_AIRFLOW_ENABLE_HOURLY_SCHEDULE:-false}
+    ETH_AIRFLOW_MANUAL_RUN_MODE: ${ETH_AIRFLOW_MANUAL_RUN_MODE:-recent_finalized}
+    ETH_AIRFLOW_RECENT_WINDOW_SECONDS: ${ETH_AIRFLOW_RECENT_WINDOW_SECONDS:-120}
+    ETH_AIRFLOW_RECENT_FINALIZED_LAG_SECONDS: ${ETH_AIRFLOW_RECENT_FINALIZED_LAG_SECONDS:-0}
+    DELTA_LOGS_PATH: ${DELTA_LOGS_PATH:-/opt/airflow/data/delta/ethereum_logs}
+    DUCKDB_PATH: ${DUCKDB_PATH:-/opt/airflow/data/analytics/ethereum_analytics.duckdb}
+    DUCKDB_EXTENSION_DIR: ${DUCKDB_EXTENSION_DIR:-/opt/airflow/data/duckdb_extensions}
+    DBT_PROJECT_DIR: ${DBT_PROJECT_DIR:-/opt/airflow/dbt}
+    DBT_PROFILES_DIR: ${DBT_PROFILES_DIR:-/opt/airflow/dbt}
+    DBT_BIN: ${DBT_BIN:-/opt/project/python/bin/dbt}
+    DBT_USDT_CONTRACT_ADDRESS: ${DBT_USDT_CONTRACT_ADDRESS:-0xdac17f958d2ee523a2206206994597c13d831ec7}
+    DBT_TETHER_TREASURY_ADDRESS: ${DBT_TETHER_TREASURY_ADDRESS:-0x5754284f345afc66a98fbb0a0afe71e0f007b949}
+    DBT_USDT_DECIMALS: ${DBT_USDT_DECIMALS:-6}
+    LOG_LEVEL: ${LOG_LEVEL:-INFO}
+  volumes:
+    - ./airflow/dags:/opt/airflow/dags
+    - ./airflow/logs:/opt/airflow/logs
+    - ./src:/opt/airflow/src
+    - ./dbt:/opt/airflow/dbt
+    - ./data:/opt/airflow/data
+    - ./tests:/opt/airflow/tests
+  user: "${AIRFLOW_UID:-50000}:0"
+  depends_on: &airflow-common-depends-on
+    postgres:
+      condition: service_healthy
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+
+  airflow-init:
+    <<: *airflow-common
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        mkdir -p /opt/airflow/logs /opt/airflow/data/delta /opt/airflow/data/analytics /opt/airflow/data/tmp
+        airflow db migrate
+        airflow users create \
+          --username "$${AIRFLOW_ADMIN_USERNAME:-airflow}" \
+          --firstname Local \
+          --lastname Admin \
+          --role Admin \
+          --email airflow@example.com \
+          --password "$${AIRFLOW_ADMIN_PASSWORD:-airflow}" || true
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_MIGRATE: "true"
+
+  airflow-webserver:
+    <<: *airflow-common
+    command: airflow webserver
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: airflow scheduler
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+volumes:
+  postgres-db-volume:

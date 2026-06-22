@@ -1,0 +1,138 @@
+version: 2
+
+models:
+  - name: ethereum_logs
+    description: >
+      Delta Lake의 canonical raw ethereum_logs를 DuckDB delta_scan으로 노출하는 staging view.
+      raw grain은 chain_id + transaction_hash + log_index이며, uint256 원본 hex와
+      Python normalizer가 만든 exact decimal text/status를 함께 보존한다.
+    columns:
+      - name: chain_id
+        description: "Ethereum chain id. 현재 파이프라인은 Ethereum Mainnet(1)만 지원한다."
+        tests:
+          - not_null
+      - name: transaction_hash
+        description: "RPC log의 transaction hash. raw natural key 구성 요소다."
+        tests:
+          - not_null
+      - name: log_index
+        description: "동일 transaction 내부 log 순번. raw natural key 구성 요소다."
+        tests:
+          - not_null
+      - name: data_raw
+        description: "RPC가 반환한 ABI data 원본 hex 정본."
+        tests:
+          - not_null
+      - name: data_uint256_decode_status
+        description: >
+          data_raw의 uint256 word 해석 상태.
+          DECIMAL38_AVAILABLE / OUTSIDE_DECIMAL38_RANGE / NOT_UINT256_WORD 중 하나.
+        tests:
+          - not_null
+
+  - name: erc20_transfers
+    description: >
+      ERC-20 Transfer ABI shape(topic1/topic2 address, topic3 없음, uint256 data word)를
+      만족하는 raw event를 decoding한 incremental silver model.
+      일반 ERC-20의 uint256 전체값은 raw_amount_decimal_text로 정확 보존하며,
+      DECIMAL(38,0) 파생값은 범위 안일 때만 존재한다.
+    columns:
+      - name: transaction_hash
+        description: "silver natural key 구성 요소."
+        tests:
+          - not_null
+      - name: log_index
+        description: "silver natural key 구성 요소."
+        tests:
+          - not_null
+      - name: contract_address
+        description: "Transfer event를 발행한 token contract address."
+        tests:
+          - not_null
+      - name: from_address
+        description: "topic1에서 decoding한 sender address."
+        tests:
+          - not_null
+      - name: to_address
+        description: "topic2에서 decoding한 receiver address."
+        tests:
+          - not_null
+      - name: data_raw
+        description: "원본 ABI uint256 data hex."
+        tests:
+          - not_null
+      - name: raw_amount_decimal_text
+        description: "Python arbitrary-precision int로 만든 손실 없는 uint256 10진 문자열."
+        tests:
+          - not_null
+      - name: amount_numeric_status
+        description: "DECIMAL(38,0) 파생 가능 여부."
+        tests:
+          - not_null
+
+  - name: tether_treasury_flow
+    description: >
+      configured Ethereum Mainnet USDT contract 및 Tether Treasury address를 기준으로
+      hour/direction grain에서 집계한 incremental gold model.
+    columns:
+      - name: chain_id
+        tests:
+          - not_null
+      - name: contract_address
+        tests:
+          - not_null
+      - name: treasury_address
+        tests:
+          - not_null
+      - name: hour_start_utc
+        tests:
+          - not_null
+      - name: direction
+        tests:
+          - not_null
+      - name: transfer_count
+        tests:
+          - not_null
+      - name: total_amount_raw
+        tests:
+          - not_null
+      - name: total_amount_usdt
+        tests:
+          - not_null
+      - name: source_interval_start_utc
+        tests:
+          - not_null
+
+  - name: tether_treasury_flow_quality_summary
+    description: >
+      tether_treasury_flow를 ref()로 읽어 Airflow/dbt window 단위의 Treasury flow
+      품질 요약을 1행 view로 노출한다. 신규 dbt 모델이 tag:ethereum_hourly selector와
+      ref graph만으로 DAG 수정 없이 실행 대상에 편입되는지 검증하는 의미 있는 mart다.
+    columns:
+      - name: window_start_utc
+        tests:
+          - not_null
+      - name: window_end_utc
+        tests:
+          - not_null
+      - name: flow_row_count
+        tests:
+          - not_null
+      - name: transfer_count
+        tests:
+          - not_null
+      - name: direction_count
+        tests:
+          - not_null
+      - name: total_inflow_raw
+        tests:
+          - not_null
+      - name: total_outflow_raw
+        tests:
+          - not_null
+      - name: total_inflow_usdt
+        tests:
+          - not_null
+      - name: total_outflow_usdt
+        tests:
+          - not_null

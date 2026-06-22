@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: delta_raw
+    description: "Local Delta Lake raw tables exposed to DuckDB through delta_scan in staging models."
+    tables:
+      - name: ethereum_logs
+        description: "Raw Ethereum event logs returned by the configured Transfer-topic, all-addresses collection scope."
+        columns:
+          - name: chain_id
+            description: "Ethereum chain id. Mainnet is 1."
+          - name: transaction_hash
+            description: "Transaction hash from the RPC log payload."
+          - name: log_index
+            description: "Log index within the transaction. Part of the raw natural key."

@@ -1,0 +1,25 @@
+name: ethereum_analytics
+version: "1.0.0"
+config-version: 2
+
+profile: ethereum_analytics
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+
+clean-targets:
+  - target
+  - dbt_packages
+
+vars:
+  delta_logs_path: "{{ env_var('DELTA_LOGS_PATH', '/opt/airflow/data/delta/ethereum_logs') }}"
+  usdt_contract_address: "{{ env_var('DBT_USDT_CONTRACT_ADDRESS', '0xdac17f958d2ee523a2206206994597c13d831ec7') }}"
+  tether_treasury_address: "{{ env_var('DBT_TETHER_TREASURY_ADDRESS', '0x5754284f345afc66a98fbb0a0afe71e0f007b949') }}"
+  usdt_decimals: "{{ env_var('DBT_USDT_DECIMALS', '6') | int }}"
+  window_start: "1970-01-01T00:00:00Z"
+  window_end: "1970-01-01T01:00:00Z"
+
+models:
+  ethereum_analytics:
+    +tags: ["ethereum_hourly"]

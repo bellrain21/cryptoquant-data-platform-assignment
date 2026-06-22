@@ -1,0 +1,28 @@
+[project]
+name = "cryptoquant-data-platform-assignment"
+version = "0.1.0"
+description = "CryptoQuant data platform assignment implementation and documentation."
+requires-python = ">=3.12,<3.13"
+readme = "README.md"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+extend-exclude = ["*.ipynb"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.ruff.lint.per-file-ignores]
+"airflow/dags/*.py" = ["E402"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
