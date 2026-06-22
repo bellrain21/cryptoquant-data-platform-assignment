@@ -29,11 +29,13 @@ to_address_filter=null
 
 아래 schema는 현재 Python writer 계약입니다. `src/cryptoquant_pipeline/delta_writer.py`의 `ethereum_logs_schema()`가 정본입니다.
 
-2026-06-22에 리팩토링한 `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`는 기본 로컬
-`data/delta/ethereum_logs`를 stale candidate로 표시하고, 최신 schema와 downstream row count가 확인되는
+2026-06-22에 리팩토링한 `src/notebooks/04_accumulated_pipeline_data_freshness_validation.ipynb`는 기본 로컬`data/delta/ethereum_logs`를 stale candidate로 표시하고, 최신 schema와 downstream row count가 확인되는
 `data/delta/ethereum_logs_v2` pair를 선택합니다.
+
 latest direct inspection 기준 `ethereum_logs_v2`는 최신 계약 컬럼, row count `6848937`, duplicate natural key count `0`을 확인했습니다.
+
 따라서 schema 구현과 `ethereum_logs_v2` 실행 산출물은 raw contract 관점에서 `VERIFIED`로 보고, 2026-06-22 12:00 UTC hourly gap과
+
 DuckDB staging view 절대경로 이식성은 notebook 04에서 `PARTIALLY VERIFIED`로 분리합니다.
 
 | column | type | nullable | rule |
