@@ -199,13 +199,15 @@ docker compose -f docker-compose.yaml -f .devcontainer/docker-compose.devcontain
 ```
 
 `src/notebooks/`는 제출 실행 경로를 대체하지 않는 검증 보조 자료입니다.
+
 `03_fixture_etl_replay_idempotency_validation.ipynb`는 fixture 기반 Python source,
 ERC-20 decode, Delta idempotency 흐름을 실행해 저장한 노트북입니다.
+
 `04_accumulated_pipeline_data_freshness_validation.ipynb`는 로컬 Delta/DuckDB 후보를
-먼저 인벤토리화하고, 최신 v2 pair를 선택해 DB 추출 결과와 시간대별 적재 추이를
-pandas DataFrame으로 표시합니다. 현재 실행 결과는 raw 6,848,937건과 중복 0건을 확인했지만, 2026-06-22
-12:00 UTC 구간 gap과 DuckDB staging view 절대경로 문제를 `PARTIALLY VERIFIED`로
-표시합니다.
+먼저 인벤토리화하고, 최신 v2 pair를 선택해 DB 추출 결과와 시간대별 적재 추이를 pandas DataFrame으로 표시합니다. 
+
+현재 실행 결과는 raw 6,848,937건과 중복 0건을 확인했지만, 2026-06-22 12:00 UTC 구간 gap과 DuckDB staging view 절대경로 문제를 `PARTIALLY VERIFIED`로 표시합니다.
+
 재현 검증은 위 Docker, pytest, fixture dbt 명령과
 [Validation evidence(검증 증거)](./docs/05_validation_evidence.md)를 기준으로 판단합니다.
 
