@@ -203,18 +203,29 @@ correctness, 현재 Git working tree와의 완전한 일치, 외부 RPC provider
 ### Screenshot preview
 
 ![Airflow DAG home](../data/imgs/task_02_01_image.png)
- - Airflow DAG 등록 및 현재(21일 기준) 스케줄 상태
+
+> **Airflow DAG 등록 및 스케줄 상태**  
+> `ethereum_hourly_logs` DAG의 활성 상태, `@hourly` 스케줄, 태그, run 집계, 최근 및 다음 실행 시각을 보여줌.
+
 ![Airflow DAG grid](../data/imgs/task_02_02_image.png)
- - Airflow DAG Grid 실행 이력 및 재실행 결과
+
+> **Airflow DAG Grid 실행 이력 및 run 집계**  
+> 시간축 기준 실행 기간, task duration, 성공·실패 run 분포와 전체 집계를 보여줌.
 
 ![Airflow failed task instances](../data/imgs/task_02_03_image.png)
- - 프로세스 실패 로그 
-   
+
+> **Airflow Failed Task Instance 이력**  
+> 실패한 `run_interval` task instance와 해당 run 식별자, logical date를 보여줌. 개별 예외 원인은 task log에서 별도 확인함.
+
 ![Airflow success dag runs](../data/imgs/task_02_04_image.png)
- - 프로세스 성공 로그  
+
+> **Airflow Successful DAG Run 이력**  
+> 성공 처리된 `ethereum_hourly_logs` DAG run 목록과 scheduled execution 이력을 보여줌.
 
 ![Airflow DAG home Latest Snapshot](../data/imgs/task_02_05_image.png)
- - 제출 시간외에 보조 증거
+
+> **제출 이후 최신 Airflow DAG 상태 보조 스냅샷**  
+> 제출 시점의 직접 증거와 분리된 후속 운영 화면임. 최신 DAG 활성 상태, `@hourly` 스케줄, 누적 run 집계를 참고용으로 제시함.
 
 ### 판정
 
