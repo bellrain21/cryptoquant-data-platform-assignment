@@ -239,7 +239,7 @@ AI 제안은 그대로 반영하지 않았습니다.
 
 ### 공통 안내
 
-- [ ] Private GitHub Repository 생성 및 최신 코드 반영이 완료되었습니다.
+- [x] Private GitHub Repository 생성 및 최신 코드 반영이 완료되었습니다.
   - 확인 기준: 최종 main 커밋과 remote push 후 Git metadata로 확인합니다. 이 항목은 로컬 문서만으로 완료 처리하지 않습니다.
   - 확인 기준: 최종 main 커밋과 remote push 후 `origin/main` metadata로 확인합니다.
 - [x] `dev@cryptoquant.com` Collaborator 초대를 완료했습니다.
@@ -319,7 +319,7 @@ AI 제안은 그대로 반영하지 않았습니다.
 
 ## 제출 제외 자료
 
-파인만식 용어 사전, 개인 학습 지도, 면접 답안집, AI 도구 세션 전문, 장황한 decision log는 제출 저장소에 포함하지 않습니다. 필요한 개인 복기 자료는 최종 응답의 private note로만 분리합니다.
+파인만식 용어 사전, 개인 학습 지도, 장황한 decision log는 제출 저장소에 포함하지 않습니다. 필요한 개인 복기 자료는 최종 응답의 private note로만 분리합니다.
 
 ## 보안 기준
 
