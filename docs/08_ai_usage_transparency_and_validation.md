@@ -54,12 +54,15 @@ AI 출력은 구현 사실이나 검증 결과로 간주하지 않았습니다.
 ## 검증 방식
 
 AI 제안은 그대로 반영하지 않았습니다.
+
 각 제안은 실제 코드 구조, 테스트, 정적 검증, 공식 문서 기준 또는 수동 리뷰 중 하나 이상으로 확인한 뒤 반영했습니다.
 
 검증 증거는 `docs/05_validation_evidence.md`, `docs/10_refactoring_report.md`, `docs/11_documentation_consistency_report.md`,
 `docs/09_requirement_traceability_matrix.md`에 분산되어 있습니다.
+
 외부 RPC 환경 검증은 Airflow task log, Airflow UI screenshot, Delta/DuckDB 산출물, 노트북 output을 대조해 반영했습니다.
-다만 이 검증은 로컬 Docker 실행 이력 기준이며, production hardening이나 provider 장기 SLA를 의미하지 않습니다.
+
+다만, 이 검증은 로컬 Docker 실행 이력 기준이며, production hardening이나 provider 장기 SLA를 의미하지 않습니다.
 
 | 검증 범위 | 사용한 근거 | 상태 |
 |---|---|---|
@@ -76,6 +79,7 @@ AI 제안은 그대로 반영하지 않았습니다.
 ## 대표 프롬프트 원문형 요약
 
 아래 프롬프트는 전체 대화 로그가 아니라 검토 시 AI 활용 범위를 이해하는 데 필요한 대표 입력만 짧게 정리한 것입니다.
+
 개인 메모, 반복 지시, 중간 시행착오 전문은 제출 문서에 포함하지 않습니다.
 
 | 순서 | 대표 프롬프트 | 사용 목적 | 반영 전 검증 |
