@@ -137,13 +137,23 @@ Copy-Item .env.example .env
 notepad .env
 ```
 
-`ETH_RPC_URL`은 `.env`에만 설정합니다. 실제 Provider URL(제공자 URL) 또는 API keys(API 키)를 커밋하지 않습니다.
-`.env.example`은 실제 endpoint를 제공하지 않습니다. 복사 후 `ETH_RPC_URL`을 비워 둔 상태 또는 예시 placeholder 상태에서는 실제 DAG 실행이 실패해야 정상입니다.
+`ETH_RPC_URL`은 `.env`에만 설정합니다. 
+  실제 Provider URL(제공자 URL) 또는 API keys(API 키)를 커밋하지 않습니다.
+
+`.env.example`은 실제 endpoint를 제공하지 않습니다. 
+  복사 후 `ETH_RPC_URL`을 비워 둔 상태 또는 예시 placeholder 상태에서는 실제 DAG 실행이 실패해야 정상입니다.
+
 `ethereum_hourly_logs`는 `@hourly` schedule을 갖고, 생성 시 pause 상태로 둡니다.
+
 `.env.example` 기준 UI manual trigger는 `data_interval` mode로 Airflow logical interval을 실행합니다.
+
 개발 중 provider 연결만 빠르게 확인할 때만 `ETH_AIRFLOW_MANUAL_RUN_MODE=recent_finalized`를 opt-in으로 사용합니다.
+
 DAG run conf의 `window_start`, `window_end`를 지정하면 같은 callable로 임의 UTC interval을 실행합니다.
-현재 Chainstack Basic endpoint처럼 1시간 interval의 block metadata 조회가 막히는 provider에서는 해당 구간 run이 실패해야 정상이며, scope를 USDT-only로 줄여 성공 처리하지 않습니다.
+
+현재 Chainstack Basic endpoint처럼 1시간 interval의 block metadata 조회가 막히는 provider에서는 
+
+해당 구간 run이 실패해야 정상이며, scope를 USDT-only로 줄여 성공 처리하지 않습니다.
 
 주요 환경변수는 다음과 같습니다.
 
