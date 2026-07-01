@@ -1,6 +1,6 @@
 # CryptoQuant Data Platform Assignment(데이터 플랫폼 과제)
 
-CryptoQuant Data Platform Engineer(데이터 플랫폼 엔지니어) 사전과제 제출용 저장소입니다.
+CryptoQuant Data Platform Engineer(데이터 플랫폼 엔지니어) 제출용 저장소입니다.
 실행 코드, 설계 근거, 검증 증거, AI 활용 및 인간 검증 요약을 과제 제출 범위에 맞춰 보관합니다.
 
 ## 과제 범위
